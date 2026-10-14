@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// Estructura:
+//   businesses/{businessId}/public/...     logo, banner, ícono propio del sello (sube el dueño)
+//   businesses/{businessId}/generated/...  imágenes de sellos por estado (solo Functions)
+// Ambas carpetas son de lectura pública: Google y Apple Wallet necesitan bajar las imágenes por URL.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function ownsBusiness(businessId) {
+      return request.auth != null
+        && firestore.get(/databases/(default)/documents/businesses/$(businessId)).data.ownerUid == request.auth.uid;
+    }
+
+    match /businesses/{businessId}/public/{path=**} {
+      allow read: if true;
+      allow write: if ownsBusiness(businessId)
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/(png|jpeg|webp)');
+      allow delete: if ownsBusiness(businessId);
+    }
+
+    match /businesses/{businessId}/generated/{path=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

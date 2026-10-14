@@ -1,0 +1,80 @@
+rules_version = '2';
+
+// Principios (ver SELLITO_SPEC.md §7 y §12):
+// - Un dueño solo ve y edita lo de sus propios negocios.
+// - Lo que define pagos, PIN o Wallets lo escriben solo las Cloud Functions (Admin SDK, ignora estas reglas).
+// - El cliente final y el escáner no tocan Firestore: todo pasa por Functions.
+// - El super admin se identifica por custom claim `superadmin`, nunca por un campo editable.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperadmin() {
+      return signedIn() && request.auth.token.superadmin == true;
+    }
+
+    function ownsBusiness(businessId) {
+      return signedIn()
+        && get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerUid == request.auth.uid;
+    }
+
+    // Campos que el dueño puede escribir desde el panel.
+    function ownerEditableFields() {
+      return ['name', 'slug', 'design', 'rule', 'askFields', 'locations', 'createdAt', 'updatedAt'];
+    }
+
+    function validBusinessData(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 80
+        && (!('locations' in data) || (data.locations is list && data.locations.size() <= 10))
+        && (!('rule' in data) || (data.rule.stampsRequired is int
+              && data.rule.stampsRequired >= 2 && data.rule.stampsRequired <= 20));
+    }
+
+    match /businesses/{businessId} {
+      allow read: if isSuperadmin()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+
+      // `subscription`, `scannerPinHash`, `googleClassId`, `appleTemplateRef` no se aceptan desde el cliente.
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasOnly(ownerEditableFields().concat(['ownerUid']))
+        && validBusinessData(request.resource.data);
+
+      allow update: if signedIn()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(ownerEditableFields())
+        && validBusinessData(request.resource.data);
+
+      allow delete: if false;
+
+      // Tarjetas y log de sellos: el dueño las lee, solo las Functions las escriben.
+      match /cards/{cardId} {
+        allow read: if isSuperadmin() || ownsBusiness(businessId);
+        allow write: if false;
+      }
+
+      match /stamps/{stampId} {
+        allow read: if isSuperadmin() || ownsBusiness(businessId);
+        allow write: if false;
+      }
+    }
+
+    match /users/{uid} {
+      allow read: if isSuperadmin() || (signedIn() && request.auth.uid == uid);
+      allow write: if false;
+    }
+
+    // PassKit web service: solo Functions.
+    match /appleRegistrations/{doc=**} {
+      allow read, write: if false;
+    }
+
+    // Todo lo no listado queda cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
