@@ -141,11 +141,14 @@ export default function Landing() {
           </ol>
         </section>
 
-        <DemoVideo />
+        <div className="dark-band">
+          <DemoVideo />
+        </div>
 
         <DemoCard />
 
         {/* ---------- La lista es tuya ---------- */}
+        <div className="dark-band">
         <section className="section leads">
           <div className="leads-text">
             <p className="eyebrow">Lo más valioso</p>
@@ -177,6 +180,7 @@ export default function Landing() {
             <li><strong>Si dejás de pagar, no se pierde:</strong> la seguís pudiendo descargar. Solo se borra si vos nos lo pedís.</li>
           </ul>
         </section>
+        </div>
 
         {/* ---------- Para cualquier negocio ---------- */}
         <section className="section section-alt">
