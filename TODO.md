@@ -123,9 +123,9 @@
 - [x] Direcciones en variables de entorno (`SITE_URL`, `APP_URL`, `API_URL`); ninguna escrita a mano
 - [x] Links de alta cortos y permanentes: `SITE_URL/c/{código}`
 - [x] `misellito.com.ar` conectado (sitio `sellito-23c14`); `SITE_URL` ya apunta ahí y el QR se puede imprimir
-- [x] `app.misellito.com.ar` agregado en Firebase (mismo sitio) → falta el CNAME en Cloudflare: `app` → `sellito-23c14.web.app`
-- [x] `api.misellito.com.ar` agregado en Firebase (sitio `sellito-api`, rewrites a cada Function en `firebase.json`) → falta el CNAME: `api` → `sellito-api.web.app`
-- [ ] Cuando `api.` responda: `VITE_API_URL` y `API_URL` = `https://api.misellito.com.ar`, sacar `sellito-23c14.web.app` de `DEV_ORIGINS` y desplegar
+- [x] `app.misellito.com.ar` activo (CNAME `app` → `sellito-23c14.web.app`)
+- [x] `api.misellito.com.ar` activo (sitio `sellito-api`, rewrites a cada Function en `firebase.json`)
+- [x] `VITE_API_URL` y `API_URL` = `https://api.misellito.com.ar`; `DEV_ORIGINS` solo localhost (falta desplegar)
 - [ ] Cada Function nueva que llame la web: agregar su rewrite en el sitio `sellito-api` (`firebase.json`)
 - [ ] Ojo: Hosting corta a los 60 s. `resyncCards` con muchas tarjetas puede pasarse: hacerlo en segundo plano
 - [x] Dominios autorizados de Firebase Auth: `misellito.com.ar` y `app.misellito.com.ar`
