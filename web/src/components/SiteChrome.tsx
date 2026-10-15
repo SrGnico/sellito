@@ -38,7 +38,7 @@ export function SiteFooter() {
         <Link to="/terminos">Términos</Link>
       </nav>
       <p className="site-footer-legal">
-        © {YEAR} {APP_NAME} · {RESPONSIBLE.name} · CUIT {RESPONSIBLE.cuit} · Diseñado y desarrollado por{' '}
+        © {YEAR} {APP_NAME} · Diseñado y desarrollado por{' '}
         <a href={STUDIO.url} target="_blank" rel="noopener">{STUDIO.name}</a>
       </p>
     </footer>
