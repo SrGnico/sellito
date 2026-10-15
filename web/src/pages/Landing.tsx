@@ -59,6 +59,8 @@ export default function Landing() {
 
       <main>
         {/* ---------- Encabezado ---------- */}
+        {/* Primera pantalla: encabezado + franja de confianza, justo del alto de la ventana (en computadora). */}
+        <div className="hero-screen">
         <section className="hero">
           <div className="hero-text">
             <p className="eyebrow">Tarjetas de fidelidad digitales</p>
@@ -90,6 +92,7 @@ export default function Landing() {
           </div>
           <TrustPoints className="hide-mobile" />
         </section>
+        </div>
         <div className="hero-below">
           <div className="hero-card" aria-hidden="true">
             <PhoneMockup example={example} />

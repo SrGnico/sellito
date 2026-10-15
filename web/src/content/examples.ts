@@ -36,7 +36,7 @@ export const EXAMPLES: Example[] = [
     itemSingular: 'café',
     itemPlural: 'cafés',
     filled: 7,
-    notice: '¡Te falta 1 café para tu premio! ☕',
+    notice: '¡Te falta 1 café para tu premio!\u00A0☕',
   },
   {
     ...base,
@@ -52,7 +52,7 @@ export const EXAMPLES: Example[] = [
     itemSingular: 'corte',
     itemPlural: 'cortes',
     filled: 3,
-    notice: 'Este jueves, corte + barba con doble sello ✂️',
+    notice: 'Este jueves, corte + barba con doble sello\u00A0✂️',
   },
   {
     ...base,
@@ -68,7 +68,7 @@ export const EXAMPLES: Example[] = [
     itemSingular: 'helado',
     itemPlural: 'helados',
     filled: 10,
-    notice: '¡Completaste tu tarjeta! Pasá a buscar tu cuarto 🍦',
+    notice: '¡Completaste tu tarjeta! Pasá a buscar tu cuarto\u00A0🍦',
   },
   {
     ...base,
@@ -84,7 +84,7 @@ export const EXAMPLES: Example[] = [
     itemSingular: 'pizza',
     itemPlural: 'pizzas',
     filled: 5,
-    notice: 'Estás cerca de Don Tano: te faltan 3 pizzas 🍕',
+    notice: 'Estás cerca de Don Tano: te faltan 3 pizzas\u00A0🍕',
   },
   {
     ...base,
@@ -100,6 +100,6 @@ export const EXAMPLES: Example[] = [
     itemSingular: 'clase',
     itemPlural: 'clases',
     filled: 6,
-    notice: 'Nueva clase de yoga los sábados 10 h 🌸',
+    notice: 'Nueva clase de yoga los sábados 10 h\u00A0🌸',
   },
 ]
