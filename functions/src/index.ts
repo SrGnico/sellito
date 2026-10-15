@@ -9,6 +9,7 @@ setGlobalOptions({ region: "southamerica-east1", maxInstances: 10 });
 
 export { createCard, ensureEnrollCode, getEnrollInfo } from "./cards/enroll";
 export { resyncCards, testSetStamps } from "./cards/sync";
+export { scannerLogin, scannerLookup, scannerSession, scannerStamp, setScannerPin } from "./scanner";
 export { syncGoogleClass } from "./wallet/sync";
 
 // Chequeo de vida para probar el deploy.

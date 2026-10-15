@@ -20,6 +20,7 @@ import EmptyState from '../components/EmptyState'
 import LoadingScreen from '../components/LoadingScreen'
 import Mascot from '../components/Mascot'
 import Onboarding from '../components/Onboarding'
+import ScannerSettings from '../components/ScannerSettings'
 import Spinner from '../components/Spinner'
 import TestCards from '../components/TestCards'
 import { APP_NAME } from '../lib/urls'
@@ -207,6 +208,7 @@ function BusinessHome({ business }: { business: Business }) {
             </Link>
           </div>
           <EnrollQr business={business} />
+          {business.rule && <ScannerSettings business={business} />}
           {import.meta.env.DEV && business.rule && <TestCards business={business} />}
         </div>
       </div>

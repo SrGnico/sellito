@@ -59,15 +59,20 @@
 - [ ] Clientes duplicados: deduplicar por teléfono/mail cuando el negocio los pide
 
 ### 5. Escáner, sellos y canje
-- [ ] PIN del escáner: elegirlo desde el panel y guardarlo hasheado (Function)
-- [ ] PWA `/escaner/{businessId}` con entrada por PIN
-- [ ] `ScannerView`: cámara, lectura del código, botones grandes y vibración
-- [ ] Ingreso manual por los últimos 4 (`codeSuffix`): mostrar el nombre para confirmar; si hay más de una, elegir por nombre
-- [ ] Function: sumar sello (rate limit por tarjeta, log en `stamps`)
-- [ ] Function: canjear premio y reiniciar el contador
-- [ ] Rate limit y bloqueo del PIN ante intentos fallidos
-- [ ] Firebase App Check en la Function del escáner
-- [ ] Actualizar el objeto de Google Wallet en cada sello
+- [x] PIN del escáner desde el panel (4–6 números, hasheado con scrypt); cambiarlo cierra todas las sesiones
+- [x] `APP_URL/escaner/{businessId}`: entra con PIN, la sesión queda guardada en el celular (90 días)
+- [x] Cámara con `qr-scanner` (lector nativo en Android, decodificador propio en iPhone), botones de 56 px, vibración
+- [x] Ingreso manual por los últimos 4; si hay más de una tarjeta, elegir por nombre
+- [x] Sumar sello: un sello cada 5 minutos por tarjeta, con "Sumar igual" si es otra compra (queda marcado `forced` en el log)
+- [x] Canje: al completar la tarjeta, "Canjear premio" con `reward.svg`; el contador vuelve a 0
+- [x] Bloqueo del PIN: 5 intentos fallidos → 15 minutos
+- [x] Log de cada sello/canje en `businesses/{id}/stamps` (quién: sesión del escáner)
+- [x] Actualiza el Wallet después de cada sello o canje
+- [x] Escáner en pausa si la suscripción está `past_due` o `canceled` (se activa con el paso 8)
+- [ ] Probar en el celular del local: PIN → escanear → +1 → canjear
+- [ ] Firebase App Check en las Functions del escáner y del alta
+- [ ] PWA: manifest e ícono para "Agregar a pantalla de inicio" en el escáner
+- [ ] Sacar `testSetStamps` y el panel "Prueba de tarjetas" cuando el escáner esté probado
 
 ### 6. Imágenes de sellos ✅ (adelantado)
 - [x] Imagen por estado (0/N … N/N) con `@resvg/resvg-js` en `businesses/{id}/generated/{huella}/{n}-de-{N}.png`; no se regenera si existe

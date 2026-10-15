@@ -89,6 +89,41 @@
             "functionId": "health",
             "region": "southamerica-east1"
           }
+        },
+        {
+          "source": "/setScannerPin",
+          "function": {
+            "functionId": "setScannerPin",
+            "region": "southamerica-east1"
+          }
+        },
+        {
+          "source": "/scannerLogin",
+          "function": {
+            "functionId": "scannerLogin",
+            "region": "southamerica-east1"
+          }
+        },
+        {
+          "source": "/scannerSession",
+          "function": {
+            "functionId": "scannerSession",
+            "region": "southamerica-east1"
+          }
+        },
+        {
+          "source": "/scannerLookup",
+          "function": {
+            "functionId": "scannerLookup",
+            "region": "southamerica-east1"
+          }
+        },
+        {
+          "source": "/scannerStamp",
+          "function": {
+            "functionId": "scannerStamp",
+            "region": "southamerica-east1"
+          }
         }
       ]
     }

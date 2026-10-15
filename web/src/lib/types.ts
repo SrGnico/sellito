@@ -20,6 +20,7 @@ export type Business = {
   askFields?: { name: boolean; phone: boolean; email: boolean }
   locations?: { lat: number; lng: number; label: string }[]
   enrollCode?: string
+  scannerPinVersion?: number // > 0 si el negocio ya eligió PIN (el hash lo escriben solo las Functions)
   subscription?: { status: SubscriptionStatus; plan?: string; currentPeriodEnd?: Timestamp }
   createdAt?: Timestamp
   updatedAt?: Timestamp

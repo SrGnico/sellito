@@ -104,3 +104,25 @@ main .loading-screen { min-height: 50vh; }
 
 /* En la página de alta la tarjeta ocupa el mismo ancho que el formulario. */
 .enroll-preview .wallet-card { max-width: none; }
+
+/* ---------- Escáner del local (se usa con una mano, de pie: botones de 56 px) ---------- */
+.scanner { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--green); color: var(--cream); }
+.scanner-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: var(--cream); color: var(--text); border-bottom: var(--border-width) solid var(--border); }
+.scanner-header strong { font-family: var(--font-display); font-size: var(--text-lg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scanner-camera { position: relative; flex: 1; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.scanner-camera video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.scanner-frame { position: relative; width: min(64vw, 280px); aspect-ratio: 1; border: 4px solid var(--pink); border-radius: 28px; box-shadow: 0 0 0 100vmax rgba(18, 55, 42, .45); }
+.scanner-hint { position: absolute; bottom: 20px; left: 16px; right: 16px; margin: 0; text-align: center; font-weight: 500; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+.scanner-camera-msg { position: relative; max-width: 320px; padding: 16px; text-align: center; }
+.scanner-bottom { display: flex; flex-direction: column; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--cream); border-top: var(--border-width) solid var(--border); }
+.scanner-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-modal); max-height: 92vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px; padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  background: var(--cream); color: var(--text); border-top: var(--border-width) solid var(--border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: 0 -6px 0 var(--green);
+}
+.scanner-sheet .btn { width: 100%; }
+.scanner-center { display: flex; align-items: center; justify-content: center; gap: 12px; text-align: center; margin: 0; padding: 12px 0; }
+.scanner-big { font-family: var(--font-display); font-weight: 600; font-size: var(--text-4xl); padding: 12px 28px; background: var(--pink); border: var(--border-width) solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); }
+.pin-input { text-align: center; font-size: var(--text-2xl); letter-spacing: .3em; font-family: var(--font-display); }
+@media (min-width: 640px) { .scanner-sheet { width: 480px; margin: 0 auto; } }

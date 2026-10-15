@@ -5,6 +5,7 @@ import { app } from './lib/firebase'
 import Enroll from './pages/Enroll'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
+import Scanner from './pages/Scanner'
 import Panel from './pages/Panel'
 import { APP_NAME } from './lib/urls'
 
@@ -35,7 +36,6 @@ function Home() {
       <div className="card" style={{ gap: 12 }}>
         <Link className="btn btn-primary" to="/login">Login negocio</Link>
         <Link className="btn" to="/panel">Panel</Link>
-                <Link className="btn" to="/escaner/demo">Escáner (demo)</Link>
         <Link className="btn btn-ghost" to="/admin">Super admin</Link>
       </div>
     </main>
@@ -51,7 +51,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/panel/*" element={<RequireAuth><Panel /></RequireAuth>} />
           <Route path="/c/:code" element={<Enroll />} />
-          <Route path="/escaner/:businessId" element={<Placeholder title="Escáner" />} />
+          <Route path="/escaner/:businessId" element={<Scanner />} />
           <Route path="/admin/*" element={<Placeholder title="Super admin" />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

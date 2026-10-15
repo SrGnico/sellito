@@ -16,6 +16,9 @@ export type BusinessDoc = {
   askFields?: { name: boolean; phone: boolean; email: boolean };
   googleClassId?: string;
   enrollCode?: string;
+  scannerPinHash?: string;
+  scannerPinVersion?: number;
+  subscription?: { status?: string };
 };
 
 export type Customer = { name?: string; phone?: string; email?: string };

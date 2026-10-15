@@ -72,6 +72,14 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Sesiones del escáner y bloqueo por PIN incorrecto: solo Functions.
+    match /scannerSessions/{session} {
+      allow read, write: if false;
+    }
+    match /scannerGuards/{businessId} {
+      allow read, write: if false;
+    }
+
     // PassKit web service: solo Functions.
     match /appleRegistrations/{doc=**} {
       allow read, write: if false;
