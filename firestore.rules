@@ -109,7 +109,7 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Mails para la extensión Trigger Email: solo Functions.
+    // Cola de mails (los envía deliverMail con Resend): solo Functions.
     match /mail/{id} {
       allow read, write: if false;
     }

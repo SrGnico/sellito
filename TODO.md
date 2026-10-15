@@ -38,7 +38,7 @@
 - [x] Asistente de primeros pasos (`/panel/configurar`): logo y color → premio → datos → PIN → QR
 - [x] Tests E2E (Playwright): `npm run test:e2e` (públicas) y `npm run test:e2e:full` (alta completa; crea y borra un negocio real)
 - [ ] E2E: sumar un sello desde el escáner (necesita un negocio de prueba con suscripción)
-- [ ] Borrar de Storage las imágenes viejas que ya no se usan
+- [x] Limpieza semanal de Storage (`cleanupStorage`): imágenes subidas sin usar, sellos de diseños viejos y negocios borrados (con 30 días de margen)
 
 ### 4. Alta de cliente + Google Wallet
 - [x] Cuenta de emisor de Google Wallet creada desde Argentina (Issuer ID en `functions/.env`, modo demo)
@@ -65,7 +65,7 @@
 - [x] Afiche A4 con el QR, colores, foto y logo del negocio (`enrollPoster`), en Panel → QR
 - [x] Límite de altas: 10 por hora por IP y 500 por día por negocio (`security/rateLimit.ts`)
 - [x] App Check (reCAPTCHA) en el alta y el escáner
-- [ ] Política TTL de Firestore sobre `rateLimits.expiresAt` para borrar contadores viejos
+- [x] Políticas TTL sobre `expiresAt` en `rateLimits`, `scannerSessions` y `mail`
 - [x] Clientes duplicados: deduplicar por teléfono/mail cuando el negocio los pide
 
 ### 5. Escáner, sellos y canje
@@ -99,7 +99,6 @@
 - [x] URL distinta por diseño (huella) y por estado: Google no muestra versiones viejas
 - [x] Banner de fondo con franja semitransparente para que los sellos se lean
 - [ ] Ícono propio del sello en WebP: verificar que resvg lo dibuje (PNG/JPG andan)
-- [ ] Limpiar imágenes generadas de diseños viejos
 
 ### 7. Apple Wallet ✅ (falta probar en un iPhone)
 - [x] Cuenta Apple Developer (personal), Pass Type ID `pass.ar.com.misellito.tarjeta`, Team ID en `functions/.env`
@@ -126,7 +125,8 @@
 - [x] `config/plans`: Mensual $25.000, sin prueba gratis
 - [x] Secretos `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` cargados y Functions desplegadas
 - [x] En Mercado Pago: webhook a `API_URL/mpWebhook` con los eventos de suscripciones (preapproval y authorized_payment)
-- [ ] Instalar la extensión "Trigger Email from Firestore" (colección `mail`) con SMTP (Resend) y remitente `avisos@misellito.com.ar`
+- [x] Mails a dueños con Resend (`deliverMail`, sin extensión): bienvenida, suscripción activa, cobro fallido, gracia por vencer, vencida, archivo
+- [ ] Resend: verificar `misellito.com.ar` (DNS en Cloudflare), crear la API key y `firebase functions:secrets:set RESEND_API_KEY`; después desplegar functions
 - [x] Probado el alta con usuarios de prueba de MP
 - [ ] Probar cobro rechazado → gracia → bloqueo → reactivar
 - [x] El dueño confirma el mail de su cuenta de MP antes de pagar (prueba: `test_user_<USER_ID>@testuser.com`)

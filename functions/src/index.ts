@@ -23,3 +23,5 @@ export { syncGoogleClass } from "./wallet/sync";
 export const health = onRequest((_req, res) => {
   res.json({ ok: true, service: "sellito-functions" });
 });
+export { deliverMail, welcomeMail } from "./mail";
+export { cleanupStorage } from "./cleanup";

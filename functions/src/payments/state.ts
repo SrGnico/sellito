@@ -56,6 +56,14 @@ export async function markActive(businessId: string, p: Preapproval): Promise<vo
     return stripUndefined(next);
   });
   if (res) logger.info("Suscripción al día", { businessId, preapproval: p.id });
+  // Confirmación solo al pasar a activa (primer pago o reactivación), no en cada renovación.
+  if (res && res.b.subscription?.status !== "active") {
+    try {
+      await sendMail(res.b.ownerUid, "activated", { businessName: res.b.name });
+    } catch (err) {
+      logger.error("No se pudo encolar la confirmación de la suscripción", { businessId, err });
+    }
+  }
   // La suscripción anterior (la del cobro que falló) se da de baja para que no cobre dos veces.
   if (oldPreapproval) {
     try {

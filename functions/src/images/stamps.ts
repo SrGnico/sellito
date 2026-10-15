@@ -57,7 +57,7 @@ export function designOf(b: BusinessDoc): StampDesign {
 }
 
 // Huella del diseño: si cambia algo, cambian las URLs y Google no muestra una imagen vieja de su caché.
-function fingerprint(d: StampDesign): string {
+export function fingerprint(d: StampDesign): string {
   // v4: firma "Creada con {APP_NAME}" centrada abajo, mascota en contorno.
   return createHash("sha1").update(JSON.stringify({ v: 4, brand: APP_NAME.value(), ...d })).digest("hex").slice(0, 12);
 }
