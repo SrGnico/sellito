@@ -29,7 +29,14 @@
 - [x] Deshacer/rehacer, descartar cambios y volver al color guardado
 - [x] Permiso IAM para que storage.rules lea Firestore
 - [x] Ubicaciones (hasta 10) con buscador de direcciones (ver 5b)
-- [ ] Stepper de alta del negocio (1 diseño, 2 regla, 3 pago)
+- [x] Botones oficiales de Apple Wallet (ESMX) y Google Wallet (es419) en el alta
+- [x] Alta en computadora: elegir iPhone o Android y QR para abrirla en el celular
+- [x] Condiciones del sello (texto libre, se muestra en el alta y al dorso de la tarjeta)
+- [x] Avisos desde el panel (Panel → Avisos): uno por día, solo a quienes aceptaron novedades
+- [x] Página `/soporte`
+- [x] Política sin datos personales a la vista (se informan a pedido)
+- [ ] Stepper de alta del negocio (1 diseño, 2 regla, 3 pago) → asistente de primeros pasos
+- [ ] Tests E2E (Playwright): landing, tarjeta de prueba, alta, diseño, PIN, sello
 - [ ] Borrar de Storage las imágenes viejas que ya no se usan
 
 ### 4. Alta de cliente + Google Wallet
@@ -53,12 +60,12 @@
 - [x] Al cambiar diseño o regla se actualizan la clase y todas las tarjetas (`syncGoogleClass` → `resyncBusinessCards`)
 - [x] Prueba: las tarjetas viejas se migraron y un +1 actualizó imagen y contador en el Wallet sin volver a agregarla
 - [x] Borrada la tarjeta "Prueba (Claude)"
-- [ ] Botón oficial "Add to Google Wallet" (guía de marca de Google)
+- [x] Botón oficial "Add to Google Wallet" (guía de marca de Google)
 - [x] Afiche A4 con el QR, colores, foto y logo del negocio (`enrollPoster`), en Panel → QR
 - [x] Límite de altas: 10 por hora por IP y 500 por día por negocio (`security/rateLimit.ts`)
-- [ ] App Check (reCAPTCHA) en el alta y el escáner
+- [x] App Check (reCAPTCHA) en el alta y el escáner
 - [ ] Política TTL de Firestore sobre `rateLimits.expiresAt` para borrar contadores viejos
-- [ ] Clientes duplicados: deduplicar por teléfono/mail cuando el negocio los pide
+- [x] Clientes duplicados: deduplicar por teléfono/mail cuando el negocio los pide
 
 ### 5. Escáner, sellos y canje
 - [x] PIN del escáner desde el panel (4–6 números, hasheado con scrypt); cambiarlo cierra todas las sesiones
@@ -72,7 +79,7 @@
 - [x] Actualiza el Wallet después de cada sello o canje
 - [x] Escáner en pausa si la suscripción está `past_due` o `canceled` (se activa con el paso 8)
 - [x] Probado en el celular del local: PIN → escanear → +1 → canjear
-- [ ] Firebase App Check en las Functions del escáner y del alta
+- [x] Firebase App Check en las Functions del escáner y del alta
 - [x] PWA: manifest e ícono para "Agregar a pantalla de inicio" en el escáner; cámara a pedido
 - [x] Sacados `testSetStamps` y el panel "Prueba de tarjetas"
 
@@ -117,7 +124,7 @@
 - [x] Precios en `config/plans` (se copian a la suscripción: cambiar el precio no toca las existentes)
 - [x] `config/plans`: Mensual $25.000, sin prueba gratis
 - [x] Secretos `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` cargados y Functions desplegadas
-- [ ] En Mercado Pago: webhook a `API_URL/mpWebhook` con los eventos de suscripciones (preapproval y authorized_payment)
+- [x] En Mercado Pago: webhook a `API_URL/mpWebhook` con los eventos de suscripciones (preapproval y authorized_payment)
 - [ ] Instalar la extensión "Trigger Email from Firestore" (colección `mail`) con SMTP (Resend) y remitente `avisos@misellito.com.ar`
 - [x] Probado el alta con usuarios de prueba de MP
 - [ ] Probar cobro rechazado → gracia → bloqueo → reactivar
@@ -140,8 +147,8 @@
 ### Antes de lanzar
 - [ ] CNAME `www` → `sellito-23c14.web.app` en Cloudflare (Firebase ya redirige www → misellito.com.ar)
 - [ ] Dar de alta el sitio en Google Search Console (verificación por DNS)
-- [ ] Mercado Pago en producción: credenciales de producción (no de prueba), webhook de la app de producción y volver a cargar `MP_ACCESS_TOKEN` / `MP_WEBHOOK_SECRET`
-- [ ] Crear y verificar `hola@misellito.com.ar` (Cloudflare Email Routing → Gmail); se usa en la landing y la política de privacidad
+- [x] Mercado Pago en producción: credenciales de producción (no de prueba), webhook de la app de producción y volver a cargar `MP_ACCESS_TOKEN` / `MP_WEBHOOK_SECRET`
+- [x] Crear y verificar `hola@misellito.com.ar` (Cloudflare Email Routing → Gmail); se usa en la landing y la política de privacidad
 - [x] Direcciones en variables de entorno (`SITE_URL`, `APP_URL`, `API_URL`); ninguna escrita a mano
 - [x] Links de alta cortos y permanentes: `SITE_URL/c/{código}`
 - [x] `misellito.com.ar` conectado (sitio `sellito-23c14`); `SITE_URL` ya apunta ahí y el QR se puede imprimir
@@ -152,7 +159,7 @@
 - [ ] Ojo: Hosting corta a los 60 s. `resyncCards` con muchas tarjetas puede pasarse: hacerlo en segundo plano
 - [x] Dominios autorizados de Firebase Auth: `misellito.com.ar` y `app.misellito.com.ar`
 - [ ] (opcional) Prerender de la landing o sitio aparte para mejor SEO (hoy: mismo build, ruta según dominio)
-- [ ] Google Wallet: pedir acceso de publicación (salir del modo demo)
+- [ ] Google Wallet: pedir acceso de publicación (salir del modo demo). Ya están `/soporte` y `/privacidad`; en el formulario dejar el párrafo de ubicación y mensajes (los avisos ya existen)
 
 ### 10. Landing de venta
 - [x] Landing publicada en misellito.com.ar (ruta según dominio, mismo build). Pendiente: prerender para SEO.

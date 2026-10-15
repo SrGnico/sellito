@@ -83,7 +83,7 @@ async function ownedBusiness(uid: string | undefined, businessId: unknown, super
 
 // "Actualizar tarjetas": vuelve a mandar todas las tarjetas al Wallet. Lo puede pedir el dueño o el
 // super admin (desde /admin, por ejemplo después de un cambio visual para todos los negocios).
-export const resyncCards = onCall({ secrets: [walletKey, ...appleSecrets], memory: "512MiB", timeoutSeconds: 300 }, async (req) => {
+export const resyncCards = onCall({ enforceAppCheck: true, secrets: [walletKey, ...appleSecrets], memory: "512MiB", timeoutSeconds: 300 }, async (req) => {
   const businessId = req.data?.businessId as string;
   const b = await ownedBusiness(req.auth?.uid, businessId, req.auth?.token.superadmin === true);
   if (!b.rule) throw new HttpsError("failed-precondition", "El negocio todavía no terminó su tarjeta.");

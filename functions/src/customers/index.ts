@@ -53,7 +53,7 @@ async function upgradeBusinessCards(businessId: string): Promise<number> {
 }
 
 // El panel la llama una vez si el negocio tiene cardsVersion viejo.
-export const upgradeCards = onCall({ timeoutSeconds: 300 }, async (req) => {
+export const upgradeCards = onCall({ enforceAppCheck: true, timeoutSeconds: 300 }, async (req) => {
   const businessId = req.data?.businessId;
   const b = await ownedBusiness(req.auth?.uid, businessId);
   if (b.cardsVersion === CARDS_VERSION) return { updated: 0 };
@@ -77,7 +77,7 @@ function cell(v: string | number): string {
 const fmtDate = (t: Timestamp | undefined) =>
   t ? t.toDate().toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Argentina/Buenos_Aires" }) : "";
 
-export const exportCustomers = onCall({ timeoutSeconds: 120, memory: "512MiB" }, async (req) => {
+export const exportCustomers = onCall({ enforceAppCheck: true, timeoutSeconds: 120, memory: "512MiB" }, async (req) => {
   const { businessId, filter = "all", search = "" } = req.data ?? {};
   const b = await ownedBusiness(req.auth?.uid, businessId);
   if (!["all", "reward", "inactive", "new"].includes(filter) || typeof search !== "string" || search.length > 100) {

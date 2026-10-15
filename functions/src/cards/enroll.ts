@@ -24,7 +24,7 @@ function randomCode(): string {
 }
 
 // Asigna el código de alta al negocio si todavía no tiene (lo pide el panel del dueño).
-export const ensureEnrollCode = onCall(async (req) => {
+export const ensureEnrollCode = onCall({ enforceAppCheck: true }, async (req) => {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Iniciá sesión.");
   const businessId = req.data?.businessId;
@@ -66,7 +66,7 @@ async function loadByCode(code: unknown): Promise<{ businessId: string; b: Busin
 }
 
 // Datos públicos para la página de alta (SITE_URL/c/{código}). El cliente final no lee Firestore directo.
-export const getEnrollInfo = onCall(async (req) => {
+export const getEnrollInfo = onCall({ enforceAppCheck: true }, async (req) => {
   const { b } = await loadByCode(req.data?.code);
   if (isPaused(b)) return { ready: false, paused: true, name: b.name };
   const missing = enrollMissing(b);
@@ -112,7 +112,7 @@ function cleanCustomer(input: unknown, ask: NonNullable<BusinessDoc["askFields"]
 }
 
 // Alta de cliente: crea la tarjeta y devuelve el link para guardarla en el Wallet.
-export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, async (req) => {
+export const createCard = onCall({ enforceAppCheck: true, secrets: [walletKey], memory: "512MiB" }, async (req) => {
   const { businessId, b } = await loadByCode(req.data?.code);
   if (isPaused(b)) throw new HttpsError("failed-precondition", "paused");
   if (enrollMissing(b).length > 0) {

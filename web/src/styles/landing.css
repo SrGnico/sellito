@@ -138,6 +138,7 @@
 .demo-qr img { padding: 10px; background: #fff; border: var(--border-width) solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .demo-qr p { margin: 0; color: var(--text-soft); max-width: 240px; }
 .demo-mobile { display: none; margin-top: 24px; }
+.demo-mobile .wallet-official { align-items: flex-start; }
 /* En el celular: botón directo (escanear un QR en tu propia pantalla no sirve). */
 @media (max-width: 760px), (pointer: coarse) {
   .demo-mobile { display: inline-flex; }
@@ -148,3 +149,6 @@
 .video-section { text-align: center; }
 .video-frame { margin: 32px auto 0; max-width: 900px; border: var(--border-width) solid var(--border); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-lg); background: var(--green); }
 .video-frame video { display: block; width: 100%; height: auto; }
+
+.support-contact { gap: 12px; margin-top: 8px; }
+.support-contact .btn { font-size: var(--text-lg); }

@@ -105,6 +105,10 @@ export async function buildPkpass(businessId: string, cardId: string, b: Busines
     ...(locations.length ? { locations } : {}),
     storeCard: {
       headerFields: [{ key: "sellos", label: "Sellos", value: stamps >= total ? "¡Premio listo!" : `${stamps} de ${total}` }],
+      // Último aviso del negocio: al cambiar, el iPhone muestra la notificación (changeMessage).
+      ...(card.appleNotice
+        ? { auxiliaryFields: [{ key: "novedad", label: card.appleNotice.title, value: card.appleNotice.body, changeMessage: "%@" }] }
+        : {}),
       secondaryFields: [
         {
           key: "progreso",
@@ -115,6 +119,7 @@ export async function buildPkpass(businessId: string, cardId: string, b: Busines
       ],
       backFields: [
         { key: "premio", label: "Premio", value: `Al juntar ${total} sellos: ${b.rule!.rewardText}` },
+        ...(b.rule!.conditions ? [{ key: "condiciones", label: "Condiciones", value: b.rule!.conditions }] : []),
         { key: "codigo", label: "Código de la tarjeta", value: code },
         { key: "como", label: "Cómo funciona", value: `Mostrá esta tarjeta en ${b.name} cada vez que comprás y te suman un sello.` },
         { key: "app", label: "Tarjeta hecha con", value: `${APP_NAME.value()} · ${SITE_URL.value()}` },

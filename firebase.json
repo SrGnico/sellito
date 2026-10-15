@@ -180,6 +180,13 @@
           }
         },
         {
+          "source": "/sendNotice",
+          "function": {
+            "functionId": "sendNotice",
+            "region": "southamerica-east1"
+          }
+        },
+        {
           "source": "/applePass/**",
           "function": {
             "functionId": "applePass",

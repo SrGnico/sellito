@@ -10,6 +10,7 @@ import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import Panel from './pages/Panel'
 import Scanner from './pages/Scanner'
+import Support from './pages/Support'
 import ScannerLauncher from './pages/ScannerLauncher'
 import { updateRobots } from './lib/seo'
 import { isSiteHost } from './lib/urls'
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/landing" element={<Landing />} />
           <Route path="/privacidad" element={<Legal kind="privacy" />} />
           <Route path="/terminos" element={<Legal kind="terms" />} />
+          <Route path="/soporte" element={<Support />} />
           <Route path="/login" element={<Login />} />
           <Route path="/panel/*" element={<RequireAuth><Panel /></RequireAuth>} />
           <Route path="/c/:code" element={<Enroll />} />

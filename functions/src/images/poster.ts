@@ -116,7 +116,7 @@ export async function renderPoster(b: BusinessDoc): Promise<Buffer> {
 }
 
 // Panel → QR → "Descargar afiche". Devuelve el PNG en base64 (así el navegador lo baja con nombre).
-export const enrollPoster = onCall({ memory: "512MiB" }, async (req) => {
+export const enrollPoster = onCall({ enforceAppCheck: true, memory: "512MiB" }, async (req) => {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Iniciá sesión.");
   const businessId = req.data?.businessId;

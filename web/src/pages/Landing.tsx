@@ -17,7 +17,7 @@ import '../styles/landing.css'
 // 2) no se descarga nada: el cliente la guarda en su Wallet y el local suma sellos desde un celular o una compu;
 // 3) la lista de clientes (los leads) es el resultado: es solo del negocio, siempre, aunque deje de pagar.
 
-const base = { askFields: { name: true, phone: true, email: false }, locations: [], proximityEnabled: false }
+const base = { askFields: { name: true, phone: true, email: false }, locations: [], proximityEnabled: false, conditions: '' }
 
 // Ejemplos que van rotando en la tarjeta del encabezado: muestran que sirve para cualquier rubro.
 const EXAMPLES: (CardConfig & { filled: number })[] = [
@@ -158,7 +158,7 @@ export default function Landing() {
             </article>
             <article className="card">
               <h3>Avisos en el celular</h3>
-              <p>Cuando sumás un sello o tu cliente completa la tarjeta, le llega un aviso. Sin que tengas que hacer nada.</p>
+              <p>Mandá una promo o un “doble sello este sábado” y le llega como notificación a tus clientes. Sin WhatsApp ni mails.</p>
             </article>
             <article className="card">
               <h3>Cerca de tu local</h3>
@@ -211,6 +211,8 @@ export default function Landing() {
               ['¿Funciona en iPhone y en Android?', 'Sí. En iPhone la tarjeta va a Apple Wallet y en Android a Google Wallet.'],
               ['¿Sirve para mi rubro?', 'Si tenés clientes que vuelven, sí: cafeterías, peluquerías, gimnasios, kioscos, veterinarias o lo que sea. Vos elegís qué se cuenta y qué se regala.'],
               ['¿La tarjeta aparece sola cuando el cliente pasa por el local?', 'Puede aparecer en la pantalla de bloqueo cuando está cerca, si cargás tus locales. Depende del celular y de sus permisos, así que no aparece siempre.'],
+              ['¿Puedo mandarles promociones?', 'Sí. Desde el panel escribís un aviso y les llega como notificación en el celular, en la tarjeta. Solo a quienes aceptaron recibir novedades, y como máximo uno por día para que no se vuelva molesto.'],
+              ['¿Puedo poner condiciones o regalar un descuento?', 'Sí. El premio lo escribís vos (un café, un 20% de descuento, lo que quieras) y podés aclarar condiciones, como “un sello por compra mayor a $5.000”. Los sellos los sumás vos, así que siempre decidís cuándo corresponde.'],
               ['¿Puedo cancelar?', 'Sí, cuando quieras desde tu cuenta de Mercado Pago. Seguís usando el servicio hasta el final del período pagado.'],
               ['¿De quién son los datos de mis clientes?', 'Solo tuyos. Los descargás cuando quieras y nosotros solo los guardamos para que tu tarjeta funcione: no los compartimos ni los usamos para otra cosa.'],
               ['¿Qué pasa con mi lista si dejo de pagar?', 'No se borra. El escáner se pausa, pero tu lista sigue ahí y la podés descargar cuando quieras. Solo se elimina si nos lo pedís.'],

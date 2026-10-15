@@ -13,7 +13,8 @@ export type BusinessDoc = {
     stampIconUrl?: string;
   };
   // itemSingular/itemPlural: lo que se cuenta ("café" / "cafés"), para "Te faltan 3 cafés".
-  rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string };
+  // conditions: reglas del negocio para sumar sellos ("un sello por compra mayor a $5.000"), opcional.
+  rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string; conditions?: string };
   // Locales (máx. 10) y si la tarjeta los usa para aparecer cerca (wallet/proximity.ts).
   locations?: { label?: string; address?: string; lat: number; lng: number }[];
   proximityEnabled?: boolean;
@@ -67,7 +68,8 @@ export type CardDoc = {
   platform: "google" | "apple";
   appleAuthToken?: string; // authenticationToken del pase (web service de Apple)
   appleUpdatedAt?: number; // ms de la última versión del pase (passesUpdatedSince)
-  appleNotify?: boolean; // si la versión actual avisa al cliente (changeMessage)
+  appleNotify?: boolean;
+  appleNotice?: { title: string; body: string; at: number }; // último aviso del negocio (campo "Novedades" del pase) // si la versión actual avisa al cliente (changeMessage)
   googleObjectId?: string;
   lastStampAt?: Timestamp;
   walletNotifyAt?: Timestamp[]; // avisos push enviados (últimas 24 h), ver wallet/proximity.ts

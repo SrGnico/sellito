@@ -45,6 +45,7 @@ export const syncGoogleClass = onDocumentUpdated(
         b.rule?.rewardText,
         b.rule?.itemSingular,
         b.rule?.itemPlural,
+        b.rule?.conditions,
       ]);
 
     const classChanged = classFields(before) !== classFields(after);

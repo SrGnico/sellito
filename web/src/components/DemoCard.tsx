@@ -6,6 +6,7 @@ import type { CardConfig } from '../lib/cardDesign'
 import { isIOS } from '../lib/install'
 import { enrollUrl } from '../lib/urls'
 import CardPreview from './CardPreview'
+import WalletButton from './WalletButton'
 
 // "Probala vos": la tarjeta de ejemplo de Sellito, que se agrega de verdad al Wallet.
 const DEMO: CardConfig = {
@@ -17,6 +18,7 @@ const DEMO: CardConfig = {
   rewardText: 'un abrazo de Sellito',
   itemSingular: 'sello',
   itemPlural: 'sellos',
+  conditions: '',
   askFields: { name: true, phone: false, email: false },
   locations: [],
   proximityEnabled: false,
@@ -39,9 +41,9 @@ export default function DemoCard() {
         <p className="section-lead" style={{ textAlign: 'left', margin: '12px 0 0' }}>
           Es una tarjeta de ejemplo, igual a la que van a tener tus clientes. Te regalamos el primer sello.
         </p>
-        <a className="btn btn-lg btn-primary demo-mobile" href={url}>
-          Agregar a {ios ? 'Apple Wallet' : 'mi Wallet'}
-        </a>
+        <div className="demo-mobile">
+          <WalletButton platform={ios ? 'apple' : 'google'} href={url} />
+        </div>
         {qr && (
           <div className="demo-qr">
             <img src={qr} alt={`Código QR para agregar la tarjeta de ejemplo (${url})`} width={180} height={180} />

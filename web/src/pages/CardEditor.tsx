@@ -275,6 +275,14 @@ export default function CardEditor({ business, readOnly = false }: { business: B
                   value={draft.itemPlural} onChange={(e) => update({ itemPlural: e.target.value })} aria-describedby="item-help" />
               </div>
             </div>
+            <div>
+              <label className="label" htmlFor="conditions">Condiciones (opcional)</label>
+              <input id="conditions" className="input" placeholder="Ej.: un sello por compra mayor a $5.000" maxLength={120}
+                value={draft.conditions} onChange={(e) => update({ conditions: e.target.value })} aria-describedby="conditions-help" />
+              <p className="help" id="conditions-help">
+                Se muestra al sumarse y en los detalles de la tarjeta. Los sellos los sumás vos, así que vos decidís cuándo corresponde.
+              </p>
+            </div>
             <p className="help" id="item-help" style={{ marginTop: 0 }}>
               Se usa en los avisos: “{proximityText(draft, Math.max(0, draft.stampsRequired - 3))}”. Si lo dejás vacío, dice “sellos”.
             </p>

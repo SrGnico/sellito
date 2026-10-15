@@ -34,6 +34,7 @@ export function SiteFooter() {
       </div>
       <nav aria-label="Legales y contacto">
         <a href={`mailto:${RESPONSIBLE.email}`}>{RESPONSIBLE.email}</a>
+        <Link to="/soporte">Soporte</Link>
         <Link to="/privacidad">Privacidad</Link>
         <Link to="/terminos">Términos</Link>
       </nav>

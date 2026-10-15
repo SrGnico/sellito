@@ -12,6 +12,7 @@ export type CardConfig = {
   rewardText: string
   itemSingular: string
   itemPlural: string
+  conditions: string
   askFields: { name: boolean; phone: boolean; email: boolean }
   locations: BusinessLocation[]
   proximityEnabled: boolean
@@ -39,6 +40,7 @@ export function cardConfigFrom(b: Business): CardConfig {
     rewardText: b.rule?.rewardText ?? DEFAULT_CARD.rewardText,
     itemSingular: b.rule?.itemSingular ?? '',
     itemPlural: b.rule?.itemPlural ?? '',
+    conditions: b.rule?.conditions ?? '',
     askFields: b.askFields ?? DEFAULT_CARD.askFields,
     locations: b.locations ?? [],
     proximityEnabled: b.proximityEnabled ?? false,
@@ -73,7 +75,7 @@ export function businessFieldsFrom(c: CardConfig) {
     rule: {
       stampsRequired: Math.round(c.stampsRequired),
       rewardText: c.rewardText.trim(),
-      ...compact({ itemSingular: c.itemSingular.trim(), itemPlural: c.itemPlural.trim() }),
+      ...compact({ itemSingular: c.itemSingular.trim(), itemPlural: c.itemPlural.trim(), conditions: c.conditions.trim() }),
     },
     askFields: c.askFields,
     locations: c.locations.map((l) => ({ label: l.label.trim(), lat: l.lat, lng: l.lng, ...compact({ address: l.address }) })),

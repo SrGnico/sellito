@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app'
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check'
 import { connectAuthEmulator, getAuth } from 'firebase/auth'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { connectFunctionsEmulator, getFunctions, httpsCallable, httpsCallableFromURL } from 'firebase/functions'
@@ -15,6 +16,18 @@ export const app = initializeApp({
   messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: env.VITE_FIREBASE_APP_ID,
 })
+
+// App Check: las Functions públicas (alta de clientes, escáner) solo aceptan llamadas de esta web.
+// En desarrollo se usa el token de depuración registrado en App Check (VITE_APPCHECK_DEBUG_TOKEN).
+if (env.VITE_RECAPTCHA_SITE_KEY && env.VITE_USE_EMULATORS !== 'true') {
+  if (import.meta.env.DEV && env.VITE_APPCHECK_DEBUG_TOKEN) {
+    ;(self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN = env.VITE_APPCHECK_DEBUG_TOKEN
+  }
+  initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(env.VITE_RECAPTCHA_SITE_KEY),
+    isTokenAutoRefreshEnabled: true,
+  })
+}
 
 // Misma región que las Cloud Functions (ver functions/src/index.ts)
 export const FUNCTIONS_REGION = 'southamerica-east1'

@@ -97,6 +97,7 @@ function loyaltyObjectFields(b: BusinessDoc, card: Pick<CardDoc, "stamps" | "bar
     textModulesData: [
       { id: "progreso", header: "Tu progreso", body: proximityText(b, stamps) },
       { id: "premio", header: "Premio", body: `Al juntar ${required} sellos: ${b.rule!.rewardText}` },
+      ...(b.rule!.conditions ? [{ id: "condiciones", header: "Condiciones", body: b.rule!.conditions }] : []),
     ],
     linksModuleData: { uris: [{ id: "marca", uri: SITE_URL.value(), description: `Tarjeta hecha con ${APP_NAME.value()}` }] },
   };

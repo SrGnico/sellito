@@ -1,14 +1,15 @@
 import { FirebaseError } from 'firebase/app'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import CardPreview from '../components/CardPreview'
+import QRCode from 'qrcode'
+import CardPreview, { PlatformToggle, type WalletPlatform } from '../components/CardPreview'
 import { CONSENT_VERSION, consentText } from '../content/privacy'
 import { DEFAULT_CARD, type CardConfig } from '../lib/cardDesign'
 import { callable } from '../lib/firebase'
 import type { Business } from '../lib/types'
 import EmptyState from '../components/EmptyState'
 import LoadingScreen from '../components/LoadingScreen'
-import Spinner from '../components/Spinner'
+import WalletButton from '../components/WalletButton'
 
 type EnrollInfo =
   | { ready: false; name: string; paused?: boolean }
@@ -39,6 +40,11 @@ function isIOS() {
   return /iPhone|iPad|iPod/.test(ua) || (ua.includes('Macintosh') && navigator.maxTouchPoints > 1)
 }
 
+// En compu no sabemos qué celular tiene: se pregunta (con una suposición según la compu) y se ofrece
+// un QR para abrir la página directo en el celular.
+const isMobile = () => isIOS() || /Android|Mobi/i.test(navigator.userAgent)
+const guessDesktopPlatform = () => (/Mac/i.test(navigator.userAgent) ? 'iphone' : 'android')
+
 const FIELDS: { key: Field; label: string; type: string; autoComplete: string; error: string }[] = [
   { key: 'name', label: 'Tu nombre', type: 'text', autoComplete: 'name', error: 'Escribí tu nombre.' },
   { key: 'phone', label: 'Tu teléfono', type: 'tel', autoComplete: 'tel', error: 'Ingresá un teléfono válido, por ejemplo 11 2345 6789.' },
@@ -63,7 +69,14 @@ export default function Enroll() {
       return null
     }
   })
-  const ios = isIOS()
+  const mobile = isMobile()
+  const [desktopPlatform, setDesktopPlatform] = useState<WalletPlatform>(guessDesktopPlatform)
+  const ios = mobile ? isIOS() : desktopPlatform === 'iphone'
+  const [pageQr, setPageQr] = useState<string | null>(null)
+  useEffect(() => {
+    if (mobile) return
+    QRCode.toDataURL(window.location.href, { width: 320, margin: 1, color: { dark: '#12372A', light: '#FFFFFF' } }).then(setPageQr)
+  }, [mobile])
 
   useEffect(() => {
     getEnrollInfo({ code })
@@ -122,6 +135,7 @@ export default function Enroll() {
     rewardText: info.rule.rewardText,
     itemSingular: info.rule.itemSingular ?? '',
     itemPlural: info.rule.itemPlural ?? '',
+    conditions: info.rule.conditions ?? '',
     askFields: info.askFields,
     // La vista previa del alta no muestra ubicaciones.
     locations: [],
@@ -176,6 +190,22 @@ export default function Enroll() {
       <p style={{ color: 'var(--text-soft)', marginTop: 8 }}>
         Juntá {info.rule.stampsRequired} sellos y llevate: <strong>{info.rule.rewardText}</strong>. Sin descargar ninguna app.
       </p>
+      {info.rule.conditions && (
+        <p className="help" style={{ marginTop: 8 }}>
+          <strong>Condiciones:</strong>&nbsp;{info.rule.conditions}
+        </p>
+      )}
+
+      {!mobile && (
+        <div className="card enroll-desktop" style={{ marginTop: 24 }}>
+          {pageQr && <img src={pageQr} alt="Código QR para abrir esta página en el celular" width={120} height={120} />}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <strong>Mejor desde tu celular</strong>
+            <span className="help" style={{ margin: 0 }}>Escaneá este código con la cámara y agregá la tarjeta ahí. O elegí tu celular y seguí desde acá:</span>
+            <PlatformToggle value={desktopPlatform} onChange={setDesktopPlatform} />
+          </div>
+        </div>
+      )}
 
       <div className="enroll-preview" style={{ margin: '24px 0' }}>
         <CardPreview config={config} filled={0} platform={ios ? 'iphone' : 'android'} />
@@ -239,11 +269,7 @@ export default function Enroll() {
               </p>
             </>
           )}
-          {/* TODO: reemplazar por los botones oficiales "Add to Google Wallet" / "Add to Apple Wallet" (guías de marca). */}
-          <button className="btn btn-lg btn-primary" type="submit" disabled={busy} aria-busy={busy}>
-            {busy && <Spinner small />}
-            {busy ? 'Creando tu tarjeta…' : ios ? 'Agregar a Apple Wallet' : 'Agregar a Google Wallet'}
-          </button>
+          <WalletButton platform={ios ? 'apple' : 'google'} busy={busy} />
         </form>
       )}
     </main>

@@ -3,12 +3,11 @@
 
 export const LEGAL_UPDATED = '15 de octubre de 2026'
 
+// El titular prefiere no publicar su nombre, CUIT ni domicilio: se informan a quien los pida por mail.
+// Ojo: la Ley 25.326 (art. 6) pide informar la identidad y el domicilio del responsable; esto es un
+// punto intermedio a revisar con un abogado (ver TODO.md, "Antes de lanzar").
 export const RESPONSIBLE = {
-  name: 'Gabriel Nicolás Rodríguez Barrio',
-  cuit: '20-42976958-3',
-  // Ley 25.326 art. 6: hay que informar el domicilio del responsable. PENDIENTE: el titular está
-  // eligiendo un domicilio legal o comercial distinto del particular (ver TODO.md, "Antes de lanzar").
-  address: null as string | null,
+  brand: 'Studio Five',
   email: 'hola@misellito.com.ar',
   city: 'Córdoba, Argentina',
 }
@@ -26,9 +25,9 @@ export function privacySections(appName: string): LegalSection[] {
     {
       title: 'Quién es el responsable',
       paragraphs: [
-        `${appName} es un servicio de ${RESPONSIBLE.name} (CUIT ${RESPONSIBLE.cuit}), con base en ${RESPONSIBLE.city}. ` +
+        `${appName} es un servicio desarrollado por ${RESPONSIBLE.brand}, con base en ${RESPONSIBLE.city}. ` +
           `Para cualquier consulta sobre tus datos escribinos a ${RESPONSIBLE.email}.`,
-        RESPONSIBLE.address ? `Domicilio legal: ${RESPONSIBLE.address}.` : 'El domicilio legal se informa a pedido escribiendo al mail de contacto.',
+        `Los datos de identificación del responsable del tratamiento (nombre o razón social, CUIT y domicilio) se informan a quien los solicite escribiendo a ${RESPONSIBLE.email}.`,
       ],
     },
     {
@@ -60,6 +59,7 @@ export function privacySections(appName: string): LegalSection[] {
       paragraphs: [],
       list: [
         'Prestar el servicio: crear y actualizar las tarjetas, sumar sellos, canjear premios y mostrar estadísticas al negocio.',
+        'Hacer llegar a la tarjeta los avisos y novedades que publique el negocio, solo a quienes aceptaron recibirlos.',
         'Cobrar la suscripción y avisar sobre pagos, vencimientos y cambios importantes del servicio.',
         'Seguridad: prevenir abusos (por ejemplo, altas masivas de tarjetas) y resolver problemas técnicos.',
       ],
@@ -102,7 +102,7 @@ export function termsSections(appName: string): LegalSection[] {
     {
       title: 'El servicio',
       paragraphs: [
-        `${appName} es un servicio de ${RESPONSIBLE.name} (CUIT ${RESPONSIBLE.cuit}) para crear tarjetas de fidelidad digitales que los clientes guardan en Apple Wallet o Google Wallet, sin descargar ninguna app. El negocio suma sellos y canjea premios desde un celular o una computadora con internet.`,
+        `${appName} es un servicio desarrollado por ${RESPONSIBLE.brand} para crear tarjetas de fidelidad digitales que los clientes guardan en Apple Wallet o Google Wallet, sin descargar ninguna app. El negocio suma sellos y canjea premios desde un celular o una computadora con internet.`,
       ],
     },
     {
@@ -141,7 +141,7 @@ export function termsSections(appName: string): LegalSection[] {
     {
       title: 'Cambios y contacto',
       paragraphs: [
-        `Podemos actualizar estos términos; los cambios importantes los avisamos por mail o en el panel. Consultas: ${RESPONSIBLE.email}. Última actualización: ${LEGAL_UPDATED}.`,
+        `Podemos actualizar estos términos; los cambios importantes los avisamos por mail o en el panel. Consultas: ${RESPONSIBLE.email}. Los datos de identificación del titular se informan a pedido por ese mismo medio. Última actualización: ${LEGAL_UPDATED}.`,
       ],
     },
   ]

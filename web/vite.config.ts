@@ -48,7 +48,7 @@ function scannerManifest(appName: string): Plugin {
 function seoFiles(siteUrl: string): Plugin {
   const site = siteUrl.replace(/\/+$/, '')
   const robots = `User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /admin\nDisallow: /escaner\nDisallow: /c/\n\nSitemap: ${site}/sitemap.xml\n`
-  const pages = ['/', '/privacidad', '/terminos']
+  const pages = ['/', '/privacidad', '/terminos', '/soporte']
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     pages.map((p) => `  <url><loc>${site}${p}</loc></url>`).join('\n') +

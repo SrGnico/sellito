@@ -22,7 +22,7 @@ const db = () => getFirestore();
 
 // Suscribirse, reactivar o cambiar el medio de pago: crea una suscripción nueva en Mercado Pago
 // y devuelve el link de pago. La anterior se da de baja recién cuando la nueva queda autorizada.
-export const createSubscription = onCall({ secrets: [mpAccessToken] }, async (req) => {
+export const createSubscription = onCall({ enforceAppCheck: true, secrets: [mpAccessToken] }, async (req) => {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Iniciá sesión.");
   const { businessId } = req.data ?? {};

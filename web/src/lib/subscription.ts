@@ -26,6 +26,8 @@ export function accessLevel(sub: Subscription | undefined, now = Date.now()): Ac
 
 // Modo lectura: se ven clientes y estadísticas, no se edita diseño, regla ni PIN.
 export const isReadOnly = (level: AccessLevel) => level === 'blocked' || level === 'archived'
+// Igual que canOperate en functions/src/payments/access.ts: escáner y avisos funcionan.
+export const canOperate = (level: AccessLevel) => level === 'full' || level === 'grace'
 
 export const createSubscription = callable<{ businessId: string; plan?: string; payerEmail?: string }, { url: string }>('createSubscription')
 

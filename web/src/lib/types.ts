@@ -32,7 +32,7 @@ export type Business = {
     stampIconUrl?: string
   }
   // itemSingular/itemPlural: lo que se cuenta ("café" / "cafés"), para "Te faltan 3 cafés".
-  rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string }
+  rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string; conditions?: string }
   askFields?: { name: boolean; phone: boolean; email: boolean }
   locations?: BusinessLocation[]
   proximityEnabled?: boolean // mostrar la tarjeta cerca de los locales (functions/src/wallet/proximity.ts)

@@ -2,7 +2,7 @@ import { isSiteHost } from './urls'
 
 // Solo el sitio público (landing y páginas legales en SITE_URL) se indexa. El panel, el escáner y las
 // altas de clientes (que también viven en el dominio público, en /c/…) llevan noindex.
-const PUBLIC_PATHS = ['/', '/privacidad', '/terminos']
+const PUBLIC_PATHS = ['/', '/privacidad', '/terminos', '/soporte']
 
 export function updateRobots(pathname: string) {
   const indexable = isSiteHost() && PUBLIC_PATHS.includes(pathname.replace(/\/+$/, '') || '/')

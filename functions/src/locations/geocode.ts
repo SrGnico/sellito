@@ -10,7 +10,7 @@ import { HOUR, rateLimit } from "../security/rateLimit";
 // https://operations.osmfoundation.org/policies/nominatim/
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
 
-export const geocodeAddress = onCall({ maxInstances: 2 }, async (req) => {
+export const geocodeAddress = onCall({ enforceAppCheck: true, maxInstances: 2 }, async (req) => {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Iniciá sesión.");
   const { businessId, query } = req.data ?? {};

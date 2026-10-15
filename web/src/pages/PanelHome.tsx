@@ -158,6 +158,7 @@ function QuickLinks({ business }: { business: Business }) {
     { to: 'qr', title: 'QR del local', detail: 'Descargalo o imprimilo' },
     { to: 'escaner', title: 'Escáner', detail: (business.scannerPinVersion ?? 0) > 0 ? 'Abrilo en el celular del local' : 'Creá el PIN' },
     { to: 'clientes', title: 'Clientes', detail: 'Quiénes tienen tu tarjeta' },
+    { to: 'avisos', title: 'Avisos', detail: 'Mandales una novedad al celular' },
     { to: 'tarjeta', title: 'Locales y cercanía', detail: business.proximityEnabled ? `${business.locations?.length ?? 0} cargados` : 'Apagado' },
   ]
   return (

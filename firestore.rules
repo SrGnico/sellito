@@ -68,6 +68,12 @@ service cloud.firestore {
         allow write: if false;
       }
 
+      // Avisos a los clientes: el dueño ve el historial; los crea y envía una Function.
+      match /notices/{noticeId} {
+        allow read: if isSuperadmin() || ownsBusiness(businessId);
+        allow write: if false;
+      }
+
       match /stamps/{stampId} {
         allow read: if isSuperadmin() || ownsBusiness(businessId);
         allow write: if false;

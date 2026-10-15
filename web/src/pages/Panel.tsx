@@ -16,6 +16,7 @@ import { auth, db } from '../lib/firebase'
 import type { Business } from '../lib/types'
 import CardEditor from './CardEditor'
 import Customers from './Customers'
+import Notices from './Notices'
 import PanelHome from './PanelHome'
 import SubscriptionBanner from '../components/SubscriptionBanner'
 import { accessLevel, isReadOnly } from '../lib/subscription'
@@ -90,6 +91,7 @@ export default function Panel() {
         <nav className="panel-nav" aria-label="Secciones del panel">
           <NavLink to="/panel" end>Inicio</NavLink>
           <NavLink to="/panel/clientes">Clientes</NavLink>
+          <NavLink to="/panel/avisos">Avisos</NavLink>
           <NavLink to="/panel/tarjeta">Tarjeta</NavLink>
           <NavLink to="/panel/qr">QR</NavLink>
           <NavLink to="/panel/escaner">Escáner</NavLink>
@@ -133,6 +135,7 @@ export default function Panel() {
               }
             />
             <Route path="clientes" element={<Customers key={state.businesses[0].id} business={state.businesses[0]} />} />
+            <Route path="avisos" element={<Notices key={state.businesses[0].id} business={state.businesses[0]} />} />
           </Routes>
         )}
       </main>

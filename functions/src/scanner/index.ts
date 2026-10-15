@@ -43,7 +43,7 @@ async function checkPin(pin: string, stored: string): Promise<boolean> {
 
 // ---------- PIN (lo elige el dueño desde el panel) ----------
 
-export const setScannerPin = onCall(async (req) => {
+export const setScannerPin = onCall({ enforceAppCheck: true }, async (req) => {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Iniciá sesión.");
   const { businessId, pin } = req.data ?? {};
@@ -67,7 +67,7 @@ export const setScannerPin = onCall(async (req) => {
 
 // ---------- Sesión del escáner ----------
 
-export const scannerLogin = onCall(async (req) => {
+export const scannerLogin = onCall({ enforceAppCheck: true }, async (req) => {
   const { businessId, pin } = req.data ?? {};
   if (!validId(businessId) || typeof pin !== "string") throw new HttpsError("invalid-argument", "Datos inválidos.");
 
@@ -147,7 +147,7 @@ async function requireSession(token: unknown, businessId: unknown): Promise<Sess
 }
 
 // Datos del negocio para un escáner que ya tiene sesión (al recargar la página).
-export const scannerSession = onCall(async (req) => {
+export const scannerSession = onCall({ enforceAppCheck: true }, async (req) => {
   const { b } = await requireSession(req.data?.token, req.data?.businessId);
   return { business: publicBusiness(b) };
 });
@@ -168,7 +168,7 @@ function summary(cardId: string, card: CardDoc, total: number): CardSummary {
 
 // Acepta el código completo (lo que lee la cámara) o los últimos 4 (lo que tipea el local).
 // Con los últimos 4 puede haber más de una tarjeta: el escáner muestra los nombres para elegir.
-export const scannerLookup = onCall(async (req) => {
+export const scannerLookup = onCall({ enforceAppCheck: true }, async (req) => {
   const { businessId, b } = await requireSession(req.data?.token, req.data?.businessId);
   const total = b.rule!.stampsRequired;
   const code = normalizeCardCode(String(req.data?.code ?? ""));
@@ -189,7 +189,7 @@ export const scannerLookup = onCall(async (req) => {
 
 // ---------- Sumar sello / canjear premio ----------
 
-export const scannerStamp = onCall({ secrets: [walletKey, ...appleSecrets], memory: "512MiB" }, async (req) => {
+export const scannerStamp = onCall({ enforceAppCheck: true, secrets: [walletKey, ...appleSecrets], memory: "512MiB" }, async (req) => {
   const { businessId, sessionId, b } = await requireSession(req.data?.token, req.data?.businessId);
   const { cardId, action, force } = req.data ?? {};
   if (!validId(cardId) || (action !== "add" && action !== "redeem")) throw new HttpsError("invalid-argument", "Datos inválidos.");
