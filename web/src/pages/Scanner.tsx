@@ -1,3 +1,4 @@
+import { APP_URL } from '../lib/urls'
 import QrScanner from 'qr-scanner'
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
@@ -194,6 +195,9 @@ function PinScreen({
           {busy ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
+      <p className="help" style={{ textAlign: 'center', marginTop: 16, display: 'block' }}>
+        ¿Sos el dueño? <a href={`${APP_URL}/panel`}>Entrá a tu panel</a>
+      </p>
     </main>
   )
 }
@@ -340,9 +344,13 @@ function ScannerView({
     <div className="scanner">
       <header className="scanner-header">
         <strong>{business.name}</strong>
-        <button className="btn btn-ghost btn-sm" type="button" onClick={onLogout}>
-          Salir
-        </button>
+        {/* El panel pide la cuenta del dueño: a quien solo tiene el PIN no le abre nada. */}
+        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+          <a className="btn btn-ghost btn-sm" href={`${APP_URL}/panel`}>Panel</a>
+          <button className="btn btn-ghost btn-sm" type="button" onClick={onLogout}>
+            Salir
+          </button>
+        </div>
       </header>
 
       {cameraOn ? (
