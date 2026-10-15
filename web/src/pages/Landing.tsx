@@ -64,32 +64,32 @@ export default function Landing() {
             <p className="eyebrow">Tarjetas de fidelidad digitales</p>
             <h1>Tu tarjeta de sellos, en el celular de tus clientes</h1>
             <p className="hero-lead">
-              Conocé a tus clientes, armá tu propia lista de contactos y hacé que vuelvan. Para cualquier negocio. Simple.
+              La guardan con un QR, sin descargar nada. Vos sumás sellos desde el celular o la compu, y te quedás con la lista de
+              tus clientes.
             </p>
-            <ul className="hero-points">
-              <li><strong>No se descarga nada.</strong> Tus clientes escanean un QR y la guardan en Apple Wallet o Google Wallet.</li>
-              <li><strong>Sumás sellos desde el celular o la compu de la caja:</strong> escaneás la tarjeta o tipeás su código.</li>
-              <li><strong>Te quedás con la lista de tus clientes.</strong> Es tuya y la descargás cuando quieras.</li>
-            </ul>
             <div className="hero-actions">
               <a className="btn btn-lg btn-primary" href={signupUrl} onClick={() => track('cta_click')}>Crear mi tarjeta</a>
               <a className="btn btn-lg" href="#probala">Probala en tu celular</a>
             </div>
-            <p className="hero-note">Diseñar tu tarjeta es gratis. Pagás recién cuando empezás a sumar sellos.</p>
-            <div className="trust">
-              <span className="trust-label">Funciona con</span>
-              <a href={demoUrl} aria-label="Probar la tarjeta de ejemplo en Apple Wallet"><img src={appleBadge} alt="Agregar a Apple Wallet" height={40} /></a>
-              <a href={demoUrl} aria-label="Probar la tarjeta de ejemplo en Google Wallet"><img src={googleBadge} alt="Agregar a la Billetera de Google" height={40} /></a>
-            </div>
-            <ul className="trust-points">
-              <li><LockIcon /> Datos cifrados en servidores de Google</li>
-              <li><CardIcon /> Pagos con Mercado Pago</li>
-              <li><PinIcon /> Hecho en Córdoba, Argentina</li>
-            </ul>
+            <p className="hero-note">Diseñarla es gratis. Pagás recién cuando empezás a sumar sellos.</p>
           </div>
           <div className="hero-card" aria-hidden="true">
             <PhoneMockup example={example} />
           </div>
+        </section>
+
+        {/* ---------- Confianza ---------- */}
+        <section className="trust-bar" aria-label="Con quién funciona">
+          <div className="trust">
+            <span className="trust-label">Funciona con</span>
+            <a href={demoUrl} aria-label="Probar la tarjeta de ejemplo en Apple Wallet"><img src={appleBadge} alt="Agregar a Apple Wallet" height={34} /></a>
+            <a href={demoUrl} aria-label="Probar la tarjeta de ejemplo en Google Wallet"><img src={googleBadge} alt="Agregar a la Billetera de Google" height={34} /></a>
+          </div>
+          <ul className="trust-points">
+            <li><LockIcon /> Datos cifrados en servidores de Google</li>
+            <li><CardIcon /> Pagos con Mercado Pago</li>
+            <li><PinIcon /> Hecho en Córdoba, Argentina</li>
+          </ul>
         </section>
 
         {/* ---------- Sin descargas ---------- */}
