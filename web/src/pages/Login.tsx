@@ -8,13 +8,14 @@ import {
   signInWithPopup,
   signInWithRedirect,
 } from 'firebase/auth'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { authErrorMessage, useAuth } from '../lib/auth'
 import { auth } from '../lib/firebase'
 import Mascot from '../components/Mascot'
 import Spinner from '../components/Spinner'
 import { STUDIO } from '../content/brand'
+import { saveSignupPrefill } from '../lib/prefill'
 import { track } from '../lib/track'
 import { APP_NAME, SITE_URL } from '../lib/urls'
 
@@ -28,6 +29,8 @@ export default function Login() {
   const location = useLocation()
   // ?registro (desde la landing) abre directo en "Creá tu cuenta".
   const [mode, setMode] = useState<Mode>(() => (new URLSearchParams(location.search).has('registro') ? 'signup' : 'login'))
+  // Nombre y color que la persona probó en la landing ("Y el tuyo"): los usa CreateBusiness.
+  useEffect(() => saveSignupPrefill(location.search), [location.search])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)

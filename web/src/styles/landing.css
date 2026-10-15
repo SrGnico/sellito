@@ -239,3 +239,13 @@
 .sticky-cta .btn { width: 100%; }
 .sticky-cta.visible { transform: none; }
 @media (max-width: 760px) { .sticky-cta { display: block; } }
+.rubro-chip-yours { background: var(--pink); }
+.rubro-chip-yours[aria-selected="true"] { background: var(--green); color: var(--cream); }
+.your-card .rubro-text { gap: 16px; width: 100%; max-width: 420px; }
+.your-card .swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.your-card .swatch { width: 40px; height: 40px; border-radius: 50%; border: var(--border-width) solid var(--border); cursor: pointer; }
+.your-card .swatch[aria-checked="true"] { outline: 3px solid var(--green); outline-offset: 3px; }
+@media (max-width: 759px) {
+  .your-card .rubro-text { order: -1; }
+  .your-card .rubro-card .wallet-card { width: 280px; }
+}

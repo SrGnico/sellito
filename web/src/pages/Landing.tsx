@@ -10,6 +10,7 @@ import DemoVideo from '../components/DemoVideo'
 import PhoneMockup from '../components/PhoneMockup'
 import { SiteFooter, SiteHeader } from '../components/SiteChrome'
 import StickyCta from '../components/StickyCta'
+import YourCard from '../components/YourCard'
 import { DEMO_ENROLL_CODE } from '../content/brand'
 import { EXAMPLES } from '../content/examples'
 import { RESPONSIBLE } from '../content/legal'
@@ -178,19 +179,31 @@ export default function Landing() {
                 {ex.rubro}
               </button>
             ))}
+            <button role="tab" type="button" aria-selected={rubro === EXAMPLES.length} className="rubro-chip rubro-chip-yours" onClick={() => setRubro(EXAMPLES.length)}>
+              Y el tuyo ✨
+            </button>
           </div>
-          <div className="rubro-example" role="tabpanel">
-            <div key={rubro} className="rubro-card fade-up">
-              <CardPreview config={EXAMPLES[rubro]} filled={EXAMPLES[rubro].filled} />
+          {rubro === EXAMPLES.length ? (
+            <div role="tabpanel" className="fade-up">
+              <YourCard signupUrl={signupUrl} onCta={() => track('cta_click')} />
             </div>
-            <div className="rubro-text">
-              <h3>{EXAMPLES[rubro].name}</h3>
-              <p className="rubro-rule">
-                {EXAMPLES[rubro].stampsRequired} {EXAMPLES[rubro].itemPlural} = <strong>{EXAMPLES[rubro].rewardText}</strong>
-              </p>
-              <p className="help" style={{ margin: 0 }}>Y también: {MORE_BUSINESSES} Si tenés clientes que vuelven, sirve.</p>
+          ) : (
+            <div className="rubro-example" role="tabpanel">
+              <div key={rubro} className="rubro-card fade-up">
+                <CardPreview config={EXAMPLES[rubro]} filled={EXAMPLES[rubro].filled} />
+              </div>
+              <div className="rubro-text">
+                <h3>{EXAMPLES[rubro].name}</h3>
+                <p className="rubro-rule">
+                  {EXAMPLES[rubro].stampsRequired} {EXAMPLES[rubro].itemPlural} = <strong>{EXAMPLES[rubro].rewardText}</strong>
+                </p>
+                <p className="help" style={{ margin: 0 }}>Y también: {MORE_BUSINESSES} Si tenés clientes que vuelven, sirve.</p>
+                <button className="btn" type="button" onClick={() => setRubro(EXAMPLES.length)} style={{ alignSelf: 'flex-start' }}>
+                  Probá con el tuyo →
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
         {/* ---------- Qué incluye ---------- */}

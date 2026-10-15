@@ -28,6 +28,7 @@ import Mascot from '../components/Mascot'
 import Onboarding from '../components/Onboarding'
 import ScannerSettings from '../components/ScannerSettings'
 import Spinner from '../components/Spinner'
+import { clearSignupPrefill, readSignupPrefill } from '../lib/prefill'
 import { track } from '../lib/track'
 import { APP_NAME } from '../lib/urls'
 
@@ -150,7 +151,8 @@ export default function Panel() {
 
 function CreateBusiness({ uid }: { uid: string }) {
   const navigate = useNavigate()
-  const [name, setName] = useState('')
+  const [prefill] = useState(readSignupPrefill)
+  const [name, setName] = useState(prefill.name ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -172,9 +174,11 @@ function CreateBusiness({ uid }: { uid: string }) {
       await addDoc(collection(db, 'businesses'), {
         ownerUid: uid,
         name: trimmed,
+        ...(prefill.color ? { design: { bgColor: prefill.color } } : {}),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       })
+      clearSignupPrefill()
       track('business_created')
       navigate('/panel/configurar')
     } catch {
