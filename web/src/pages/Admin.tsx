@@ -81,14 +81,16 @@ function AdminDashboard({ email }: { email: string }) {
 
   const metrics = useMemo(() => {
     if (!rows) return null
-    const active = rows.filter((r) => r.level === 'full' && r.subscription?.status === 'active')
+    // La tarjeta de ejemplo de la landing no cuenta: solo negocios reales.
+    const real = rows.filter((r) => !r.demo)
+    const active = real.filter((r) => r.level === 'full' && r.subscription?.status === 'active')
     const monthAgo = now - 30 * 86400000
     return {
-      total: rows.length,
+      total: real.length,
       active: active.length,
       mrr: active.reduce((sum, r) => sum + (r.subscription?.amount ?? 0), 0),
-      newMonth: rows.filter((r) => (r.createdAt?.toMillis() ?? 0) >= monthAgo).length,
-      cards: rows.every((r) => r.cards !== null) ? rows.reduce((sum, r) => sum + (r.cards ?? 0), 0) : null,
+      newMonth: real.filter((r) => (r.createdAt?.toMillis() ?? 0) >= monthAgo).length,
+      cards: real.every((r) => r.cards !== null) ? real.reduce((sum, r) => sum + (r.cards ?? 0), 0) : null,
     }
   }, [rows, now])
 
@@ -169,7 +171,7 @@ function AdminDashboard({ email }: { email: string }) {
                   <tbody>
                     {visible.map((r) => (
                       <tr key={r.id}>
-                        <td className="cell-ellipsis"><strong>{r.name}</strong><div className="help" style={{ margin: 0 }}>{r.id}</div></td>
+                        <td className="cell-ellipsis"><strong>{r.name}</strong>{r.demo && <span className="badge badge-info" style={{ marginLeft: 6 }}>Demo</span>}<div className="help" style={{ margin: 0 }}>{r.id}</div></td>
                         <td><span className={`badge badge-sm ${LEVEL_BADGE[r.level].cls}`} style={{ marginLeft: 0 }}>{LEVEL_BADGE[r.level].text}</span></td>
                         <td>{r.subscription?.amount ? formatMoney(r.subscription.amount, r.subscription.currency) : '—'}</td>
                         <td>{r.cards ?? '…'}</td>

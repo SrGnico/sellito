@@ -21,6 +21,7 @@ export type Subscription = {
 export type Business = {
   id: string
   ownerUid: string
+  demo?: boolean // tarjeta de ejemplo de la landing, no es un negocio real
   name: string
   slug?: string
   design?: {
