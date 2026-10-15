@@ -31,7 +31,7 @@ const createCard = callable<
     consent: boolean
     consentVersion: string
   },
-  { saveUrl: string }
+  { saveUrl?: string; pkpassUrl?: string }
 >('createCard')
 
 function isIOS() {
@@ -132,9 +132,11 @@ export default function Enroll() {
     }
     setBusy(true)
     try {
-      const r = await createCard({ code, platform: 'google', customer: values, consent, consentVersion: CONSENT_VERSION })
-      setSaveUrl(r.data.saveUrl)
-      window.location.assign(r.data.saveUrl)
+      const r = await createCard({ code, platform: ios ? 'apple' : 'google', customer: values, consent, consentVersion: CONSENT_VERSION })
+      // Google: link firmado a Google Wallet. Apple: el .pkpass, que Safari abre en Wallet.
+      const url = r.data.saveUrl ?? r.data.pkpassUrl!
+      setSaveUrl(url)
+      window.location.assign(url)
     } catch (err) {
       const code = err instanceof FirebaseError ? err.code : ''
       const field = err instanceof FirebaseError ? (err.message as Field) : null
@@ -169,15 +171,8 @@ export default function Enroll() {
           <div>
             <span className="alert-title">¡Tu tarjeta está lista!</span>
             <span className="alert-text">
-              Si no se abrió sola, <a href={saveUrl}>tocá acá para agregarla a Google Wallet</a>.
+              Si no se abrió sola, <a href={saveUrl}>tocá acá para agregarla a {ios ? 'Apple Wallet' : 'Google Wallet'}</a>.
             </span>
-          </div>
-        </div>
-      ) : ios ? (
-        <div className="alert alert-info" role="status">
-          <div>
-            <span className="alert-title">Apple Wallet llega pronto</span>
-            <span className="alert-text">Por ahora la tarjeta funciona en celulares Android con Google Wallet.</span>
           </div>
         </div>
       ) : (
@@ -212,10 +207,10 @@ export default function Enroll() {
               <p className="help" style={{ margin: 0 }}>Tus datos los usa solo {info.name} para tu tarjeta de sellos.</p>
             </>
           )}
-          {/* TODO: reemplazar por el botón oficial "Add to Google Wallet" (guía de marca de Google). */}
+          {/* TODO: reemplazar por los botones oficiales "Add to Google Wallet" / "Add to Apple Wallet" (guías de marca). */}
           <button className="btn btn-lg btn-primary" type="submit" disabled={busy} aria-busy={busy}>
             {busy && <Spinner small />}
-            {busy ? 'Creando tu tarjeta…' : 'Agregar a Google Wallet'}
+            {busy ? 'Creando tu tarjeta…' : ios ? 'Agregar a Apple Wallet' : 'Agregar a Google Wallet'}
           </button>
         </form>
       )}

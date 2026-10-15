@@ -1,5 +1,6 @@
 import type { CardConfig } from '../lib/cardDesign'
 import { autoTextColor } from '../lib/color'
+import { proximityText } from '../lib/proximity'
 import { PROGRAM_NAME } from '../lib/wallet'
 import StampGrid from './StampGrid'
 
@@ -12,7 +13,8 @@ type Props = { config: CardConfig; filled: number; platform?: WalletPlatform }
 
 // Copia del frente de la tarjeta en cada Wallet. El orden lo fija cada plataforma:
 // - Google Wallet (Android): logo y nombre, título, QR, contador y la imagen de sellos abajo.
-// - Apple Wallet (iPhone): logo y nombre arriba con el contador, imagen de sellos, premio y QR abajo.
+// - Apple Wallet (iPhone): logo y nombre arriba con el contador, imagen de sellos, "Tu progreso" y QR abajo
+//   (igual que functions/src/wallet/apple.ts).
 export default function CardPreview({ config, filled, platform = 'android' }: Props) {
   const total = config.stampsRequired
   const stamps = Math.min(filled, total)
@@ -58,10 +60,8 @@ export default function CardPreview({ config, filled, platform = 'android' }: Pr
         </div>
         {stampsImage}
         <div className="wallet-card-iphone-fields">
-          <span className="wallet-card-label">Premio</span>
-          <span className="wallet-card-value">
-            Al juntar {total} sellos: {config.rewardText.trim() || '…'}
-          </span>
+          <span className="wallet-card-label">Tu progreso</span>
+          <span className="wallet-card-value">{proximityText(config, stamps)}</span>
         </div>
         {code}
         <figcaption className="sr-only">Vista previa de la tarjeta en Apple Wallet</figcaption>

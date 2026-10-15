@@ -8,6 +8,7 @@ import { pushCardToWallet } from "../cards/sync";
 import { StampImages } from "../images/stamps";
 import { accessLevel, canEdit, canOperate } from "../payments/access";
 import type { BusinessDoc, CardDoc } from "../types";
+import { appleSecrets } from "../wallet/apple";
 import { walletKey } from "../wallet/google";
 import { notifyDecision, type NotifyKind } from "../wallet/proximity";
 
@@ -188,7 +189,7 @@ export const scannerLookup = onCall(async (req) => {
 
 // ---------- Sumar sello / canjear premio ----------
 
-export const scannerStamp = onCall({ secrets: [walletKey], memory: "512MiB" }, async (req) => {
+export const scannerStamp = onCall({ secrets: [walletKey, ...appleSecrets], memory: "512MiB" }, async (req) => {
   const { businessId, sessionId, b } = await requireSession(req.data?.token, req.data?.businessId);
   const { cardId, action, force } = req.data ?? {};
   if (!validId(cardId) || (action !== "add" && action !== "redeem")) throw new HttpsError("invalid-argument", "Datos inválidos.");
@@ -239,7 +240,7 @@ export const scannerStamp = onCall({ secrets: [walletKey], memory: "512MiB" }, a
 
   // El Wallet se actualiza después de guardar: si Google falla, el sello ya quedó registrado.
   try {
-    await pushCardToWallet(cardId, b, card, new StampImages(businessId, b), notify);
+    await pushCardToWallet(businessId, cardId, b, card, new StampImages(businessId, b), notify);
   } catch (err) {
     logger.error("scannerStamp: no se pudo actualizar el Wallet", { businessId, cardId, err });
   }

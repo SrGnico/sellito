@@ -9,6 +9,7 @@ import { accessLevel } from "../payments/access";
 import { cardCodeSuffix, reserveCardCode } from "./codes";
 import { searchTokens } from "./search";
 import { clientIp, DAY, HOUR, rateLimit } from "../security/rateLimit";
+import { appleDownloadUrl, newAppleAuthToken } from "../wallet/apple";
 
 const db = () => getFirestore();
 
@@ -117,9 +118,8 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
   if (enrollMissing(b).length > 0) {
     throw new HttpsError("failed-precondition", "El negocio todavía no terminó su tarjeta.");
   }
-  if (req.data?.platform !== "google") {
-    throw new HttpsError("unimplemented", "Apple Wallet todavía no está disponible.");
-  }
+  const platform = req.data?.platform;
+  if (platform !== "google" && platform !== "apple") throw new HttpsError("invalid-argument", "platform");
   const customer = cleanCustomer(req.data?.customer, b.askFields ?? { name: true, phone: true, email: false });
   const consentVersion = String(req.data?.consentVersion ?? "");
   const consent = {
@@ -133,7 +133,7 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
   const cardRef = db().collection(`businesses/${businessId}/cards`).doc();
 
   try {
-    if (!b.googleClassId) {
+    if (platform === "google" && !b.googleClassId) {
       const classId = await upsertLoyaltyClass(businessId, b);
       await db().doc(`businesses/${businessId}`).update({ googleClassId: classId });
     }
@@ -148,7 +148,8 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
         rewardsRedeemed: 0,
         barcodeValue,
         codeSuffix: cardCodeSuffix(barcodeValue),
-        platform: "google",
+        platform,
+        ...(platform === "apple" ? { appleAuthToken: newAppleAuthToken(), appleUpdatedAt: Date.now() } : {}),
         searchTokens: searchTokens(customer),
         consent,
         createdAt: Timestamp.now(),
@@ -162,13 +163,16 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
       return data;
     });
 
+    // Apple: el .pkpass se arma al bajarlo (applePass/download), con el token de esta tarjeta.
+    if (platform === "apple") return { pkpassUrl: appleDownloadUrl(businessId, cardRef.id, card.appleAuthToken!) };
+
     const heroUrl = await new StampImages(businessId, b).urlFor(0);
     const objectId = await insertLoyaltyObject(businessId, cardRef.id, b, card, heroUrl);
     await cardRef.update({ googleObjectId: objectId });
 
     return { saveUrl: saveUrl([objectId]) };
   } catch (err) {
-    logger.error("createCard falló", { businessId, cardId: cardRef.id, err });
+    logger.error("createCard falló", { businessId, cardId: cardRef.id, error: err instanceof Error ? err.message : String(err) });
     throw new HttpsError("internal", "No pudimos crear la tarjeta.");
   }
 });

@@ -4,6 +4,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { StampImages } from "../images/stamps";
 import { accessLevel, canOperate } from "../payments/access";
 import type { BusinessDoc, CardDoc } from "../types";
+import { appleSecrets, pushApplePass } from "../wallet/apple";
 import { addLoyaltyMessage, patchLoyaltyObject, upsertLoyaltyClass, walletKey } from "../wallet/google";
 import { proximityText, type NotifyKind } from "../wallet/proximity";
 import { cardCodeSuffix, reserveCardCode } from "./codes";
@@ -14,7 +15,9 @@ const db = () => getFirestore();
 // La usan el escáner (paso 5), los cambios de diseño y la prueba de sellos.
 // `notify` (solo el escáner, ya filtrado por notifyDecision): "stamp" avisa el cambio de contador;
 // "complete" manda el mensaje de tarjeta completa.
-export async function pushCardToWallet(cardId: string, b: BusinessDoc, card: CardDoc, images: StampImages, notify?: NotifyKind) {
+export async function pushCardToWallet(businessId: string, cardId: string, b: BusinessDoc, card: CardDoc, images: StampImages, notify?: NotifyKind) {
+  // Apple: el pase se arma cuando el iPhone lo pide; acá solo se marca el cambio y se avisa por APNs.
+  if (card.platform === "apple") return pushApplePass(businessId, cardId, notify !== undefined);
   if (card.platform !== "google" || !card.googleObjectId) return;
   await patchLoyaltyObject(cardId, b, card, await images.urlFor(card.stamps), notify === "stamp");
   if (notify === "complete") {
@@ -54,7 +57,7 @@ export async function resyncBusinessCards(businessId: string, b: BusinessDoc): P
     try {
       const card = doc.data() as CardDoc;
       card.barcodeValue = await migrateLegacyCode(businessId, doc.id);
-      await pushCardToWallet(doc.id, b, card, images);
+      await pushCardToWallet(businessId, doc.id, b, card, images);
       updated++;
     } catch (err) {
       failed++;
@@ -79,7 +82,7 @@ async function ownedBusiness(uid: string | undefined, businessId: unknown): Prom
 }
 
 // Botón "Actualizar tarjetas" del panel: vuelve a mandar todas las tarjetas al Wallet.
-export const resyncCards = onCall({ secrets: [walletKey], memory: "512MiB", timeoutSeconds: 300 }, async (req) => {
+export const resyncCards = onCall({ secrets: [walletKey, ...appleSecrets], memory: "512MiB", timeoutSeconds: 300 }, async (req) => {
   const businessId = req.data?.businessId as string;
   const b = await ownedBusiness(req.auth?.uid, businessId);
   if (!b.rule) throw new HttpsError("failed-precondition", "El negocio todavía no terminó su tarjeta.");

@@ -62,6 +62,9 @@ export type CardDoc = {
   barcodeValue: string;
   codeSuffix?: string; // últimos 4 de barcodeValue, para buscar a mano en el escáner
   platform: "google" | "apple";
+  appleAuthToken?: string; // authenticationToken del pase (web service de Apple)
+  appleUpdatedAt?: number; // ms de la última versión del pase (passesUpdatedSince)
+  appleNotify?: boolean; // si la versión actual avisa al cliente (changeMessage)
   googleObjectId?: string;
   lastStampAt?: Timestamp;
   walletNotifyAt?: Timestamp[]; // avisos push enviados (últimas 24 h), ver wallet/proximity.ts

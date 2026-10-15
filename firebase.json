@@ -152,6 +152,13 @@
             "functionId": "geocodeAddress",
             "region": "southamerica-east1"
           }
+        },
+        {
+          "source": "/applePass/**",
+          "function": {
+            "functionId": "applePass",
+            "region": "southamerica-east1"
+          }
         }
       ]
     }

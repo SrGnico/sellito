@@ -6,11 +6,11 @@ import { logger } from "firebase-functions";
 import type { BusinessDoc } from "../types";
 import { CHECK_ICON, STAMP_ICONS } from "./stampIcons";
 
-// Imagen de sellos de la tarjeta (heroImage de Google Wallet, 1032×336).
-// MISMA disposición que web/src/components/StampGrid.tsx: si cambia una, cambiar la otra.
-const W = 1032;
-const H = 336;
-const PAD = 28;
+// Imagen de sellos de la tarjeta: heroImage de Google Wallet (1032×336) y strip de Apple Wallet
+// (1125×432 en @3x). MISMA disposición que web/src/components/StampGrid.tsx: si cambia una, cambiar la otra.
+export type StampSize = { w: number; h: number };
+export const GOOGLE_HERO: StampSize = { w: 1032, h: 336 };
+export const APPLE_STRIP: StampSize = { w: 1125, h: 432 };
 
 const FONT = join(__dirname, "../../assets/Fredoka-SemiBold.ttf");
 const DEFAULT_BG = "#FF9EC4";
@@ -73,12 +73,14 @@ export async function dataUri(url: string): Promise<string | null> {
   }
 }
 
-export function buildSvg(d: StampDesign, filled: number, banner: string | null, icon: string | null): string {
+export function buildSvg(d: StampDesign, filled: number, banner: string | null, icon: string | null, size: StampSize = GOOGLE_HERO): string {
+  const { w: W, h: H } = size;
+  const PAD = 28 * (W / GOOGLE_HERO.w);
   const rows = d.total <= 8 ? 1 : 2;
   const cols = Math.ceil(d.total / rows);
   const cellW = (W - PAD * 2) / cols;
   const cellH = (H - PAD * 2) / rows;
-  const r = Math.min(Math.min(cellW, cellH) * 0.4, 62);
+  const r = Math.min(Math.min(cellW, cellH) * 0.4, 62 * (W / GOOGLE_HERO.w));
   const presetIcon = STAMP_ICONS.find((i) => i.id === d.iconId) ?? CHECK_ICON;
   const iconSize = r * 1.15;
   const parts: string[] = [`<rect width="${W}" height="${H}" fill="${d.bg}"/>`];
@@ -133,9 +135,10 @@ export function buildSvg(d: StampDesign, filled: number, banner: string | null, 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${parts.join("")}</svg>`;
 }
 
-export function renderPng(svg: string): Buffer {
+export function renderPng(svg: string, width?: number): Buffer {
   return new Resvg(svg, {
     font: { fontFiles: [FONT], loadSystemFonts: false, defaultFontFamily: "Fredoka" },
+    ...(width ? { fitTo: { mode: "width" as const, value: width } } : {}),
   }).render().asPng();
 }
 
@@ -163,6 +166,18 @@ export class StampImages {
       this.design.iconUrl ? dataUri(this.design.iconUrl) : Promise.resolve(null),
     ]).then(([banner, icon]) => ({ banner, icon }));
     return this.assets;
+  }
+
+  // Strip de Apple Wallet para `filled` sellos, en @1x/@2x/@3x (va adentro del .pkpass, no en Storage).
+  async appleStrip(filled: number): Promise<Record<"strip.png" | "strip@2x.png" | "strip@3x.png", Buffer>> {
+    const n = Math.max(0, Math.min(filled, this.design.total));
+    const { banner, icon } = await this.loadAssets();
+    const svg = buildSvg(this.design, n, banner, icon, APPLE_STRIP);
+    return {
+      "strip.png": renderPng(svg, APPLE_STRIP.w / 3),
+      "strip@2x.png": renderPng(svg, (APPLE_STRIP.w * 2) / 3),
+      "strip@3x.png": renderPng(svg, APPLE_STRIP.w),
+    };
   }
 
   // URL de la imagen para `filled` sellos. Si no existe todavía, la genera y la sube.

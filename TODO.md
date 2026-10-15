@@ -92,14 +92,16 @@
 - [ ] Ícono propio del sello en WebP: verificar que resvg lo dibuje (PNG/JPG andan)
 - [ ] Limpiar imágenes generadas de diseños viejos
 
-### 7. Apple Wallet
-- [ ] Cercanía: `locations` con `relevantText` = `appleLocations()` (wallet/proximity.ts); sin locales o apagado, no incluir
-- [ ] Campo "Tu progreso" con `changeMessage` ("%@") para avisar al sumar y al completar; regenerar el pase en cada sello
-- [ ] Imagen de sellos con la proporción de Apple (strip 1125 × 432) y ajustar la vista previa iPhone a la tarjeta real
-- [ ] Cuenta Apple Developer (USD 99/año) y certificado de Pass Type ID
-- [ ] Generar `.pkpass` con `passkit-generator`
-- [ ] Endpoints del PassKit web service (registro de dispositivos, pases actualizados)
-- [ ] Push a APNs en cada sello
+### 7. Apple Wallet ✅ (falta probar en un iPhone)
+- [x] Cuenta Apple Developer (personal), Pass Type ID `pass.ar.com.misellito.tarjeta`, Team ID en `functions/.env`
+- [x] Certificado: clave y certificado en Secret Manager (`APPLE_PASS_KEY`, `APPLE_PASS_CERT`); WWDR G4 en `functions/assets/` (vence 2030); el certificado del pase vence el 14/11/2027
+- [x] `.pkpass` con `passkit-generator` (wallet/apple.ts): logo, strip de sellos 1125×432, contador, "Tu progreso", QR con los últimos 4
+- [x] Cercanía: `locations` con `relevantText` (solo si está activada y hay locales)
+- [x] "Tu progreso" con `changeMessage` cuando el escáner puede avisar (mismo tope que Google)
+- [x] PassKit web service en `API_URL/applePass` (registro, lista de cambios, pase actualizado, log) + push por APNs
+- [x] Alta desde iPhone: "Agregar a Apple Wallet" baja el `.pkpass`
+- [ ] Probar en un iPhone: alta → sumar sello → ver que se actualiza y avisa
+- [ ] Renovar el certificado del Pass Type ID antes del 14/11/2027
 
 ### 8. Mercado Pago (código listo, falta configurar y probar)
 - [x] Suscripción (preapproval) desde el panel: `createSubscription` (suscribirse, reactivar, cambiar medio de pago)
@@ -134,6 +136,8 @@
 - [x] Panel super admin (`/admin`): negocios, estado, plan, tarjetas, PIN; métricas (negocios, activas, ingreso mensual, tarjetas)
 
 ### Antes de lanzar
+- [ ] Mercado Pago en producción: credenciales de producción (no de prueba), webhook de la app de producción y volver a cargar `MP_ACCESS_TOKEN` / `MP_WEBHOOK_SECRET`
+- [ ] Crear y verificar `hola@misellito.com.ar` (Cloudflare Email Routing → Gmail); se usa en la landing y la política de privacidad
 - [x] Direcciones en variables de entorno (`SITE_URL`, `APP_URL`, `API_URL`); ninguna escrita a mano
 - [x] Links de alta cortos y permanentes: `SITE_URL/c/{código}`
 - [x] `misellito.com.ar` conectado (sitio `sellito-23c14`); `SITE_URL` ya apunta ahí y el QR se puede imprimir
