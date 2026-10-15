@@ -100,7 +100,7 @@
 - [x] Prueba gratis preparada (`trialDays` en `config/plans`, hoy 0) y `subscription.plan` admite un plan anual
 - [x] Precios en `config/plans` (se copian a la suscripción: cambiar el precio no toca las existentes)
 - [ ] Crear `config/plans` en Firestore (ver formato en `functions/src/payments/plans.ts`) y definir el precio
-- [ ] Secretos: `firebase functions:secrets:set MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET`
+- [x] Secretos `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` cargados y Functions desplegadas
 - [ ] En Mercado Pago: webhook a `API_URL/mpWebhook` con los eventos de suscripciones (preapproval y authorized_payment)
 - [ ] Instalar la extensión "Trigger Email from Firestore" (colección `mail`) con SMTP (Resend) y remitente `avisos@misellito.com.ar`
 - [ ] Probar con usuarios de prueba de MP: alta, cobro rechazado → gracia → bloqueo → reactivar
@@ -115,7 +115,7 @@
 - [x] `StatCard`: clientes, nuevos 7 días, sellos del mes, premios canjeados
 - [x] Exportar contactos (CSV UTF-8 con BOM, separador `;`) en Function, respeta filtros, anda en modo lectura
 - [x] Aviso de privacidad para el dueño y casilla de novedades en el alta (`consent` en la tarjeta). Textos en `web/src/content/privacy.ts`
-- [ ] Desplegar índices (`firestore.indexes.json`) antes de usar búsqueda y filtros
+- [x] Índices desplegados
 - [ ] Custom claim `superadmin` para mi cuenta
 - [ ] Panel super admin: negocios, estado de pago, métricas
 
@@ -125,7 +125,7 @@
 - [x] `misellito.com.ar` conectado (sitio `sellito-23c14`); `SITE_URL` ya apunta ahí y el QR se puede imprimir
 - [x] `app.misellito.com.ar` activo (CNAME `app` → `sellito-23c14.web.app`)
 - [x] `api.misellito.com.ar` activo (sitio `sellito-api`, rewrites a cada Function en `firebase.json`)
-- [x] `VITE_API_URL` y `API_URL` = `https://api.misellito.com.ar`; `DEV_ORIGINS` solo localhost (falta desplegar)
+- [x] `VITE_API_URL` y `API_URL` = `https://api.misellito.com.ar`; `DEV_ORIGINS` solo localhost (desplegado)
 - [ ] Cada Function nueva que llame la web: agregar su rewrite en el sitio `sellito-api` (`firebase.json`)
 - [ ] Ojo: Hosting corta a los 60 s. `resyncCards` con muchas tarjetas puede pasarse: hacerlo en segundo plano
 - [x] Dominios autorizados de Firebase Auth: `misellito.com.ar` y `app.misellito.com.ar`
