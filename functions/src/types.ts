@@ -61,7 +61,9 @@ export type CardDoc = {
   rewardsAvailable: number;
   rewardsRedeemed: number;
   barcodeValue: string;
-  codeSuffix?: string; // últimos 4 de barcodeValue, para buscar a mano en el escáner
+  codeSuffix?: string;
+  phoneKey?: string; // identityKeys(): para no duplicar tarjetas del mismo cliente
+  emailKey?: string; // últimos 4 de barcodeValue, para buscar a mano en el escáner
   platform: "google" | "apple";
   appleAuthToken?: string; // authenticationToken del pase (web service de Apple)
   appleUpdatedAt?: number; // ms de la última versión del pase (passesUpdatedSince)

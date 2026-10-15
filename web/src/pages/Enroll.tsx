@@ -31,7 +31,7 @@ const createCard = callable<
     consent: boolean
     consentVersion: string
   },
-  { saveUrl?: string; pkpassUrl?: string }
+  { saveUrl?: string; pkpassUrl?: string; existing?: boolean; stamps?: number }
 >('createCard')
 
 function isIOS() {
@@ -54,6 +54,15 @@ export default function Enroll() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saveUrl, setSaveUrl] = useState<string | null>(null)
+  const [returning, setReturning] = useState<{ stamps: number } | null>(null)
+  // Si en este celular ya se agregó la tarjeta de este negocio, se ofrece abrirla de nuevo.
+  const [remembered, setRemembered] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(`sellito-card:${code}`)
+    } catch {
+      return null
+    }
+  })
   const ios = isIOS()
 
   useEffect(() => {
@@ -135,6 +144,12 @@ export default function Enroll() {
       const r = await createCard({ code, platform: ios ? 'apple' : 'google', customer: values, consent, consentVersion: CONSENT_VERSION })
       // Google: link firmado a Google Wallet. Apple: el .pkpass, que Safari abre en Wallet.
       const url = r.data.saveUrl ?? r.data.pkpassUrl!
+      if (r.data.existing) setReturning({ stamps: r.data.stamps ?? 0 })
+      try {
+        localStorage.setItem(`sellito-card:${code}`, url)
+      } catch {
+        // sin almacenamiento: no pasa nada
+      }
       setSaveUrl(url)
       window.location.assign(url)
     } catch (err) {
@@ -169,11 +184,26 @@ export default function Enroll() {
       {saveUrl ? (
         <div className="alert alert-ok" role="status">
           <div>
-            <span className="alert-title">¡Tu tarjeta está lista!</span>
+            <span className="alert-title">
+              {returning
+                ? `¡Ya tenías tu tarjeta! La recuperamos con tus ${returning.stamps} ${returning.stamps === 1 ? 'sello' : 'sellos'}.`
+                : '¡Tu tarjeta está lista!'}
+            </span>
             <span className="alert-text">
               Si no se abrió sola, <a href={saveUrl}>tocá acá para agregarla a {ios ? 'Apple Wallet' : 'Google Wallet'}</a>.
             </span>
           </div>
+        </div>
+      ) : remembered ? (
+        <div className="card" style={{ gap: 12 }}>
+          <h4>Ya agregaste esta tarjeta en este celular</h4>
+          <p style={{ margin: 0, color: 'var(--text-soft)' }}>Abrila de nuevo para ver tus sellos. No hace falta crear otra.</p>
+          <a className="btn btn-lg btn-primary" href={remembered}>
+            Abrir mi tarjeta
+          </a>
+          <button className="btn btn-ghost btn-sm" type="button" onClick={() => setRemembered(null)}>
+            Es para otra persona
+          </button>
         </div>
       ) : (
         <form className="card" onSubmit={handleSubmit} noValidate style={{ gap: 16 }}>

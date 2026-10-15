@@ -4,10 +4,10 @@ import { logger } from "firebase-functions";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { enrollMissing, type BusinessDoc, type CardDoc, type Customer } from "../types";
 import { StampImages } from "../images/stamps";
-import { insertLoyaltyObject, saveUrl, upsertLoyaltyClass, walletKey } from "../wallet/google";
+import { saveUrl, upsertLoyaltyClass, upsertLoyaltyObject, walletKey } from "../wallet/google";
 import { accessLevel } from "../payments/access";
 import { cardCodeSuffix, reserveCardCode } from "./codes";
-import { searchTokens } from "./search";
+import { identityKeys, searchTokens } from "./search";
 import { clientIp, DAY, HOUR, rateLimit } from "../security/rateLimit";
 import { appleDownloadUrl, newAppleAuthToken } from "../wallet/apple";
 
@@ -131,11 +131,19 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
   await rateLimit(`createCard:ip:${clientIp(req)}`, 10, HOUR);
   await rateLimit(`createCard:biz:${businessId}`, 500, DAY);
   const cardRef = db().collection(`businesses/${businessId}/cards`).doc();
+  const keys = identityKeys(customer);
 
   try {
     if (platform === "google" && !b.googleClassId) {
       const classId = await upsertLoyaltyClass(businessId, b);
       await db().doc(`businesses/${businessId}`).update({ googleClassId: classId });
+    }
+
+    // ¿Ya tiene tarjeta en este negocio (mismo teléfono o mail)? Se la devolvemos con sus sellos.
+    const existing = await findExistingCard(businessId, keys);
+    if (existing) {
+      const link = await reissueCard(businessId, b, existing.id, existing.data() as CardDoc, platform);
+      return { ...link, existing: true, stamps: (existing.data() as CardDoc).stamps };
     }
 
     // Código corto y único en el negocio (lo que codifica el QR y lee el escáner).
@@ -151,6 +159,7 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
         platform,
         ...(platform === "apple" ? { appleAuthToken: newAppleAuthToken(), appleUpdatedAt: Date.now() } : {}),
         searchTokens: searchTokens(customer),
+        ...keys,
         consent,
         createdAt: Timestamp.now(),
       };
@@ -167,7 +176,7 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
     if (platform === "apple") return { pkpassUrl: appleDownloadUrl(businessId, cardRef.id, card.appleAuthToken!) };
 
     const heroUrl = await new StampImages(businessId, b).urlFor(card.stamps);
-    const objectId = await insertLoyaltyObject(businessId, cardRef.id, b, card, heroUrl);
+    const objectId = await upsertLoyaltyObject(businessId, cardRef.id, b, card, heroUrl);
     await cardRef.update({ googleObjectId: objectId });
 
     return { saveUrl: saveUrl([objectId]) };
@@ -176,3 +185,33 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
     throw new HttpsError("internal", "No pudimos crear la tarjeta.");
   }
 });
+
+async function findExistingCard(businessId: string, keys: { phoneKey?: string; emailKey?: string }) {
+  const cards = db().collection(`businesses/${businessId}/cards`);
+  for (const [field, value] of Object.entries(keys)) {
+    if (!value) continue;
+    const snap = await cards.where(field, "==", value).limit(1).get();
+    if (!snap.empty) return snap.docs[0];
+  }
+  return null;
+}
+
+// Vuelve a emitir una tarjeta existente en la plataforma pedida (puede haber cambiado de celular).
+async function reissueCard(
+  businessId: string,
+  b: BusinessDoc,
+  cardId: string,
+  card: CardDoc,
+  platform: "google" | "apple",
+): Promise<{ saveUrl?: string; pkpassUrl?: string }> {
+  const ref = db().doc(`businesses/${businessId}/cards/${cardId}`);
+  if (platform === "apple") {
+    const token = card.appleAuthToken ?? newAppleAuthToken();
+    await ref.update({ platform: "apple", appleAuthToken: token, appleUpdatedAt: Date.now() });
+    return { pkpassUrl: appleDownloadUrl(businessId, cardId, token) };
+  }
+  const heroUrl = await new StampImages(businessId, b).urlFor(card.stamps);
+  const objectId = await upsertLoyaltyObject(businessId, cardId, b, card, heroUrl);
+  await ref.update({ platform: "google", googleObjectId: objectId });
+  return { saveUrl: saveUrl([objectId]) };
+}

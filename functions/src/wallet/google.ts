@@ -120,6 +120,18 @@ export async function insertLoyaltyObject(
   return id;
 }
 
+// Crea el objeto o, si ya existe (la tarjeta estuvo en Google antes), lo actualiza.
+export async function upsertLoyaltyObject(businessId: string, cardId: string, b: BusinessDoc, card: CardDoc, heroUrl: string): Promise<string> {
+  try {
+    return await insertLoyaltyObject(businessId, cardId, b, card, heroUrl);
+  } catch (err) {
+    const status = (err as { response?: { status?: number }; status?: number })?.response?.status ?? (err as { status?: number })?.status;
+    if (status !== 409) throw err;
+    await patchLoyaltyObject(cardId, b, card, heroUrl);
+    return objectIdFor(cardId);
+  }
+}
+
 // Actualiza una tarjeta ya emitida: el Wallet del cliente la refresca solo, sin volver a agregarla.
 // `notify`: avisa al cliente que cambió el contador (Google solo avisa por loyaltyPoints.balance).
 export async function patchLoyaltyObject(

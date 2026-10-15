@@ -18,7 +18,7 @@ import type { Card } from './types'
 export const PAGE_SIZE = 25
 export const INACTIVE_DAYS = 30
 export const NEW_DAYS = 7
-export const CARDS_VERSION = 2 // functions/src/cards/search.ts
+export const CARDS_VERSION = 3 // functions/src/cards/search.ts
 const MAX_TOKEN = 15
 const DAY_MS = 86400000
 

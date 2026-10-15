@@ -1,7 +1,7 @@
 import { getFirestore, Timestamp, type Query } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
-import { CARDS_VERSION, localPhoneDigits, MAX_TOKEN, normalizeText, searchTokens } from "../cards/search";
+import { CARDS_VERSION, identityKeys, localPhoneDigits, MAX_TOKEN, normalizeText, searchTokens } from "../cards/search";
 import type { BusinessDoc, CardDoc } from "../types";
 
 // Clientes del negocio (panel → Clientes). Mismos filtros que web/src/lib/customers.ts.
@@ -35,6 +35,9 @@ async function upgradeBusinessCards(businessId: string): Promise<number> {
     const tokens = searchTokens(c.customer ?? {});
     if (JSON.stringify(c.searchTokens ?? []) !== JSON.stringify(tokens)) patch.searchTokens = tokens;
     if (!c.lastActivityAt) patch.lastActivityAt = c.lastStampAt ?? c.createdAt ?? Timestamp.now();
+    const keys = identityKeys(c.customer ?? {});
+    if (keys.phoneKey && keys.phoneKey !== c.phoneKey) patch.phoneKey = keys.phoneKey;
+    if (keys.emailKey && keys.emailKey !== c.emailKey) patch.emailKey = keys.emailKey;
     if (Object.keys(patch).length === 0) continue;
     writer.update(doc.ref, patch);
     updated++;

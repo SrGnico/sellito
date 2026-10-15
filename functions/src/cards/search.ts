@@ -4,7 +4,7 @@ import type { Customer } from "../types";
 // `searchTokens`: los prefijos de cada palabra del nombre, del mail y del teléfono (y sus últimos
 // dígitos). El panel busca con array-contains. Misma lógica que web/src/lib/customers.ts.
 
-export const CARDS_VERSION = 2; // sube cuando cambian los campos derivados de las tarjetas
+export const CARDS_VERSION = 3; // sube cuando cambian los campos derivados de las tarjetas (v3: phoneKey/emailKey)
 export const MAX_TOKEN = 15;
 const MIN_TOKEN = 2;
 
@@ -28,6 +28,17 @@ export function localPhoneDigits(phone: string): string {
   if (d.startsWith("9") && d.length === 11) d = d.slice(1);
   if (d.startsWith("0")) d = d.slice(1);
   return d;
+}
+
+// Identidad del cliente para no duplicar tarjetas en un negocio: los últimos 8 dígitos del teléfono
+// (así "011 15 2345-6789" y "+54 9 11 2345 6789" coinciden) y el mail en minúsculas.
+export function identityKeys(c: Customer): { phoneKey?: string; emailKey?: string } {
+  const digits = c.phone ? localPhoneDigits(c.phone) : "";
+  const email = c.email?.trim().toLowerCase();
+  return {
+    ...(digits.length >= 8 ? { phoneKey: digits.slice(-8) } : {}),
+    ...(email ? { emailKey: email } : {}),
+  };
 }
 
 export function searchTokens(c: Customer): string[] {
