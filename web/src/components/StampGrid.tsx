@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import { CHECK_ICON, stampIconById } from '../lib/stampIcons'
+import { APP_NAME } from '../lib/urls'
 import StampIconSvg from './StampIconSvg'
 
 // Mismo tamaño que la imagen "hero" de Google Wallet (1032×336).
@@ -118,6 +119,19 @@ export default function StampGrid({ total, filled, bgColor, textColor, stampIcon
           </g>
         )
       })}
+      {/* Firma de la marca: misma posición que functions/src/images/stamps.ts */}
+      <text
+        x={W - PAD * 1.1}
+        y={H - PAD - 13 * 0.7}
+        textAnchor="end"
+        fill={textColor}
+        fillOpacity={0.75}
+        fontFamily="Fredoka, system-ui, sans-serif"
+        fontWeight={600}
+        fontSize={13}
+      >
+        hecho con {APP_NAME}
+      </text>
     </svg>
   )
 }

@@ -7,7 +7,7 @@ import LoadingScreen from '../components/LoadingScreen'
 import Mascot from '../components/Mascot'
 import StatCard from '../components/StatCard'
 import { useAuth } from '../lib/auth'
-import { auth, db } from '../lib/firebase'
+import { auth, callable, db } from '../lib/firebase'
 import { accessLevel, formatMoney, type AccessLevel } from '../lib/subscription'
 import type { Business } from '../lib/types'
 import { APP_NAME, enrollUrl } from '../lib/urls'
@@ -15,6 +15,8 @@ import '../styles/panel.css'
 
 // Panel de super admin (SELLITO_SPEC.md §3.5): todos los negocios, estado de pago y métricas.
 // Se entra con el custom claim `superadmin` (lo leen las reglas de Firestore; acá solo se usa para mostrar).
+
+const resyncCards = callable<{ businessId: string }, { updated: number; failed: number }>('resyncCards')
 
 type Row = Business & { cards: number | null; level: AccessLevel }
 type Filter = 'all' | 'full' | 'none' | 'grace' | 'blocked'
@@ -174,9 +176,12 @@ function AdminDashboard({ email }: { email: string }) {
                         <td>{(r.scannerPinVersion ?? 0) > 0 ? 'Con PIN' : 'Sin PIN'}</td>
                         <td>{r.createdAt ? r.createdAt.toDate().toLocaleDateString('es-AR') : '—'}</td>
                         <td>
-                          {r.enrollCode && (
-                            <a href={enrollUrl(r.enrollCode)} target="_blank" rel="noreferrer">Ver alta</a>
-                          )}
+                          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                            {r.enrollCode && (
+                              <a href={enrollUrl(r.enrollCode)} target="_blank" rel="noreferrer">Ver alta</a>
+                            )}
+                            {r.rule && <ResyncButton businessId={r.id} />}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -188,5 +193,28 @@ function AdminDashboard({ email }: { email: string }) {
         )}
       </main>
     </>
+  )
+}
+
+// Vuelve a mandar todas las tarjetas del negocio al Wallet (después de un cambio visual general).
+function ResyncButton({ businessId }: { businessId: string }) {
+  const [state, setState] = useState<'idle' | 'busy' | string>('idle')
+  return (
+    <button
+      className="link-button"
+      type="button"
+      disabled={state === 'busy'}
+      onClick={async () => {
+        setState('busy')
+        try {
+          const r = (await resyncCards({ businessId })).data
+          setState(`✓ ${r.updated}${r.failed ? ` (${r.failed} con error)` : ''}`)
+        } catch {
+          setState('Error')
+        }
+      }}
+    >
+      {state === 'idle' ? 'Actualizar tarjetas' : state === 'busy' ? 'Actualizando…' : state}
+    </button>
   )
 }

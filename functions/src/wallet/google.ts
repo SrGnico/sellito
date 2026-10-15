@@ -2,7 +2,7 @@ import { createSign } from "node:crypto";
 import { defineSecret, defineString } from "firebase-functions/params";
 import { GoogleAuth } from "google-auth-library";
 import { cardCodeSuffix } from "../cards/codes";
-import { walletOrigins } from "../config";
+import { APP_NAME, SITE_URL, walletOrigins } from "../config";
 import { activeLocations, proximityText } from "./proximity";
 import type { BusinessDoc, CardDoc } from "../types";
 
@@ -98,6 +98,7 @@ function loyaltyObjectFields(b: BusinessDoc, card: Pick<CardDoc, "stamps" | "bar
       { id: "progreso", header: "Tu progreso", body: proximityText(b, stamps) },
       { id: "premio", header: "Premio", body: `Al juntar ${required} sellos: ${b.rule!.rewardText}` },
     ],
+    linksModuleData: { uris: [{ id: "marca", uri: SITE_URL.value(), description: `Tarjeta hecha con ${APP_NAME.value()}` }] },
   };
 }
 

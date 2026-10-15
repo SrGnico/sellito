@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import { getStorage } from "firebase-admin/storage";
 import { logger } from "firebase-functions";
+import { APP_NAME } from "../config";
 import type { BusinessDoc } from "../types";
 import { CHECK_ICON, STAMP_ICONS } from "./stampIcons";
 
@@ -57,7 +58,8 @@ export function designOf(b: BusinessDoc): StampDesign {
 
 // Huella del diseño: si cambia algo, cambian las URLs y Google no muestra una imagen vieja de su caché.
 function fingerprint(d: StampDesign): string {
-  return createHash("sha1").update(JSON.stringify({ v: 1, ...d })).digest("hex").slice(0, 12);
+  // v2: firma "hecho con {APP_NAME}" en la esquina.
+  return createHash("sha1").update(JSON.stringify({ v: 2, brand: APP_NAME.value(), ...d })).digest("hex").slice(0, 12);
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
@@ -132,6 +134,12 @@ export function buildSvg(d: StampDesign, filled: number, banner: string | null, 
     }
   }
 
+  // Firma chiquita de la marca abajo a la derecha, dentro de la franja (mismo texto que StampGrid en la web).
+  const brandSize = 13 * (W / GOOGLE_HERO.w);
+  parts.push(
+    `<text x="${W - PAD * 1.1}" y="${H - PAD - brandSize * 0.7}" text-anchor="end" fill="${d.fg}" fill-opacity="0.75" ` +
+      `font-family="Fredoka" font-weight="600" font-size="${brandSize}">hecho con ${esc(APP_NAME.value())}</text>`,
+  );
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${parts.join("")}</svg>`;
 }
 

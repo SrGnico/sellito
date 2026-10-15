@@ -154,6 +154,13 @@
           }
         },
         {
+          "source": "/enrollPoster",
+          "function": {
+            "functionId": "enrollPoster",
+            "region": "southamerica-east1"
+          }
+        },
+        {
           "source": "/applePass/**",
           "function": {
             "functionId": "applePass",

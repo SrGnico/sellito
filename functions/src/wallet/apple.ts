@@ -7,7 +7,7 @@ import { logger } from "firebase-functions";
 import { defineSecret, defineString } from "firebase-functions/params";
 import { PKPass } from "passkit-generator";
 import { cardCodeSuffix } from "../cards/codes";
-import { API_URL, APP_NAME } from "../config";
+import { API_URL, APP_NAME, SITE_URL } from "../config";
 import { autoTextColor, dataUri, renderPng, type StampImages } from "../images/stamps";
 import type { BusinessDoc, CardDoc } from "../types";
 import { PROGRAM_NAME } from "./google";
@@ -107,7 +107,7 @@ export async function buildPkpass(businessId: string, cardId: string, b: Busines
         { key: "premio", label: "Premio", value: `Al juntar ${total} sellos: ${b.rule!.rewardText}` },
         { key: "codigo", label: "Código de la tarjeta", value: code },
         { key: "como", label: "Cómo funciona", value: `Mostrá esta tarjeta en ${b.name} cada vez que comprás y te suman un sello.` },
-        { key: "app", label: "Tarjeta hecha con", value: APP_NAME.value() },
+        { key: "app", label: "Tarjeta hecha con", value: `${APP_NAME.value()} · ${SITE_URL.value()}` },
       ],
     },
   };

@@ -54,7 +54,7 @@
 - [x] Prueba: las tarjetas viejas se migraron y un +1 actualizó imagen y contador en el Wallet sin volver a agregarla
 - [x] Borrada la tarjeta "Prueba (Claude)"
 - [ ] Botón oficial "Add to Google Wallet" (guía de marca de Google)
-- [ ] Afiche imprimible con el QR (A5/A4 con la marca del negocio)
+- [x] Afiche A4 con el QR, colores, foto y logo del negocio (`enrollPoster`), en Panel → QR
 - [x] Límite de altas: 10 por hora por IP y 500 por día por negocio (`security/rateLimit.ts`)
 - [ ] App Check (reCAPTCHA) en el alta y el escáner
 - [ ] Política TTL de Firestore sobre `rateLimits.expiresAt` para borrar contadores viejos
@@ -86,6 +86,7 @@
 - [ ] Si crece el volumen, pasar el geocoding a un servicio pago (Nominatim pide uso liviano)
 
 ### 6. Imágenes de sellos ✅ (adelantado)
+- [x] Firma "hecho con Sellito" en la imagen de sellos; link a SITE_URL en los detalles (Google) y atrás (Apple)
 - [x] Imagen por estado (0/N … N/N) con `@resvg/resvg-js` en `businesses/{id}/generated/{huella}/{n}-de-{N}.png`; no se regenera si existe
 - [x] URL distinta por diseño (huella) y por estado: Google no muestra versiones viejas
 - [x] Banner de fondo con franja semitransparente para que los sellos se lean
@@ -124,6 +125,7 @@
 - [ ] Actualizar monto de suscripciones existentes por inflación (PUT `auto_recurring.transaction_amount`)
 
 ### 9. Clientes, estadísticas y super admin
+- [x] Admin: botón "Actualizar tarjetas" por negocio (resyncCards acepta superadmin)
 - [x] Sección Clientes (`/panel/clientes`): tabla de a 25 con paginación, orden por alta / último sello / sellos
 - [x] Búsqueda por nombre, teléfono o mail (prefijos en `searchTokens`; tarjetas viejas se completan con `upgradeCards`)
 - [x] Filtros: con premio, inactivos +30 días, nuevos esta semana
@@ -151,7 +153,7 @@
 - [ ] Google Wallet: pedir acceso de publicación (salir del modo demo)
 
 ### 10. Landing de venta
-- [ ] Landing separada de la app
+- [ ] Landing separada de la app. Mensajes clave: sirve para **cualquier negocio** que quiera juntar datos de clientes, dar tarjetas y regalar algo; **no se descarga nada** (el cliente escanea y la guarda en el Wallet; el local solo necesita un celular o una compu con internet). Contacto: `hola@misellito.com.ar`
 - [x] Favicon
 - [ ] Imagen para compartir y banner de la landing
 - [ ] Landing: describir la cercanía como "puede aparecer en la pantalla de bloqueo cuando está cerca del local" (no prometer que siempre aparece)

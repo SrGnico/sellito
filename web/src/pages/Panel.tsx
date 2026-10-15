@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, NavLink, Route, Routes } from 'react-router-dom'
+import EnrollPoster from '../components/EnrollPoster'
 import EnrollQr from '../components/EnrollQr'
 import { useAuth } from '../lib/auth'
 import { auth, db } from '../lib/firebase'
@@ -214,6 +215,7 @@ function QrPage({ business }: { business: Business }) {
       <h2>QR del local</h2>
       <p className="section-intro">Imprimilo y ponelo en el mostrador. Cada cliente lo escanea una vez y la tarjeta queda en su celular.</p>
       <EnrollQr business={business} />
+      <EnrollPoster business={business} />
     </div>
   )
 }

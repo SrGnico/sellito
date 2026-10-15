@@ -67,13 +67,13 @@ export async function resyncBusinessCards(businessId: string, b: BusinessDoc): P
   return { updated, failed };
 }
 
-async function ownedBusiness(uid: string | undefined, businessId: unknown): Promise<BusinessDoc> {
+async function ownedBusiness(uid: string | undefined, businessId: unknown, superadmin = false): Promise<BusinessDoc> {
   if (!uid) throw new HttpsError("unauthenticated", "Iniciá sesión.");
   if (typeof businessId !== "string" || !/^[A-Za-z0-9]{1,40}$/.test(businessId)) {
     throw new HttpsError("invalid-argument", "Negocio inválido.");
   }
   const snap = await db().doc(`businesses/${businessId}`).get();
-  if (!snap.exists || snap.get("ownerUid") !== uid) throw new HttpsError("permission-denied", "Este negocio no es tuyo.");
+  if (!snap.exists || (snap.get("ownerUid") !== uid && !superadmin)) throw new HttpsError("permission-denied", "Este negocio no es tuyo.");
   const b = snap.data() as BusinessDoc;
   // Con la suscripción vencida las actualizaciones del Wallet quedan en pausa hasta reactivar.
   const level = accessLevel(b.subscription);
@@ -81,10 +81,11 @@ async function ownedBusiness(uid: string | undefined, businessId: unknown): Prom
   return b;
 }
 
-// Botón "Actualizar tarjetas" del panel: vuelve a mandar todas las tarjetas al Wallet.
+// "Actualizar tarjetas": vuelve a mandar todas las tarjetas al Wallet. Lo puede pedir el dueño o el
+// super admin (desde /admin, por ejemplo después de un cambio visual para todos los negocios).
 export const resyncCards = onCall({ secrets: [walletKey, ...appleSecrets], memory: "512MiB", timeoutSeconds: 300 }, async (req) => {
   const businessId = req.data?.businessId as string;
-  const b = await ownedBusiness(req.auth?.uid, businessId);
+  const b = await ownedBusiness(req.auth?.uid, businessId, req.auth?.token.superadmin === true);
   if (!b.rule) throw new HttpsError("failed-precondition", "El negocio todavía no terminó su tarjeta.");
   if (b.googleClassId) await upsertLoyaltyClass(businessId, b);
   return resyncBusinessCards(businessId, b);
