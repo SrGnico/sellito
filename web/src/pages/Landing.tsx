@@ -173,11 +173,11 @@ export default function Landing() {
             </div>
           </div>
           <ul className="leads-list">
-            <li><strong>Elegís qué pedir:</strong> nombre, teléfono, mail, o solo lo que necesites.</li>
-            <li><strong>Ves quién vuelve y quién no:</strong> cuántos sellos lleva cada uno, quiénes tienen premio y quiénes hace rato que no pasan.</li>
-            <li><strong>Es solo tuya:</strong> no la compartimos con nadie ni la usamos para otra cosa.</li>
-            <li><strong>La descargás cuando quieras,</strong> en un archivo que abrís con Excel o Google Sheets.</li>
-            <li><strong>Si dejás de pagar, no se pierde:</strong> la seguís pudiendo descargar. Solo se borra si vos nos lo pedís.</li>
+            <li><span><strong>Elegís qué pedir:</strong> nombre, teléfono, mail, o solo lo que necesites.</span></li>
+            <li><span><strong>Ves quién vuelve y quién no:</strong> cuántos sellos lleva cada uno, quiénes tienen premio y quiénes hace rato que no pasan.</span></li>
+            <li><span><strong>Es solo tuya:</strong> no la compartimos con nadie ni la usamos para otra cosa.</span></li>
+            <li><span><strong>La descargás cuando quieras,</strong> en un archivo que abrís con Excel o Google Sheets.</span></li>
+            <li><span><strong>Si dejás de pagar, no se pierde:</strong> la seguís pudiendo descargar. Solo se borra si vos nos lo pedís.</span></li>
           </ul>
         </section>
         </div>
