@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import step1 from '../assets/onboarding-1-disena.svg'
 import step2 from '../assets/onboarding-2-wallet.svg'
 import step3 from '../assets/onboarding-3-escanea.svg'
@@ -44,6 +44,7 @@ export default function Landing() {
   const example = EXAMPLES[i]
   const [rubro, setRubro] = useState(0)
   const perDay = plan ? Math.ceil(plan.amount / 30 / 10) * 10 : null
+  const phoneMax = useHeroFit()
 
   useEffect(() => {
     document.title = `${APP_NAME} · Tarjetas de fidelidad en el celular de tus clientes`
@@ -79,7 +80,7 @@ export default function Landing() {
           </div>
           {/* En computadora el celular va al lado del texto; en el celular, debajo de la franja de confianza. */}
           <div className="hero-card hero-card-side" aria-hidden="true">
-            <PhoneMockup example={example} />
+            <PhoneMockup example={example} maxHeight={phoneMax} />
           </div>
         </section>
 
@@ -313,6 +314,32 @@ export default function Landing() {
       <StickyCta href={signupUrl} onClick={() => track('cta_click')} />
     </div>
   )
+}
+
+// Primera pantalla en computadora: mide la ventana real (no supone tamaños) para que el encabezado y la
+// franja de confianza entren justo, y devuelve el alto máximo del celular de muestra.
+function useHeroFit(): number | undefined {
+  const [max, setMax] = useState<number>()
+  useLayoutEffect(() => {
+    const fit = () => {
+      const screen = document.querySelector<HTMLElement>('.hero-screen')
+      const header = document.querySelector<HTMLElement>('.site-header')
+      const strip = document.querySelector<HTMLElement>('.trust-bar')
+      if (!screen || !header || !strip || window.innerWidth < 900) {
+        screen?.style.removeProperty('--hero-screen-h')
+        setMax(undefined)
+        return
+      }
+      const available = window.innerHeight - header.offsetHeight
+      screen.style.setProperty('--hero-screen-h', `${available}px`)
+      // Lo que queda arriba de la franja, menos el aire del encabezado (40 + 40) y un margen por el giro.
+      setMax(available - strip.offsetHeight - 80 - 16)
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [])
+  return max
 }
 
 function TrustPoints({ className }: { className?: string }) {
