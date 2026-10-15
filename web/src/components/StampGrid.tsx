@@ -8,6 +8,8 @@ import StampIconSvg from './StampIconSvg'
 const W = 1032
 const H = 336
 const PAD = 28
+// Espacio reservado abajo para la firma de la marca (igual que el backend).
+const MARK_H = 34
 
 type Props = {
   total: number
@@ -25,7 +27,7 @@ export default function StampGrid({ total, filled, bgColor, textColor, stampIcon
   const rows = total <= 8 ? 1 : 2
   const cols = Math.ceil(total / rows)
   const cellW = (W - PAD * 2) / cols
-  const cellH = (H - PAD * 2) / rows
+  const cellH = (H - PAD * 2 - MARK_H) / rows
   const r = Math.min(Math.min(cellW, cellH) * 0.4, 62)
   const icon = stampIconById(stampIconId) ?? CHECK_ICON
 
@@ -44,7 +46,7 @@ export default function StampGrid({ total, filled, bgColor, textColor, stampIcon
         <>
           <image href={bannerUrl} width={W} height={H} preserveAspectRatio="xMidYMid slice" />
           {/* Franja del color de fondo para que los sellos se lean sobre cualquier foto. */}
-          <rect x={PAD / 2} y={PAD} width={W - PAD} height={rows * cellH} rx={r * 0.6} fill={bgColor} fillOpacity={0.82} />
+          <rect x={PAD / 2} y={PAD} width={W - PAD} height={rows * cellH + MARK_H} rx={r * 0.6} fill={bgColor} fillOpacity={0.82} />
         </>
       )}
       {Array.from({ length: total }, (_, i) => {
@@ -119,19 +121,38 @@ export default function StampGrid({ total, filled, bgColor, textColor, stampIcon
           </g>
         )
       })}
-      {/* Firma de la marca: misma posición que functions/src/images/stamps.ts */}
-      <text
-        x={W - PAD * 1.1}
-        y={H - PAD - 13 * 0.7}
-        textAnchor="end"
-        fill={textColor}
-        fillOpacity={0.75}
-        fontFamily="Fredoka, system-ui, sans-serif"
-        fontWeight={600}
-        fontSize={13}
-      >
-        hecho con {APP_NAME}
-      </text>
+      <BrandMark cx={W / 2} cy={PAD + rows * cellH + MARK_H * 0.55} color={textColor} />
     </svg>
+  )
+}
+
+// Firma de la marca: "Creada con ☺ Sellito", mascota en contorno, un solo color (el del texto), centrada.
+// Misma forma que brandMark() en functions/src/images/stamps.ts: los textos se anclan a la mascota
+// (fin y comienzo) para que el espacio a cada lado sea exacto.
+function BrandMark({ cx, cy, color }: { cx: number; cy: number; color: string }) {
+  const size = 16
+  const r = size * 0.62
+  const gap = size * 0.3
+  const charW = size * 0.5
+  const before = 'Creada con'
+  const after = APP_NAME
+  const total = before.length * charW + gap + r * 2 + gap + after.length * charW
+  const ix = cx - total / 2 + before.length * charW + gap + r
+  const textProps = { y: cy + size * 0.36, fill: color, fontFamily: 'Fredoka, system-ui, sans-serif', fontWeight: 600, fontSize: size }
+  return (
+    <g opacity={0.85}>
+      <text x={ix - r - gap} textAnchor="end" {...textProps}>{before}</text>
+      <circle cx={ix} cy={cy} r={r - 0.8} fill="none" stroke={color} strokeWidth={1.6} />
+      <circle cx={ix - r * 0.32} cy={cy - r * 0.18} r={r * 0.11} fill={color} />
+      <circle cx={ix + r * 0.32} cy={cy - r * 0.18} r={r * 0.11} fill={color} />
+      <path
+        d={`M${ix - r * 0.4} ${cy + r * 0.15} Q${ix} ${cy + r * 0.6} ${ix + r * 0.4} ${cy + r * 0.15}`}
+        fill="none"
+        stroke={color}
+        strokeWidth={r * 0.14}
+        strokeLinecap="round"
+      />
+      <text x={ix + r + gap} textAnchor="start" {...textProps}>{after}</text>
+    </g>
   )
 }

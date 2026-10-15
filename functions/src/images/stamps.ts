@@ -58,8 +58,8 @@ export function designOf(b: BusinessDoc): StampDesign {
 
 // Huella del diseño: si cambia algo, cambian las URLs y Google no muestra una imagen vieja de su caché.
 function fingerprint(d: StampDesign): string {
-  // v2: firma "hecho con {APP_NAME}" en la esquina.
-  return createHash("sha1").update(JSON.stringify({ v: 2, brand: APP_NAME.value(), ...d })).digest("hex").slice(0, 12);
+  // v4: firma "Creada con {APP_NAME}" centrada abajo, mascota en contorno.
+  return createHash("sha1").update(JSON.stringify({ v: 4, brand: APP_NAME.value(), ...d })).digest("hex").slice(0, 12);
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
@@ -75,13 +75,53 @@ export async function dataUri(url: string): Promise<string | null> {
   }
 }
 
+// Firma de la marca: "Creada con ☺ Sellito" (la mascota en contorno funciona como logo de la marca),
+// un solo color (el del texto) y centrada. Misma forma que BrandMark en web/src/components/StampGrid.tsx.
+export type BrandLayout = "logo-before-name" | "logo-at-end";
+
+function mascotOutline(ix: number, cy: number, r: number, k: number, color: string): string {
+  return (
+    `<circle cx="${ix}" cy="${cy}" r="${r - 0.8 * k}" fill="none" stroke="${color}" stroke-width="${1.6 * k}"/>` +
+    `<circle cx="${ix - r * 0.32}" cy="${cy - r * 0.18}" r="${r * 0.11}" fill="${color}"/>` +
+    `<circle cx="${ix + r * 0.32}" cy="${cy - r * 0.18}" r="${r * 0.11}" fill="${color}"/>` +
+    `<path d="M${ix - r * 0.4} ${cy + r * 0.15} Q${ix} ${cy + r * 0.6} ${ix + r * 0.4} ${cy + r * 0.15}" fill="none" stroke="${color}" stroke-width="${r * 0.14}" stroke-linecap="round"/>`
+  );
+}
+
+export function brandMark(cx: number, cy: number, k: number, color: string, layout: BrandLayout = "logo-before-name"): string {
+  const size = 16 * k;
+  const r = size * 0.62;
+  const gap = size * 0.3; // misma distancia a los dos lados de la mascota
+  const charW = size * 0.5; // ancho aproximado de un carácter: solo para centrar el conjunto
+  const before = layout === "logo-before-name" ? "Creada con" : `Creada con ${APP_NAME.value()}`;
+  const after = layout === "logo-before-name" ? APP_NAME.value() : "";
+  // El ícono se ubica según el ancho estimado, pero los textos se anclan al ícono (fin y comienzo),
+  // así el espacio a cada lado es exacto aunque la estimación no lo sea.
+  const total = before.length * charW + gap + r * 2 + (after ? gap + after.length * charW : 0);
+  const ix = cx - total / 2 + before.length * charW + gap + r;
+  const t = (x: number, anchor: "start" | "end", value: string) =>
+    `<text x="${x}" y="${cy + size * 0.36}" text-anchor="${anchor}" fill="${color}" font-family="Fredoka" font-weight="600" font-size="${size}">${esc(value)}</text>`;
+  return (
+    `<g opacity="0.85">` +
+    t(ix - r - gap, "end", before) +
+    mascotOutline(ix, cy, r, k, color) +
+    (after ? t(ix + r + gap, "start", after) : "") +
+    `</g>`
+  );
+}
+
 export function buildSvg(d: StampDesign, filled: number, banner: string | null, icon: string | null, size: StampSize = GOOGLE_HERO): string {
   const { w: W, h: H } = size;
-  const PAD = 28 * (W / GOOGLE_HERO.w);
+  const k = W / GOOGLE_HERO.w;
+  const PAD = 28 * k;
+  // Apple recorta arriba y abajo la franja cuando la tarjeta tiene QR: margen vertical extra.
+  const padY = PAD + (size === APPLE_STRIP ? 32 : 0);
+  // Espacio reservado abajo para la firma de la marca (centrada, lejos de las esquinas redondeadas).
+  const markH = 34 * k;
   const rows = d.total <= 8 ? 1 : 2;
   const cols = Math.ceil(d.total / rows);
   const cellW = (W - PAD * 2) / cols;
-  const cellH = (H - PAD * 2) / rows;
+  const cellH = (H - padY * 2 - markH) / rows;
   const r = Math.min(Math.min(cellW, cellH) * 0.4, 62 * (W / GOOGLE_HERO.w));
   const presetIcon = STAMP_ICONS.find((i) => i.id === d.iconId) ?? CHECK_ICON;
   const iconSize = r * 1.15;
@@ -90,8 +130,8 @@ export function buildSvg(d: StampDesign, filled: number, banner: string | null, 
   if (banner) {
     parts.push(`<image href="${banner}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/>`);
     // Franja del color de fondo para que los sellos se lean sobre cualquier foto.
-    const bandH = rows * cellH;
-    parts.push(`<rect x="${PAD / 2}" y="${PAD}" width="${W - PAD}" height="${bandH}" rx="${r * 0.6}" fill="${d.bg}" fill-opacity="0.82"/>`);
+    const bandH = rows * cellH + markH;
+    parts.push(`<rect x="${PAD / 2}" y="${padY}" width="${W - PAD}" height="${bandH}" rx="${r * 0.6}" fill="${d.bg}" fill-opacity="0.82"/>`);
   }
 
   for (let i = 0; i < d.total; i++) {
@@ -99,7 +139,7 @@ export function buildSvg(d: StampDesign, filled: number, banner: string | null, 
     const inRow = row === rows - 1 ? d.total - cols * (rows - 1) : cols;
     const col = i - row * cols;
     const cx = PAD + (W - PAD * 2 - inRow * cellW) / 2 + cellW * (col + 0.5);
-    const cy = PAD + cellH * (row + 0.5);
+    const cy = padY + cellH * (row + 0.5);
     const isFilled = i < filled;
     const isLast = i === d.total - 1;
 
@@ -134,12 +174,7 @@ export function buildSvg(d: StampDesign, filled: number, banner: string | null, 
     }
   }
 
-  // Firma chiquita de la marca abajo a la derecha, dentro de la franja (mismo texto que StampGrid en la web).
-  const brandSize = 13 * (W / GOOGLE_HERO.w);
-  parts.push(
-    `<text x="${W - PAD * 1.1}" y="${H - PAD - brandSize * 0.7}" text-anchor="end" fill="${d.fg}" fill-opacity="0.75" ` +
-      `font-family="Fredoka" font-weight="600" font-size="${brandSize}">hecho con ${esc(APP_NAME.value())}</text>`,
-  );
+  parts.push(brandMark(W / 2, padY + rows * cellH + markH * 0.55, k, d.fg));
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${parts.join("")}</svg>`;
 }
 
