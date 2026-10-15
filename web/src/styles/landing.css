@@ -5,7 +5,7 @@
 .site-header {
   position: sticky; top: 0; z-index: var(--z-dropdown);
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 12px 20px; background: var(--bg); border-bottom: var(--border-width) solid var(--border);
+  padding: 12px 20px; background: #FFFDF8; border-bottom: var(--border-width) solid var(--border);
 }
 .site-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; font-family: var(--font-display); font-weight: 600; font-size: var(--text-xl); }
 .site-nav { display: flex; align-items: center; gap: 18px; font-weight: 500; font-size: var(--text-sm); }
@@ -47,9 +47,9 @@
 .hero-card .wallet-card { width: 340px; max-width: 100%; transform: rotate(2deg); box-shadow: var(--shadow-lg); }
 
 /* Banda verde "sin descargas" */
-.band { background: var(--green); color: var(--cream); border-block: var(--border-width) solid var(--border); }
+.band { background: var(--pink); color: var(--green); border-block: var(--border-width) solid var(--border); }
 .band-grid { max-width: 1120px; margin: 0 auto; padding: 44px 20px; display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-.band h3 { color: var(--pink); }
+.band h3 { color: var(--green); }
 .band p { margin: 8px 0 0; }
 
 /* Secciones */
@@ -279,3 +279,14 @@
   .your-card .rubro-card .wallet-card { width: 280px; }
 }
 @media (max-width: 560px) { .hero-actions .btn { flex: 1 1 100%; } }
+
+/* ---------- Primera pantalla en verde ---------- */
+.hero-screen { background: var(--green); }
+.hero { color: var(--cream); }
+.hero h1 { color: #fff; }
+.hero .eyebrow, .hero-lead, .hero-note { color: rgba(255, 244, 224, .82); }
+.hero .btn-primary { background: var(--pink); color: var(--green); border-color: var(--green); box-shadow: 0 4px 0 #C9739A; }
+.hero .btn-primary:hover { background: var(--pink-soft); }
+.hero-actions .btn:not(.btn-primary) { background: transparent; color: var(--cream); border-color: var(--cream); box-shadow: none; }
+.hero-actions .btn:not(.btn-primary):hover { background: rgba(255, 244, 224, .1); }
+.phone { box-shadow: 0 0 0 3px #4E7565, 0 30px 70px rgba(0, 0, 0, .35); }
