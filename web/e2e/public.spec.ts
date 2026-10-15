@@ -59,7 +59,7 @@ test('código de alta inexistente: aviso claro', async ({ page }) => {
 
 test('login: valida campos y permite pasar a crear cuenta', async ({ page }) => {
   await page.goto('/login')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.locator('.help-error, [role=alert]').first()).toBeVisible()
   await page.getByRole('button', { name: 'Creá una' }).click()
   await expect(page.getByRole('button', { name: 'Crear cuenta' })).toBeVisible()
