@@ -31,6 +31,8 @@ type Phase =
 
 export default function Scanner() {
   const { businessId = '' } = useParams()
+  // Manifest e íconos para instalarlo como app, también desde la pantalla del PIN.
+  useScannerInstallable(businessId)
   const [phase, setPhase] = useState<Phase>(() => (loadToken(businessId) ? { kind: 'loading' } : { kind: 'pin' }))
 
   const handleSessionError = useCallback(
@@ -159,13 +161,13 @@ function PinScreen({
   }
 
   return (
-    <main style={{ maxWidth: 400 }}>
+    <main className="pin-screen">
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <Mascot size={96} />
+        <Mascot size={48} />
       </div>
-      <h2 style={{ marginTop: 16, textAlign: 'center' }}>Escáner del local</h2>
-      <p style={{ textAlign: 'center', color: 'var(--text-soft)', marginTop: 8 }}>Ingresá el PIN del negocio.</p>
-      <form className="card" onSubmit={handleSubmit} noValidate style={{ gap: 16, marginTop: 24 }}>
+      <h2 style={{ marginTop: 12, textAlign: 'center', fontSize: 'var(--text-2xl)' }}>Escáner del local</h2>
+      <p style={{ textAlign: 'center', color: 'var(--text-soft)', marginTop: 6 }}>Ingresá el PIN del negocio.</p>
+      <form className="card" onSubmit={handleSubmit} noValidate style={{ gap: 16, marginTop: 20 }}>
         {(error || message) && (
           <div className={error ? 'alert alert-err' : 'alert alert-info'} role={error ? 'alert' : 'status'}>
             <span className="alert-text">{error ?? message}</span>
@@ -231,8 +233,6 @@ function ScannerView({
   const [manualOpen, setManualOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const cameraOn = view.kind === 'camera'
-
-  useScannerInstallable(businessId)
 
   const lookup = useCallback(
     async (code: string) => {
@@ -451,6 +451,8 @@ function useScannerInstallable(businessId: string) {
       Object.assign(document.createElement('link'), { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' }),
       Object.assign(document.createElement('meta'), { name: 'theme-color', content: '#12372A' }),
       Object.assign(document.createElement('meta'), { name: 'apple-mobile-web-app-capable', content: 'yes' }),
+      // Barra de estado opaca: el contenido empieza debajo de la hora (y además se respeta la zona segura en CSS).
+      Object.assign(document.createElement('meta'), { name: 'apple-mobile-web-app-status-bar-style', content: 'default' }),
       Object.assign(document.createElement('meta'), { name: 'apple-mobile-web-app-title', content: 'Escáner' }),
     ]
     tags.forEach((t) => document.head.appendChild(t))
