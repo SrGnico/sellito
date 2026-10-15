@@ -38,7 +38,12 @@ export const createSubscription = onCall({ secrets: [mpAccessToken] }, async (re
   }
 
   const plan = await loadPlan(planId);
-  const email = (await getAuth().getUser(uid)).email;
+  // Mercado Pago pide el mail de la cuenta de MP que va a pagar (puede no ser el del panel).
+  const given = typeof req.data?.payerEmail === "string" ? req.data.payerEmail.trim().toLowerCase() : "";
+  if (given && (given.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(given))) {
+    throw new HttpsError("invalid-argument", "payer-email");
+  }
+  const email = given || (await getAuth().getUser(uid)).email;
   if (!email) throw new HttpsError("failed-precondition", "no-email");
 
   try {
@@ -54,10 +59,14 @@ export const createSubscription = onCall({ secrets: [mpAccessToken] }, async (re
       "subscription.pendingPlan": planId,
       "subscription.pendingAmount": plan.amount,
       "subscription.currency": plan.currency,
+      "subscription.payerEmail": email,
     });
     return { url: p.init_point };
   } catch (err) {
-    logger.error("createSubscription falló", { businessId, err });
+    const message = err instanceof Error ? err.message : String(err);
+    logger.error("createSubscription falló", { businessId, error: message });
+    // Credenciales de prueba con un mail real (o al revés): MP no deja mezclarlos.
+    if (message.includes("must be real or test users")) throw new HttpsError("failed-precondition", "payer-test-mismatch");
     throw new HttpsError("internal", "No pudimos iniciar el pago. Intentá de nuevo.");
   }
 });

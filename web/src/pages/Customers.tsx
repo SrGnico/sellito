@@ -1,13 +1,9 @@
 import {
   collection,
-  getAggregateFromServer,
-  getCountFromServer,
   getDocs,
   limit,
   orderBy,
   query,
-  sum,
-  Timestamp,
   where,
   type QueryDocumentSnapshot,
 } from 'firebase/firestore'
@@ -16,7 +12,7 @@ import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
 import EmptyState from '../components/EmptyState'
 import Spinner from '../components/Spinner'
-import StatCard from '../components/StatCard'
+import BusinessStats from '../components/BusinessStats'
 import { OWNER_DATA_NOTICE } from '../content/privacy'
 import {
   CARDS_VERSION,
@@ -27,7 +23,6 @@ import {
   fixedSort,
   formatDate,
   formatDateTime,
-  NEW_DAYS,
   searchWords,
   upgradeCards,
   whatsappNumber,
@@ -53,7 +48,7 @@ export default function Customers({ business }: { business: Business }) {
     <>
       <Link to="/panel">← Volver al panel</Link>
       <h2 style={{ marginTop: 16 }}>Clientes</h2>
-      <Stats businessId={business.id} />
+      <BusinessStats businessId={business.id} />
       <div className="alert alert-info" role="note" style={{ marginTop: 24 }}>
         <div>
           <span className="alert-title">{OWNER_DATA_NOTICE.title}</span>
@@ -62,53 +57,6 @@ export default function Customers({ business }: { business: Business }) {
       </div>
       {upgraded ? <CustomerList business={business} /> : <TableSkeleton />}
     </>
-  )
-}
-
-// ---------- Estadísticas ----------
-
-function Stats({ businessId }: { businessId: string }) {
-  const [stats, setStats] = useState<{ total: number; recent: number; monthStamps: number; redeemed: number } | null>(null)
-  const [failed, setFailed] = useState(false)
-  const [monthName] = useState(() => new Date().toLocaleDateString('es-AR', { month: 'long' }))
-
-  useEffect(() => {
-    const cards = collection(db, 'businesses', businessId, 'cards')
-    const stamps = collection(db, 'businesses', businessId, 'stamps')
-    const now = new Date()
-    const monthStart = Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth(), 1))
-    const weekAgo = Timestamp.fromMillis(Date.now() - NEW_DAYS * 86400000)
-    Promise.all([
-      getCountFromServer(cards),
-      getCountFromServer(query(cards, where('createdAt', '>=', weekAgo))),
-      getCountFromServer(query(stamps, where('type', '==', 'add'), where('at', '>=', monthStart))),
-      getAggregateFromServer(cards, { redeemed: sum('rewardsRedeemed') }),
-    ])
-      .then(([total, recent, month, agg]) =>
-        setStats({
-          total: total.data().count,
-          recent: recent.data().count,
-          monthStamps: month.data().count,
-          redeemed: agg.data().redeemed ?? 0,
-        }),
-      )
-      .catch(() => setFailed(true))
-  }, [businessId])
-
-  if (failed) {
-    return (
-      <p className="help help-error" role="alert">
-        No pudimos cargar las estadísticas. Recargá la página para reintentar.
-      </p>
-    )
-  }
-  return (
-    <div className="stats-grid">
-      <StatCard label="Clientes" value={stats?.total ?? null} detail="Tarjetas en total" />
-      <StatCard label="Nuevos" value={stats?.recent ?? null} detail={`Últimos ${NEW_DAYS} días`} />
-      <StatCard label="Sellos sumados" value={stats?.monthStamps ?? null} detail={`En ${monthName}`} />
-      <StatCard label="Premios canjeados" value={stats?.redeemed ?? null} detail="Desde el comienzo" pink />
-    </div>
   )
 }
 

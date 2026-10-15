@@ -50,3 +50,41 @@
 .history-date { color: var(--text-soft); white-space: nowrap; }
 
 .read-only-note { margin-bottom: 16px; }
+
+/* ---------- Inicio (resumen) ---------- */
+.home-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.status-line { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.home-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.setup { margin-top: 24px; gap: 14px; }
+.setup-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.setup-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: var(--border-width) solid var(--cream-deep); }
+.setup-list li:first-child { border-top: 0; }
+.setup-check { width: 26px; height: 26px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: var(--border-width) solid var(--border); border-radius: 50%; font-weight: 700; font-size: 14px; background: var(--surface); }
+.setup-list li.done .setup-check { background: var(--green); color: var(--cream); }
+.setup-list li.done strong { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--text-soft); }
+.setup-detail { display: block; font-size: 13px; color: var(--text-soft); }
+.home-layout { display: grid; gap: 24px; margin-top: 24px; align-items: start; }
+@media (min-width: 860px) { .home-layout { grid-template-columns: 320px minmax(0, 1fr); } }
+.home-card-summary { gap: 14px; }
+.home-card-preview .wallet-card { max-width: none; box-shadow: none; }
+.home-side { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.quick-links { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.quick-link {
+  display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; min-height: 72px; text-decoration: none;
+  background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.quick-link:hover { transform: translateY(-1px); background: var(--pink-tint); }
+.quick-link:active { transform: translateY(3px); box-shadow: none; }
+.quick-link span { font-size: 13px; color: var(--text-soft); }
+.activity { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.activity li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: var(--border-width) solid var(--cream-deep); font-size: var(--text-sm); }
+.activity li:first-child { border-top: 0; }
+.activity-dot { width: 10px; height: 10px; flex-shrink: 0; border-radius: 50%; background: var(--green); }
+.activity-dot.redeem { background: var(--pink); border: 2px solid var(--green); }
+.activity-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.activity-time { color: var(--text-soft); font-size: 13px; white-space: nowrap; }
+
+/* ---------- Secciones QR / Escáner ---------- */
+.section-page { max-width: 640px; display: flex; flex-direction: column; gap: 16px; }
+.section-intro { margin: 0; color: var(--text-soft); }

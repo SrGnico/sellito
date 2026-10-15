@@ -9,14 +9,13 @@ import {
 } from 'firebase/firestore'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, NavLink, Route, Routes } from 'react-router-dom'
-import CardPreview from '../components/CardPreview'
 import EnrollQr from '../components/EnrollQr'
-import { cardConfigFrom } from '../lib/cardDesign'
 import { useAuth } from '../lib/auth'
 import { auth, db } from '../lib/firebase'
 import type { Business } from '../lib/types'
 import CardEditor from './CardEditor'
 import Customers from './Customers'
+import PanelHome from './PanelHome'
 import SubscriptionBanner from '../components/SubscriptionBanner'
 import { accessLevel, isReadOnly } from '../lib/subscription'
 import '../styles/panel.css'
@@ -92,6 +91,8 @@ export default function Panel() {
           <NavLink to="/panel" end>Inicio</NavLink>
           <NavLink to="/panel/clientes">Clientes</NavLink>
           <NavLink to="/panel/tarjeta">Tarjeta</NavLink>
+          <NavLink to="/panel/qr">QR</NavLink>
+          <NavLink to="/panel/escaner">Escáner</NavLink>
         </nav>
       )}
 
@@ -115,7 +116,12 @@ export default function Panel() {
 
         {state.status === 'ready' && state.businesses[0] && (
           <Routes>
-            <Route index element={<BusinessHome business={state.businesses[0]} />} />
+            <Route index element={<PanelHome business={state.businesses[0]} />} />
+            <Route path="qr" element={<QrPage business={state.businesses[0]} />} />
+            <Route
+              path="escaner"
+              element={<ScannerPage business={state.businesses[0]} readOnly={isReadOnly(accessLevel(state.businesses[0].subscription))} />}
+            />
             <Route
               path="tarjeta"
               element={
@@ -202,50 +208,28 @@ function CreateBusiness({ uid }: { uid: string }) {
   )
 }
 
-function BusinessHome({ business }: { business: Business }) {
-  const designed = Boolean(business.rule)
-  const readOnly = isReadOnly(accessLevel(business.subscription))
+// Secciones QR y Escáner: antes estaban apiladas en el inicio.
+function QrPage({ business }: { business: Business }) {
   return (
-    <>
-      <h2>{business.name}</h2>
-      {!designed && (
-        <div className="alert alert-info" role="status" style={{ marginTop: 24 }}>
-          <div>
-            <span className="alert-title">Tu negocio está creado</span>
-            <span className="alert-text">El próximo paso es diseñar tu tarjeta de sellos.</span>
-          </div>
-        </div>
+    <div className="section-page">
+      <h2>QR del local</h2>
+      <p className="section-intro">Imprimilo y ponelo en el mostrador. Cada cliente lo escanea una vez y la tarjeta queda en su celular.</p>
+      <EnrollQr business={business} />
+    </div>
+  )
+}
+
+function ScannerPage({ business, readOnly }: { business: Business; readOnly: boolean }) {
+  return (
+    <div className="section-page">
+      <h2>Escáner</h2>
+      <p className="section-intro">Con el escáner, quien atiende suma sellos y canjea premios desde cualquier celular del local.</p>
+      {business.rule ? (
+        <ScannerSettings business={business} readOnly={readOnly} />
+      ) : (
+        <p className="help">Primero terminá de diseñar tu tarjeta.</p>
       )}
-      <div className="home-grid">
-        <div style={{ maxWidth: 360 }}>
-          <CardPreview config={cardConfigFrom(business)} filled={designed ? 2 : 0} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, minWidth: 0 }}>
-          <div className="card">
-            <h4>{designed ? 'Tu tarjeta' : 'Diseñá tu tarjeta'}</h4>
-            <p style={{ margin: 0, color: 'var(--text-soft)' }}>
-              Logo, colores, ícono del sello y cuántos sellos hacen falta para el premio.
-            </p>
-            <Link className="btn btn-primary" to="tarjeta" style={{ alignSelf: 'flex-start', marginTop: 8 }}>
-              {readOnly ? 'Ver tarjeta' : designed ? 'Editar tarjeta' : 'Diseñar tarjeta'}
-            </Link>
-          </div>
-          {designed && (
-            <div className="card">
-              <h4>Tus clientes</h4>
-              <p style={{ margin: 0, color: 'var(--text-soft)' }}>
-                Quiénes tienen tu tarjeta, cuántos sellos llevan y a quién escribirle.
-              </p>
-              <Link className="btn" to="clientes" style={{ alignSelf: 'flex-start', marginTop: 8 }}>
-                Ver clientes
-              </Link>
-            </div>
-          )}
-          <EnrollQr business={business} />
-          {business.rule && <ScannerSettings business={business} readOnly={readOnly} />}
-          {import.meta.env.DEV && business.rule && !readOnly && <TestCards business={business} />}
-        </div>
-      </div>
-    </>
+      {import.meta.env.DEV && business.rule && !readOnly && <TestCards business={business} />}
+    </div>
   )
 }

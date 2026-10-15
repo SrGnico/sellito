@@ -10,6 +10,7 @@ export type Subscription = {
   amount?: number
   currency?: string
   pendingPreapprovalId?: string
+  payerEmail?: string // mail de la cuenta de Mercado Pago que paga
   currentPeriodEnd?: Timestamp
   cancelAtPeriodEnd?: boolean
   trialEndsAt?: Timestamp

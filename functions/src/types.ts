@@ -38,6 +38,7 @@ export type Subscription = {
   mpStatus?: string;
   pendingPreapprovalId?: string; // checkout en curso (reactivar o cambiar el medio de pago)
   pendingPlan?: string;
+  payerEmail?: string; // mail de la cuenta de Mercado Pago que paga (lo eligió el dueño)
   pendingAmount?: number;
   failedPreapprovalId?: string; // la suscripción cuyo cobro falló (pasa a past_due)
   currentPeriodEnd?: Timestamp;

@@ -27,7 +27,7 @@ export function accessLevel(sub: Subscription | undefined, now = Date.now()): Ac
 // Modo lectura: se ven clientes y estadísticas, no se edita diseño, regla ni PIN.
 export const isReadOnly = (level: AccessLevel) => level === 'blocked' || level === 'archived'
 
-export const createSubscription = callable<{ businessId: string; plan?: string }, { url: string }>('createSubscription')
+export const createSubscription = callable<{ businessId: string; plan?: string; payerEmail?: string }, { url: string }>('createSubscription')
 
 export type Plan = { name: string; amount: number; currency: string; frequency: number; frequencyType: 'days' | 'months'; active: boolean }
 
