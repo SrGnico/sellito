@@ -3,19 +3,25 @@ import AuthProvider from './components/AuthProvider'
 import RequireAuth from './components/RequireAuth'
 import Admin from './pages/Admin'
 import Enroll from './pages/Enroll'
+import Landing from './pages/Landing'
+import Legal from './pages/Legal'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import Panel from './pages/Panel'
 import Scanner from './pages/Scanner'
 import ScannerLauncher from './pages/ScannerLauncher'
+import { isSiteHost } from './lib/urls'
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Hasta que exista la landing (paso 10), la raíz lleva al panel. */}
-          <Route path="/" element={<Navigate to="/panel" replace />} />
+          {/* misellito.com.ar muestra la landing; app.misellito.com.ar (y localhost) van al panel. */}
+          <Route path="/" element={isSiteHost() ? <Landing /> : <Navigate to="/panel" replace />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/privacidad" element={<Legal kind="privacy" />} />
+          <Route path="/terminos" element={<Legal kind="terms" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/panel/*" element={<RequireAuth><Panel /></RequireAuth>} />
           <Route path="/c/:code" element={<Enroll />} />

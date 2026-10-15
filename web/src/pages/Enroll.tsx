@@ -1,6 +1,6 @@
 import { FirebaseError } from 'firebase/app'
 import { useEffect, useState, type FormEvent } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import CardPreview from '../components/CardPreview'
 import { CONSENT_VERSION, consentText } from '../content/privacy'
 import { DEFAULT_CARD, type CardConfig } from '../lib/cardDesign'
@@ -204,7 +204,9 @@ export default function Enroll() {
                 <input className="checkbox" type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
                 <span>{consentText(info.name)} (opcional)</span>
               </label>
-              <p className="help" style={{ margin: 0 }}>Tus datos los usa solo {info.name} para tu tarjeta de sellos.</p>
+              <p className="help" style={{ margin: 0 }}>
+                Tus datos los usa solo {info.name} para tu tarjeta de sellos. <Link to="/privacidad">Política de privacidad</Link>
+              </p>
             </>
           )}
           {/* TODO: reemplazar por los botones oficiales "Add to Google Wallet" / "Add to Apple Wallet" (guías de marca). */}

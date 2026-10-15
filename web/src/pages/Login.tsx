@@ -16,7 +16,8 @@ type Mode = 'login' | 'signup'
 export default function Login() {
   const { user, loading } = useAuth()
   const location = useLocation()
-  const [mode, setMode] = useState<Mode>('login')
+  // ?registro (desde la landing) abre directo en "Creá tu cuenta".
+  const [mode, setMode] = useState<Mode>(() => (new URLSearchParams(location.search).has('registro') ? 'signup' : 'login'))
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)

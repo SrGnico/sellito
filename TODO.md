@@ -153,7 +153,8 @@
 - [ ] Google Wallet: pedir acceso de publicación (salir del modo demo)
 
 ### 10. Landing de venta
-- [ ] Landing separada de la app. Mensajes clave: sirve para **cualquier negocio** que quiera juntar datos de clientes, dar tarjetas y regalar algo; **no se descarga nada** (el cliente escanea y la guarda en el Wallet; el local solo necesita un celular o una compu con internet). Contacto: `hola@misellito.com.ar`
+- [x] Landing publicada en misellito.com.ar (ruta según dominio, mismo build). Pendiente: prerender para SEO.
+- [ ] (viejo) Landing separada de la app. Mensajes clave: sirve para **cualquier negocio** que quiera juntar datos de clientes, dar tarjetas y regalar algo; **no se descarga nada** (el cliente escanea y la guarda en el Wallet; el local solo necesita un celular o una compu con internet). Contacto: `hola@misellito.com.ar`
 - [x] Favicon
 - [ ] Imagen para compartir y banner de la landing
 - [ ] Landing: describir la cercanía como "puede aparecer en la pantalla de bloqueo cuando está cerca del local" (no prometer que siempre aparece)
@@ -176,7 +177,8 @@
 - [x] Dominio: `misellito.com.ar`
 - [ ] Confirmar Instagram para "Sellito"
 - [x] Cercanía verificada: Google usa `merchantLocations` (texto del aviso lo pone Google); Apple `locations` + `relevantText`
-- [ ] Privacidad y términos para los datos de clientes finales
+- [x] Política de privacidad y términos (`/privacidad`, `/terminos`, textos en `web/src/content/legal.ts`)
+- [ ] Domicilio legal del responsable en la política (hoy: "se informa a pedido") y revisión de un abogado/contador
 - [ ] Ley 25.326: evaluar inscripción de la base ante la AAIP
 
 ## v2 / Fase 2

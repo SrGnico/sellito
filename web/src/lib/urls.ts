@@ -23,3 +23,9 @@ export function isProvisionalUrl(url: string): boolean {
   const host = new URL(url).hostname
   return host === 'localhost' || host === '127.0.0.1' || host.endsWith('.web.app') || host.endsWith('.firebaseapp.com')
 }
+
+// ¿Estamos en el dominio público (landing) y no en el de la app? Mismo build para los dos dominios.
+export function isSiteHost(): boolean {
+  const site = new URL(SITE_URL).host
+  return window.location.host === site && site !== new URL(APP_URL).host
+}

@@ -97,9 +97,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Planes y precios (los edita el admin desde la consola). El panel los lee para mostrar el precio.
+    // Planes y precios (los edita el admin desde la consola). Lectura pública: la landing muestra el precio.
     match /config/plans {
-      allow read: if signedIn();
+      allow read: if true;
       allow write: if false;
     }
 
