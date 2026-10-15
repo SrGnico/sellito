@@ -16,14 +16,21 @@
 /* Encabezado */
 .hero {
   display: grid; gap: 48px; align-items: center;
-  max-width: 1120px; margin: 0 auto; padding: 48px 20px 64px;
+  max-width: 1120px; margin: 0 auto; padding: 32px 20px 36px;
 }
-@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 64px; padding: 88px 20px 96px; } }
+@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 64px; padding: 40px 20px 40px; } }
+/* El celular de muestra: al costado en computadora, abajo de la franja en el celular. */
+.hero-below { display: none; flex-direction: column; align-items: center; gap: 28px; padding: 40px 20px 36px; }
+@media (max-width: 899px) {
+  .hero-card-side { display: none !important; }
+  .hero-below { display: flex; }
+}
+@media (min-width: 900px) { .hero .phone { width: 250px; border-radius: 46px; } .hero .phone-screen { border-radius: 36px; } }
 .hero-text { max-width: 560px; }
 .eyebrow { margin: 0 0 12px; font-weight: 600; font-size: var(--text-sm); text-transform: uppercase; letter-spacing: .08em; color: var(--text-soft); }
 .hero h1 { font-size: clamp(36px, 6vw, 56px); }
 .hero-lead { margin: 24px 0 0; font-size: var(--text-xl); line-height: 1.5; color: var(--text-soft); max-width: 520px; }
-.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 36px; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
 .hero-note { margin: 12px 0 0; font-size: var(--text-sm); color: var(--text-soft); }
 .hero-card { display: flex; justify-content: center; }
 .hero-card .wallet-card { width: 340px; max-width: 100%; transform: rotate(2deg); box-shadow: var(--shadow-lg); }
@@ -159,7 +166,18 @@
 /* ---------- Confianza (debajo de los botones del encabezado) ---------- */
 .trust-bar {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 40px;
-  padding: 20px; border-top: var(--border-width) solid var(--border); background: var(--surface);
+  padding: 16px 20px; border-block: var(--border-width) solid var(--border); background: var(--surface);
+}
+@media (max-width: 560px) {
+  .hide-mobile { display: none !important; }
+  .hero { padding-top: 24px; padding-bottom: 28px; }
+  .hero .eyebrow { display: none; }
+  .hero h1 { font-size: 32px; }
+  .hero-lead { font-size: var(--text-lg); margin-top: 16px; }
+  .hero-actions { margin-top: 24px; }
+  .trust-bar { gap: 10px; padding: 14px 16px; }
+  .trust img { height: 30px; }
+  .trust-points { font-size: 12px; gap: 4px 14px; }
 }
 .trust { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .trust-label { font-size: var(--text-sm); color: var(--text-soft); font-weight: 600; margin-right: 2px; }

@@ -71,9 +71,12 @@ export default function Landing() {
               <a className="btn btn-lg btn-primary" href={signupUrl} onClick={() => track('cta_click')}>Crear mi tarjeta</a>
               <a className="btn btn-lg" href="#probala">Probala en tu celular</a>
             </div>
-            <p className="hero-note">Diseñarla es gratis. Pagás recién cuando empezás a sumar sellos.</p>
+            <p className="hero-note">
+              Diseñarla es gratis.<span className="hide-mobile"> Pagás recién cuando empezás a sumar sellos.</span>
+            </p>
           </div>
-          <div className="hero-card" aria-hidden="true">
+          {/* En computadora el celular va al lado del texto; en el celular, debajo de la franja de confianza. */}
+          <div className="hero-card hero-card-side" aria-hidden="true">
             <PhoneMockup example={example} />
           </div>
         </section>
@@ -85,12 +88,14 @@ export default function Landing() {
             <a href={demoUrl} aria-label="Probar la tarjeta de ejemplo en Apple Wallet"><img src={appleBadge} alt="Agregar a Apple Wallet" height={34} /></a>
             <a href={demoUrl} aria-label="Probar la tarjeta de ejemplo en Google Wallet"><img src={googleBadge} alt="Agregar a la Billetera de Google" height={34} /></a>
           </div>
-          <ul className="trust-points">
-            <li><LockIcon /> Datos cifrados en servidores de Google</li>
-            <li><CardIcon /> Pagos con Mercado Pago</li>
-            <li><PinIcon /> Hecho en Córdoba, Argentina</li>
-          </ul>
+          <TrustPoints className="hide-mobile" />
         </section>
+        <div className="hero-below">
+          <div className="hero-card" aria-hidden="true">
+            <PhoneMockup example={example} />
+          </div>
+          <TrustPoints />
+        </div>
 
         {/* ---------- Sin descargas ---------- */}
         <section className="band">
@@ -304,6 +309,16 @@ export default function Landing() {
       <SiteFooter />
       <StickyCta href={signupUrl} onClick={() => track('cta_click')} />
     </div>
+  )
+}
+
+function TrustPoints({ className }: { className?: string }) {
+  return (
+    <ul className={`trust-points${className ? ` ${className}` : ''}`}>
+      <li><LockIcon /> Datos cifrados en servidores de Google</li>
+      <li><CardIcon /> Pagos con Mercado Pago</li>
+      <li><PinIcon /> Hecho en Córdoba, Argentina</li>
+    </ul>
   )
 }
 
