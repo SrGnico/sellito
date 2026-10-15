@@ -62,7 +62,7 @@ test('login: valida campos y permite pasar a crear cuenta', async ({ page }) => 
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.locator('.help-error, [role=alert]').first()).toBeVisible()
   await page.getByRole('button', { name: 'Creá una' }).click()
-  await expect(page.getByRole('button', { name: 'Crear cuenta' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Crear cuenta', exact: true })).toBeVisible()
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', /noindex/)
 })
 

@@ -37,7 +37,7 @@ test('alta de un negocio nuevo con el asistente', async ({ page, isMobile }) => 
   await page.getByRole('button', { name: 'Creá una' }).click()
   await page.getByLabel('Mail').fill(email)
   await page.getByLabel('Contraseña').fill('prueba-e2e-1234')
-  await page.getByRole('button', { name: 'Crear cuenta' }).click()
+  await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click()
 
   // Presentación → nombre del negocio → asistente.
   await page.getByRole('button', { name: 'Omitir' }).click()
