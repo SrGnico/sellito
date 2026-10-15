@@ -63,15 +63,17 @@ function circleLogo(src: string): string {
   );
 }
 
-async function logoBuffers(logoUrl: string): Promise<Record<string, Buffer>> {
-  const src = await dataUri(logoUrl);
+// Con logo horizontal (wideLogoUrl), ese va arriba a la izquierda tal cual (hasta 160×50 pt) y no se
+// escribe el nombre al lado (sin logoText). El ícono sigue saliendo del logo cuadrado.
+async function logoBuffers(logoUrl: string, wideLogoUrl?: string): Promise<Record<string, Buffer>> {
+  const [src, wide] = await Promise.all([dataUri(logoUrl), wideLogoUrl ? dataUri(wideLogoUrl) : Promise.resolve(null)]);
   if (!src) return {};
-  const logo = circleLogo(src);
+  const logo = wide ? fitImage(wide, 480, 150, null, "xMinYMid") : circleLogo(src);
   const icon = fitImage(src, 87, 87, "#FFFFFF", "xMidYMid"); // ícono: 29×29 pt
   return {
-    "logo.png": renderPng(logo, 50),
-    "logo@2x.png": renderPng(logo, 100),
-    "logo@3x.png": renderPng(logo, 150),
+    "logo.png": renderPng(logo, wide ? 160 : 50),
+    "logo@2x.png": renderPng(logo, wide ? 320 : 100),
+    "logo@3x.png": renderPng(logo, wide ? 480 : 150),
     "icon.png": renderPng(icon, 29),
     "icon@2x.png": renderPng(icon, 58),
     "icon@3x.png": renderPng(icon, 87),
@@ -95,7 +97,7 @@ export async function buildPkpass(businessId: string, cardId: string, b: Busines
     serialNumber: appleSerial(businessId, cardId),
     organizationName: b.name,
     description: `${PROGRAM_NAME} de ${b.name}`,
-    logoText: b.name,
+    ...(b.design?.wideLogoUrl ? {} : { logoText: b.name }),
     backgroundColor: rgb(bg),
     foregroundColor: fg,
     labelColor: fg,
@@ -127,7 +129,7 @@ export async function buildPkpass(businessId: string, cardId: string, b: Busines
     },
   };
 
-  const [logos, strip] = await Promise.all([b.design?.logoUrl ? logoBuffers(b.design.logoUrl) : Promise.resolve({}), images.appleStrip(stamps)]);
+  const [logos, strip] = await Promise.all([b.design?.logoUrl ? logoBuffers(b.design.logoUrl, b.design.wideLogoUrl) : Promise.resolve({}), images.appleStrip(stamps)]);
   const pass = new PKPass(
     { "pass.json": Buffer.from(JSON.stringify(passJson)), ...logos, ...strip },
     { wwdr: WWDR, signerCert: applePassCert.value(), signerKey: applePassKey.value() },

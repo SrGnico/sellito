@@ -22,6 +22,7 @@ import {
   type ScannedCard,
   type ScannerBusiness,
 } from '../lib/scanner'
+import { confirmar } from '../lib/feedback'
 
 type Phase =
   | { kind: 'loading' }
@@ -421,7 +422,14 @@ function ScannerView({
               cooldown={view.cooldown}
               busy={busy}
               onAdd={(force) => act(view.card, 'add', force)}
-              onRedeem={() => act(view.card, 'redeem')}
+              onRedeem={async () => {
+                const ok = await confirmar({
+                  title: '¿Canjear el premio?',
+                  text: `Entregale ${business.rewardText}. La tarjeta vuelve a empezar de cero.`,
+                  confirmLabel: 'Canjear',
+                })
+                if (ok) act(view.card, 'redeem')
+              }}
               onCancel={toIdle}
             />
           )}

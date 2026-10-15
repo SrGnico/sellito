@@ -3,6 +3,7 @@ import { collection, getCountFromServer, getDocs, orderBy, query } from 'firebas
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import EmptyState from '../components/EmptyState'
+import Funnel from '../components/Funnel'
 import LoadingScreen from '../components/LoadingScreen'
 import Mascot from '../components/Mascot'
 import StatCard from '../components/StatCard'
@@ -133,6 +134,8 @@ function AdminDashboard({ email }: { email: string }) {
                 <span className="stat-detail">Suma de suscripciones activas</span>
               </div>
             </div>
+
+            <Funnel />
 
             <div className="customers-toolbar" style={{ marginTop: 24 }}>
               <div style={{ flex: '1 1 240px' }}>

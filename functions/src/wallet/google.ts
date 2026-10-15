@@ -61,6 +61,8 @@ function loyaltyClass(businessId: string, b: BusinessDoc) {
     issuerName: b.name,
     programName: PROGRAM_NAME,
     programLogo: image(b.design!.logoUrl!, b.name),
+    // Logo horizontal (con el nombre): Google lo muestra en el encabezado en lugar del logo redondo.
+    ...(b.design?.wideLogoUrl ? { wideProgramLogo: image(b.design.wideLogoUrl, b.name) } : {}),
     hexBackgroundColor: b.design?.bgColor ?? "#FF9EC4",
     // Cercanía: con la opción apagada o sin locales no se mandan (el PUT las borra de la clase).
     merchantLocations: activeLocations(b).map((l) => ({ latitude: l.lat, longitude: l.lng })),

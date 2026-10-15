@@ -8,7 +8,7 @@ type ImageFieldProps = {
   label: string
   help: string
   businessId: string
-  kind: 'logo' | 'banner' | 'stamp'
+  kind: 'logo' | 'wideLogo' | 'banner' | 'stamp'
   value?: string
   onChange: (url: string | undefined) => void
 }
@@ -47,7 +47,7 @@ export default function ImageField({ id, label, help, businessId, kind, value, o
             src={value}
             alt=""
             style={{
-              width: kind === 'banner' ? 120 : 56,
+              width: kind === 'banner' || kind === 'wideLogo' ? 120 : 56,
               height: 56,
               objectFit: kind === 'banner' ? 'cover' : 'contain',
               border: '2px solid var(--border)',

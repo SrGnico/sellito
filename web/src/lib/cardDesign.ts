@@ -4,6 +4,7 @@ import type { Business, BusinessLocation } from './types'
 export type CardConfig = {
   name: string
   logoUrl?: string
+  wideLogoUrl?: string
   bannerUrl?: string
   bgColor: string
   stampIconId?: string
@@ -32,6 +33,7 @@ export function cardConfigFrom(b: Business): CardConfig {
   return {
     name: b.name,
     logoUrl: b.design?.logoUrl,
+    wideLogoUrl: b.design?.wideLogoUrl,
     bannerUrl: b.design?.bannerUrl,
     bgColor: b.design?.bgColor ?? DEFAULT_CARD.bgColor,
     stampIconId: b.design?.stampIconId,
@@ -67,6 +69,7 @@ export function businessFieldsFrom(c: CardConfig) {
     name: c.name.trim(),
     design: compact({
       logoUrl: c.logoUrl,
+      wideLogoUrl: c.wideLogoUrl,
       bannerUrl: c.bannerUrl,
       bgColor: c.bgColor,
       stampIconId: c.stampIconId,

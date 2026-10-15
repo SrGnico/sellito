@@ -62,6 +62,7 @@ export function privacySections(appName: string): LegalSection[] {
         'Hacer llegar a la tarjeta los avisos y novedades que publique el negocio, solo a quienes aceptaron recibirlos.',
         'Cobrar la suscripción y avisar sobre pagos, vencimientos y cambios importantes del servicio.',
         'Seguridad: prevenir abusos (por ejemplo, altas masivas de tarjetas) y resolver problemas técnicos.',
+        'Medir el uso del sitio de forma agregada (por ejemplo, cuántas visitas tuvo la página por día), sin cookies y sin guardar datos que identifiquen a nadie.',
       ],
     },
     {

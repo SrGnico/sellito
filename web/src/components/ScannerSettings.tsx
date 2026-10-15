@@ -4,6 +4,7 @@ import { scannerError, setScannerPin } from '../lib/scanner'
 import type { Business } from '../lib/types'
 import { APP_URL } from '../lib/urls'
 import Spinner from './Spinner'
+import { confirmar, toast } from '../lib/feedback'
 
 // Panel → escáner del local: PIN compartido (v1) y link/QR para abrirlo en el celular del local.
 export default function ScannerSettings({ business, readOnly = false }: { business: Business; readOnly?: boolean }) {
@@ -85,10 +86,16 @@ function PinForm({ business, hasPin, onDone }: { business: Business; hasPin: boo
     e.preventDefault()
     if (!/^\d{4,6}$/.test(pin)) return setError('Usá entre 4 y 6 números.')
     if (pin !== confirm) return setError('Los dos PIN no coinciden. Escribilos de nuevo.')
+    if (hasPin && !(await confirmar({
+      title: '¿Cambiar el PIN?',
+      text: 'Los celulares que tengan el escáner abierto van a tener que entrar de nuevo con el PIN nuevo.',
+      confirmLabel: 'Cambiar PIN',
+    }))) return
     setBusy(true)
     setError(null)
     try {
       await setScannerPin({ businessId: business.id, pin })
+      toast(hasPin ? 'PIN cambiado' : 'PIN creado. Ya podés abrir el escáner.')
       onDone()
     } catch (err) {
       setError(scannerError(err).reason === 'pin' ? 'Usá entre 4 y 6 números.' : 'No pudimos guardar el PIN. Intentá de nuevo.')

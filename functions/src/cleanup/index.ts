@@ -39,7 +39,7 @@ export const cleanupStorage = onSchedule(
       if (b === null) unused = true; // negocio borrado
       else if (!b) continue;
       else if (folder === "public") {
-        const inUse = [b.design?.logoUrl, b.design?.bannerUrl, b.design?.stampIconUrl].filter(Boolean) as string[];
+        const inUse = [b.design?.logoUrl, b.design?.wideLogoUrl, b.design?.bannerUrl, b.design?.stampIconUrl].filter(Boolean) as string[];
         unused = !inUse.some((url) => url.includes(encodeURIComponent(file.name)) || url.includes(file.name));
       } else if (folder === "generated") unused = sub !== fingerprint(designOf(b));
       else continue; // carpeta desconocida: no se toca

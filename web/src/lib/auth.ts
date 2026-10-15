@@ -26,6 +26,11 @@ export function authErrorMessage(code: string): string {
       return 'Usá una contraseña de al menos 6 caracteres.'
     case 'auth/too-many-requests':
       return 'Hubo muchos intentos. Esperá unos minutos y volvé a probar.'
+    case 'auth/account-exists-with-different-credential':
+      return 'Ya tenés una cuenta con ese mail. Entrá con tu mail y contraseña.'
+    case 'auth/operation-not-allowed':
+    case 'auth/unauthorized-domain':
+      return 'Entrar con Google todavía no está disponible. Usá tu mail y contraseña.'
     case 'auth/network-request-failed':
       return 'No hay conexión. Revisá tu internet e intentá de nuevo.'
     default:

@@ -34,7 +34,7 @@ export const syncGoogleClass = onDocumentUpdated(
     }
 
     const classFields = (b: BusinessDoc) =>
-      JSON.stringify([b.name, b.design?.logoUrl, b.design?.bgColor, b.proximityEnabled ?? false, b.locations ?? []]);
+      JSON.stringify([b.name, b.design?.logoUrl, b.design?.wideLogoUrl, b.design?.bgColor, b.proximityEnabled ?? false, b.locations ?? []]);
     const cardFields = (b: BusinessDoc) =>
       JSON.stringify([
         b.design?.bgColor,

@@ -1,3 +1,4 @@
+import { track } from '../lib/track'
 import { useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
@@ -33,6 +34,7 @@ export default function SubscriptionBanner({ business }: { business: Business })
     setBusy(true)
     setError(null)
     try {
+      track('subscribe_click')
       const r = await createSubscription({ businessId: business.id, payerEmail: email })
       window.location.assign(r.data.url)
     } catch (err) {

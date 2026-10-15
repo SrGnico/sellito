@@ -2,14 +2,20 @@ import { useEffect, useState } from 'react'
 import step1 from '../assets/onboarding-1-disena.svg'
 import step2 from '../assets/onboarding-2-wallet.svg'
 import step3 from '../assets/onboarding-3-escanea.svg'
+import appleBadge from '../assets/wallet/add-to-apple-wallet-esmx.svg'
+import googleBadge from '../assets/wallet/add-to-google-wallet-es419.svg'
 import CardPreview from '../components/CardPreview'
 import DemoCard from '../components/DemoCard'
 import DemoVideo from '../components/DemoVideo'
+import PhoneMockup from '../components/PhoneMockup'
 import { SiteFooter, SiteHeader } from '../components/SiteChrome'
+import StickyCta from '../components/StickyCta'
+import { DEMO_ENROLL_CODE } from '../content/brand'
+import { EXAMPLES } from '../content/examples'
 import { RESPONSIBLE } from '../content/legal'
-import type { CardConfig } from '../lib/cardDesign'
 import { formatMoney, useMonthlyPlan } from '../lib/subscription'
-import { APP_NAME, APP_URL } from '../lib/urls'
+import { track } from '../lib/track'
+import { APP_NAME, APP_URL, SITE_URL } from '../lib/urls'
 import '../styles/landing.css'
 
 // Landing de venta (misellito.com.ar). Mensajes clave (pedido del dueño del producto):
@@ -17,17 +23,17 @@ import '../styles/landing.css'
 // 2) no se descarga nada: el cliente la guarda en su Wallet y el local suma sellos desde un celular o una compu;
 // 3) la lista de clientes (los leads) es el resultado: es solo del negocio, siempre, aunque deje de pagar.
 
-const base = { askFields: { name: true, phone: true, email: false }, locations: [], proximityEnabled: false, conditions: '' }
+const MORE_BUSINESSES = 'panaderías, gimnasios, lavaderos, veterinarias, librerías, kioscos, estéticas, barberías, verdulerías…'
 
-// Ejemplos que van rotando en la tarjeta del encabezado: muestran que sirve para cualquier rubro.
-const EXAMPLES: (CardConfig & { filled: number })[] = [
-  { ...base, name: 'Café Lola', bgColor: '#FF9EC4', stampIconId: 'cafe', stampsRequired: 8, rewardText: 'un café gratis', itemSingular: 'café', itemPlural: 'cafés', filled: 5 },
-  { ...base, name: 'Peluquería Sol', bgColor: '#12372A', stampIconId: 'tijera', stampsRequired: 6, rewardText: 'un corte gratis', itemSingular: 'corte', itemPlural: 'cortes', filled: 4 },
-  { ...base, name: 'Heladería Nube', bgColor: '#FFD3E4', stampIconId: 'helado', stampsRequired: 10, rewardText: 'un cuarto de helado', itemSingular: 'helado', itemPlural: 'helados', filled: 7 },
-  { ...base, name: 'Pizzería Don Tano', bgColor: '#C23838', stampIconId: 'pizza', stampsRequired: 8, rewardText: 'una pizza grande', itemSingular: 'pizza', itemPlural: 'pizzas', filled: 3 },
+// Lista de clientes de muestra (inventada) para la sección "Tu lista de clientes".
+const SAMPLE_CUSTOMERS = [
+  { name: 'Martina G.', stamps: '7 de 8', last: 'hoy', tag: 'Casi premio' },
+  { name: 'Lucas R.', stamps: '3 de 8', last: 'hace 2 días', tag: '' },
+  { name: 'Sofía P.', stamps: '8 de 8', last: 'ayer', tag: 'Premio listo' },
+  { name: 'Diego F.', stamps: '1 de 8', last: 'hace 34 días', tag: 'No vuelve' },
 ]
 
-const BUSINESSES = ['Cafeterías', 'Peluquerías', 'Heladerías', 'Panaderías', 'Pizzerías', 'Gimnasios', 'Lavaderos', 'Veterinarias', 'Librerías', 'Kioscos', 'Estéticas', 'Y el tuyo']
+const demoUrl = `${SITE_URL}/c/${DEMO_ENROLL_CODE}`
 
 const signupUrl = `${APP_URL}/login?registro=1`
 
@@ -35,9 +41,12 @@ export default function Landing() {
   const plan = useMonthlyPlan()
   const [i, setI] = useState(0)
   const example = EXAMPLES[i]
+  const [rubro, setRubro] = useState(0)
+  const perDay = plan ? Math.ceil(plan.amount / 30 / 10) * 10 : null
 
   useEffect(() => {
     document.title = `${APP_NAME} · Tarjetas de fidelidad en el celular de tus clientes`
+    track('landing_view')
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const t = setInterval(() => setI((n) => (n + 1) % EXAMPLES.length), 3500)
     return () => clearInterval(t)
@@ -62,15 +71,23 @@ export default function Landing() {
               <li><strong>Te quedás con la lista de tus clientes.</strong> Es tuya y la descargás cuando quieras.</li>
             </ul>
             <div className="hero-actions">
-              <a className="btn btn-lg btn-primary" href={signupUrl}>Crear mi tarjeta</a>
+              <a className="btn btn-lg btn-primary" href={signupUrl} onClick={() => track('cta_click')}>Crear mi tarjeta</a>
               <a className="btn btn-lg" href="#probala">Probala en tu celular</a>
             </div>
             <p className="hero-note">Diseñar tu tarjeta es gratis. Pagás recién cuando empezás a sumar sellos.</p>
+            <div className="trust">
+              <span className="trust-label">Funciona con</span>
+              <a href={demoUrl} aria-label="Probar la tarjeta de ejemplo en Apple Wallet"><img src={appleBadge} alt="Agregar a Apple Wallet" height={40} /></a>
+              <a href={demoUrl} aria-label="Probar la tarjeta de ejemplo en Google Wallet"><img src={googleBadge} alt="Agregar a la Billetera de Google" height={40} /></a>
+            </div>
+            <ul className="trust-points">
+              <li><LockIcon /> Datos cifrados en servidores de Google</li>
+              <li><CardIcon /> Pagos con Mercado Pago</li>
+              <li><PinIcon /> Hecho en Córdoba, Argentina</li>
+            </ul>
           </div>
           <div className="hero-card" aria-hidden="true">
-            <div key={i} className="card-swap">
-              <CardPreview config={example} filled={example.filled} />
-            </div>
+            <PhoneMockup example={example} />
           </div>
         </section>
 
@@ -127,6 +144,20 @@ export default function Landing() {
               Cada persona que guarda tu tarjeta te deja sus datos. Con el tiempo armás una lista de clientes reales que ya te
               compraron: la base para que vuelvan.
             </p>
+            <div className="sample-list" aria-hidden="true">
+              <div className="sample-list-head">
+                <strong>Clientes</strong>
+                <span>Descargar ↓</span>
+              </div>
+              {SAMPLE_CUSTOMERS.map((c) => (
+                <div key={c.name} className="sample-row">
+                  <span className="sample-avatar">{c.name.charAt(0)}</span>
+                  <span className="sample-name">{c.name}<small>{c.last}</small></span>
+                  {c.tag && <span className={`sample-tag${c.tag === 'No vuelve' ? ' warn' : ''}`}>{c.tag}</span>}
+                  <span className="sample-stamps">{c.stamps}</span>
+                </div>
+              ))}
+            </div>
           </div>
           <ul className="leads-list">
             <li><strong>Elegís qué pedir:</strong> nombre, teléfono, mail, o solo lo que necesites.</li>
@@ -140,12 +171,26 @@ export default function Landing() {
         {/* ---------- Para cualquier negocio ---------- */}
         <section className="section section-alt">
           <h2>Sirve para cualquier negocio</h2>
-          <p className="section-lead">Si tenés clientes que vuelven, podés premiarlos. Y de paso conocés quiénes son.</p>
-          <ul className="chips-cloud">
-            {BUSINESSES.map((b) => (
-              <li key={b}>{b}</li>
+          <p className="section-lead">Vos elegís qué se cuenta y qué se regala: un producto, un descuento o lo que quieras. Tocá un rubro:</p>
+          <div className="rubros" role="tablist" aria-label="Ejemplos por rubro">
+            {EXAMPLES.map((ex, n) => (
+              <button key={ex.rubro} role="tab" type="button" aria-selected={rubro === n} className="rubro-chip" onClick={() => setRubro(n)}>
+                {ex.rubro}
+              </button>
             ))}
-          </ul>
+          </div>
+          <div className="rubro-example" role="tabpanel">
+            <div key={rubro} className="rubro-card fade-up">
+              <CardPreview config={EXAMPLES[rubro]} filled={EXAMPLES[rubro].filled} />
+            </div>
+            <div className="rubro-text">
+              <h3>{EXAMPLES[rubro].name}</h3>
+              <p className="rubro-rule">
+                {EXAMPLES[rubro].stampsRequired} {EXAMPLES[rubro].itemPlural} = <strong>{EXAMPLES[rubro].rewardText}</strong>
+              </p>
+              <p className="help" style={{ margin: 0 }}>Y también: {MORE_BUSINESSES} Si tenés clientes que vuelven, sirve.</p>
+            </div>
+          </div>
         </section>
 
         {/* ---------- Qué incluye ---------- */}
@@ -196,9 +241,18 @@ export default function Landing() {
               <li>Afiche con QR, avisos y cercanía</li>
               <li>Cancelás cuando quieras</li>
             </ul>
-            <a className="btn btn-lg btn-primary" href={signupUrl}>Crear mi tarjeta</a>
+            {perDay && (
+              <p className="price-day">
+                Menos de <strong>{formatMoney(perDay, plan?.currency)}</strong> por día. Si un solo cliente vuelve una vez más por semana, ya se pagó.
+              </p>
+            )}
+            <a className="btn btn-lg btn-primary" href={signupUrl} onClick={() => track('cta_click')}>Crear mi tarjeta</a>
             <p className="hero-note">Se paga con Mercado Pago. Diseñar la tarjeta es gratis.</p>
           </div>
+          <p className="section-lead price-reward">
+            ¿Y el premio? Casi no se nota: es un café cada 8, para alguien que ya volvió 8 veces. Es la forma más barata de que te
+            elijan a vos.
+          </p>
         </section>
 
         {/* ---------- Preguntas ---------- */}
@@ -229,12 +283,18 @@ export default function Landing() {
         <section className="cta-final">
           <h2>Empezá hoy con tu tarjeta</h2>
           <p>La armás en minutos. Tus clientes la guardan en segundos.</p>
-          <a className="btn btn-lg btn-secondary" href={signupUrl}>Crear mi tarjeta</a>
+          <a className="btn btn-lg btn-secondary" href={signupUrl} onClick={() => track('cta_click')}>Crear mi tarjeta</a>
           <p className="hero-note">¿Dudas? Escribinos a <a href={`mailto:${RESPONSIBLE.email}`}>{RESPONSIBLE.email}</a></p>
         </section>
       </main>
 
       <SiteFooter />
+      <StickyCta href={signupUrl} onClick={() => track('cta_click')} />
     </div>
   )
 }
+
+const iconProps = { viewBox: '0 0 24 24', width: 18, height: 18, fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const
+const LockIcon = () => <svg {...iconProps}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+const CardIcon = () => <svg {...iconProps}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 10h18M7 15h4" /></svg>
+const PinIcon = () => <svg {...iconProps}><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>

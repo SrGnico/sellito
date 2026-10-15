@@ -12,6 +12,7 @@ import ImageField from '../components/ImageField'
 import LocationsEditor from '../components/LocationsEditor'
 import Spinner from '../components/Spinner'
 import { MAX_LOCATIONS, proximityText } from '../lib/proximity'
+import { toast } from '../lib/feedback'
 
 // Compara sin depender del orden de las claves (Firestore puede devolver los mapas en otro orden).
 const stableJson = (value: unknown) =>
@@ -108,8 +109,10 @@ export default function CardEditor({ business, readOnly = false }: { business: B
       // Igualar el borrador a lo guardado (sin espacios sobrantes) para que no quede "sin guardar".
       setDraft((d) => ({ ...d, name: d.name.trim(), rewardText: d.rewardText.trim() }))
       setResult('saved')
+      toast('Cambios guardados. Las tarjetas de tus clientes se actualizan solas.')
     } catch {
       setResult('error')
+      toast('No pudimos guardar. Revisá tu conexión.', 'err')
     } finally {
       setSaving(false)
     }
@@ -175,6 +178,15 @@ export default function CardEditor({ business, readOnly = false }: { business: B
               kind="logo"
               value={draft.logoUrl}
               onChange={(logoUrl) => update({ logoUrl })}
+            />
+            <ImageField
+              id="wide-logo"
+              label="Logo con el nombre (opcional)"
+              help="Si tu logo ya dice el nombre del negocio, subilo horizontal acá: la tarjeta lo muestra solo, sin repetir el nombre. PNG con fondo transparente."
+              businessId={business.id}
+              kind="wideLogo"
+              value={draft.wideLogoUrl}
+              onChange={(wideLogoUrl) => update({ wideLogoUrl })}
             />
             <ImageField
               id="banner"

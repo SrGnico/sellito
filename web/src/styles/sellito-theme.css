@@ -191,3 +191,5 @@ a { color: var(--green); text-underline-offset: 3px; }
 .badge-err  { background: var(--err-bg);  color: var(--err-fg);  border-color: var(--err); }
 .card { padding: 20px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
 .card-pink { background: var(--pink); }
+.toast-icon { width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; background: var(--green); color: var(--cream); }
+.toast-err .toast-icon { background: var(--err); color: #fff; }

@@ -26,6 +26,7 @@ export type Business = {
   slug?: string
   design?: {
     logoUrl?: string
+    wideLogoUrl?: string // logo horizontal con el nombre: reemplaza logo + nombre en la tarjeta
     bannerUrl?: string
     bgColor?: string
     textColor?: string // ya no se usa: el color del texto es automático (autoTextColor)

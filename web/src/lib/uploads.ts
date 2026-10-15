@@ -36,7 +36,7 @@ export function uploadErrorMessage(err: unknown): string {
 }
 
 // Nombre nuevo en cada subida: los Wallets cachean las imágenes por URL (SELLITO_SPEC.md §12).
-export async function uploadBusinessImage(businessId: string, kind: 'logo' | 'banner' | 'stamp', file: File) {
+export async function uploadBusinessImage(businessId: string, kind: 'logo' | 'wideLogo' | 'banner' | 'stamp', file: File) {
   const path = `businesses/${businessId}/public/${kind}-${Date.now()}.${EXTENSIONS[file.type]}`
   const fileRef = ref(storage, path)
   await uploadBytes(fileRef, file, { contentType: file.type, cacheControl: 'public, max-age=31536000' })

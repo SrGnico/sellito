@@ -5,7 +5,10 @@ import QRCode from 'qrcode'
 import CardPreview, { PlatformToggle, type WalletPlatform } from '../components/CardPreview'
 import { CONSENT_VERSION, consentText } from '../content/privacy'
 import { DEFAULT_CARD, type CardConfig } from '../lib/cardDesign'
-import { callable } from '../lib/firebase'
+import { callable, warmAppCheck } from '../lib/firebase'
+import { API_URL } from '../lib/urls'
+import { DEMO_ENROLL_CODE } from '../content/brand'
+import { track } from '../lib/track'
 import type { Business } from '../lib/types'
 import EmptyState from '../components/EmptyState'
 import LoadingScreen from '../components/LoadingScreen'
@@ -23,7 +26,13 @@ type EnrollInfo =
 
 type Field = 'name' | 'phone' | 'email'
 
-const getEnrollInfo = callable<{ code: string }, EnrollInfo>('getEnrollInfo')
+// Datos públicos de la tarjeta: GET cacheable en el CDN, sin esperar a App Check.
+async function getEnrollInfo(code: string): Promise<EnrollInfo | 'not-found'> {
+  const res = await fetch(`${API_URL}/enrollInfo/${encodeURIComponent(code)}`)
+  if (res.status === 404) return 'not-found'
+  if (!res.ok) throw new Error(`enrollInfo ${res.status}`)
+  return res.json()
+}
 const createCard = callable<
   {
     code: string
@@ -79,9 +88,11 @@ export default function Enroll() {
   }, [mobile])
 
   useEffect(() => {
-    getEnrollInfo({ code })
-      .then((r) => setInfo(r.data))
-      .catch((err) => setInfo(err instanceof FirebaseError && err.code === 'functions/not-found' ? 'not-found' : 'error'))
+    warmAppCheck()
+    track(code === DEMO_ENROLL_CODE ? 'demo_view' : 'enroll_view')
+    getEnrollInfo(code)
+      .then(setInfo)
+      .catch(() => setInfo('error'))
   }, [code])
 
   if (info === 'loading') return <LoadingScreen label="Cargando la tarjeta…" />
@@ -164,6 +175,7 @@ export default function Enroll() {
       } catch {
         // sin almacenamiento: no pasa nada
       }
+      track(code === DEMO_ENROLL_CODE ? 'demo_add' : 'enroll_add')
       setSaveUrl(url)
       window.location.assign(url)
     } catch (err) {

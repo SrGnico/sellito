@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check'
+import { getToken, initializeAppCheck, ReCaptchaEnterpriseProvider, type AppCheck } from 'firebase/app-check'
 import { connectAuthEmulator, getAuth } from 'firebase/auth'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { connectFunctionsEmulator, getFunctions, httpsCallable, httpsCallableFromURL } from 'firebase/functions'
@@ -17,13 +17,21 @@ export const app = initializeApp({
   appId: env.VITE_FIREBASE_APP_ID,
 })
 
+let appCheck: AppCheck | null = null
+
+// Pide el token de App Check por adelantado (por ejemplo, mientras el cliente completa sus datos),
+// así la llamada que lo necesita no espera a reCAPTCHA.
+export function warmAppCheck() {
+  if (appCheck) getToken(appCheck).catch(() => undefined)
+}
+
 // App Check: las Functions públicas (alta de clientes, escáner) solo aceptan llamadas de esta web.
 // En desarrollo se usa el token de depuración registrado en App Check (VITE_APPCHECK_DEBUG_TOKEN).
 if (env.VITE_RECAPTCHA_SITE_KEY && env.VITE_USE_EMULATORS !== 'true') {
   if (import.meta.env.DEV && env.VITE_APPCHECK_DEBUG_TOKEN) {
     ;(self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN = env.VITE_APPCHECK_DEBUG_TOKEN
   }
-  initializeAppCheck(app, {
+  appCheck = initializeAppCheck(app, {
     provider: new ReCaptchaEnterpriseProvider(env.VITE_RECAPTCHA_SITE_KEY),
     isTokenAutoRefreshEnabled: true,
   })

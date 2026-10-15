@@ -29,6 +29,8 @@ export default function CardPreview({ config, filled, platform = 'android' }: Pr
       {name.charAt(0).toUpperCase()}
     </span>
   )
+  // Logo horizontal con el nombre: va solo, sin el logo redondo ni el nombre escrito.
+  const wide = config.wideLogoUrl ? <img className="wallet-card-wide-logo" src={config.wideLogoUrl} alt={name} /> : null
   const stampsImage = (
     <StampGrid
       total={total}
@@ -51,8 +53,12 @@ export default function CardPreview({ config, filled, platform = 'android' }: Pr
     return (
       <figure className="wallet-card wallet-card-iphone" style={{ background: config.bgColor, color: fg }}>
         <div className="wallet-card-iphone-header">
-          {logo}
-          <span className="wallet-card-issuer">{name}</span>
+          {wide ?? (
+            <>
+              {logo}
+              <span className="wallet-card-issuer">{name}</span>
+            </>
+          )}
           <span className="wallet-card-iphone-points">
             <span className="wallet-card-label">Sellos</span>
             <span className="wallet-card-value">{balance}</span>
@@ -72,8 +78,12 @@ export default function CardPreview({ config, filled, platform = 'android' }: Pr
   return (
     <figure className="wallet-card" style={{ background: config.bgColor, color: fg }}>
       <div className="wallet-card-header">
-        {logo}
-        <span className="wallet-card-issuer">{name}</span>
+        {wide ?? (
+          <>
+            {logo}
+            <span className="wallet-card-issuer">{name}</span>
+          </>
+        )}
       </div>
       <p className="wallet-card-title">{PROGRAM_NAME}</p>
       {code}

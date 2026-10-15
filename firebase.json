@@ -180,6 +180,20 @@
           }
         },
         {
+          "source": "/enrollInfo/**",
+          "function": {
+            "functionId": "enrollInfo",
+            "region": "southamerica-east1"
+          }
+        },
+        {
+          "source": "/track",
+          "function": {
+            "functionId": "track",
+            "region": "southamerica-east1"
+          }
+        },
+        {
           "source": "/sendNotice",
           "function": {
             "functionId": "sendNotice",

@@ -35,6 +35,12 @@
 - [x] Avisos desde el panel (Panel → Avisos): uno por día, solo a quienes aceptaron novedades
 - [x] Página `/soporte`
 - [x] Política sin datos personales a la vista (se informan a pedido)
+- [x] Alta instantánea: `GET API_URL/enrollInfo/{código}` cacheado en el CDN (sin esperar a App Check); App Check se pide en segundo plano para crear la tarjeta
+- [x] Analítica propia sin cookies (`track` → `analytics/{día}`), embudo en /admin
+- [x] Landing: celular con aviso, 5 negocios de ejemplo con logo/banner, rubros clickeables, confianza (badges oficiales), precio por día, botón fijo en celular, lista de clientes de muestra, video sin barra
+- [x] Logo horizontal con el nombre (`design.wideLogoUrl`): Apple sin logoText, Google `wideProgramLogo`
+- [ ] Entrar con Google: activar el proveedor en Firebase Auth, agregar `https://app.misellito.com.ar/__/auth/handler` al cliente OAuth y poner `VITE_GOOGLE_SIGNIN=true`
+- [ ] Probar en el celular el logo horizontal en Apple y Google Wallet
 - [x] Asistente de primeros pasos (`/panel/configurar`): logo y color → premio → datos → PIN → QR
 - [x] Tests E2E (Playwright): `npm run test:e2e` (públicas) y `npm run test:e2e:full` (alta completa; crea y borra un negocio real)
 - [ ] E2E: sumar un sello desde el escáner (necesita un negocio de prueba con suscripción)
@@ -178,7 +184,7 @@
 - [ ] Ayuda: tooltip y popover
 - [x] Página de suscripción vencida (escáner)
 - [x] `reward.svg` al canjear y `empty-clients.svg` en la tabla de clientes
-- [ ] Toasts y diálogos de confirmación (Radix UI + `sonner` o similar)
+- [x] Avisos ("✓ Guardado") y confirmaciones (lib/feedback.ts): guardar diseño, PIN, canjear premio, mandar aviso
 - [ ] Ícono del Wallet en PNG (varios tamaños) y sellos por rubro (café, pizza, tijera…)
 - [x] Logo en Apple recortado en círculo, igual que Google
 

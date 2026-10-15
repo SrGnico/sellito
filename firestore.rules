@@ -109,6 +109,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Analítica por día (functions/src/analytics): solo la lee el superadmin.
+    match /analytics/{day} {
+      allow read: if isSuperadmin();
+      allow write: if false;
+    }
+
     // Cola de mails (los envía deliverMail con Resend): solo Functions.
     match /mail/{id} {
       allow read, write: if false;

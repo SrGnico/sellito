@@ -7,7 +7,7 @@ initializeApp();
 // São Paulo: la región más cercana a Argentina. El frontend usa la misma (web/src/lib/firebase.ts).
 setGlobalOptions({ region: "southamerica-east1", maxInstances: 10 });
 
-export { createCard, ensureEnrollCode, getEnrollInfo } from "./cards/enroll";
+export { createCard, enrollInfo, ensureEnrollCode, getEnrollInfo } from "./cards/enroll";
 export { resyncCards } from "./cards/sync";
 export { exportCustomers, upgradeCards } from "./customers";
 export { dailySubscriptionCheck } from "./payments/daily";
@@ -25,3 +25,4 @@ export const health = onRequest((_req, res) => {
 });
 export { deliverMail, welcomeMail } from "./mail";
 export { cleanupStorage } from "./cleanup";
+export { track } from "./analytics";

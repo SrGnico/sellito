@@ -6,6 +6,8 @@ export type BusinessDoc = {
   name: string;
   design?: {
     logoUrl?: string;
+    // Logo horizontal que ya incluye el nombre: si está, la tarjeta lo muestra en lugar de logo + nombre.
+    wideLogoUrl?: string;
     bannerUrl?: string;
     bgColor?: string;
     textColor?: string;

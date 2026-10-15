@@ -28,6 +28,7 @@ import Mascot from '../components/Mascot'
 import Onboarding from '../components/Onboarding'
 import ScannerSettings from '../components/ScannerSettings'
 import Spinner from '../components/Spinner'
+import { track } from '../lib/track'
 import { APP_NAME } from '../lib/urls'
 
 type LoadState =
@@ -174,6 +175,7 @@ function CreateBusiness({ uid }: { uid: string }) {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       })
+      track('business_created')
       navigate('/panel/configurar')
     } catch {
       setError('No pudimos crear el negocio. Intentá de nuevo.')

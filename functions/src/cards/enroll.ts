@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
-import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { enrollMissing, type BusinessDoc, type CardDoc, type Customer } from "../types";
 import { StampImages } from "../images/stamps";
 import { saveUrl, upsertLoyaltyClass, upsertLoyaltyObject, walletKey } from "../wallet/google";
@@ -66,11 +66,9 @@ async function loadByCode(code: unknown): Promise<{ businessId: string; b: Busin
 }
 
 // Datos públicos para la página de alta (SITE_URL/c/{código}). El cliente final no lee Firestore directo.
-export const getEnrollInfo = onCall({ enforceAppCheck: true }, async (req) => {
-  const { b } = await loadByCode(req.data?.code);
+function enrollInfoOf(b: BusinessDoc) {
   if (isPaused(b)) return { ready: false, paused: true, name: b.name };
-  const missing = enrollMissing(b);
-  if (missing.length > 0) return { ready: false, name: b.name };
+  if (enrollMissing(b).length > 0) return { ready: false, name: b.name };
   return {
     ready: true,
     name: b.name,
@@ -78,6 +76,33 @@ export const getEnrollInfo = onCall({ enforceAppCheck: true }, async (req) => {
     rule: b.rule,
     askFields: b.askFields ?? { name: true, phone: true, email: false },
   };
+}
+
+// Versión anterior (callable con App Check). Queda para páginas abiertas antes del cambio.
+export const getEnrollInfo = onCall({ enforceAppCheck: true }, async (req) => enrollInfoOf((await loadByCode(req.data?.code)).b));
+
+// GET API_URL/enrollInfo/{código}: lo mismo, sin App Check (son datos públicos, los mismos que muestra
+// la tarjeta) y cacheable en el CDN de Hosting, para que la página de alta cargue al instante.
+// Crear la tarjeta (createCard) sí exige App Check.
+export const enrollInfo = onRequest({ cors: true }, async (req, res) => {
+  if (req.method !== "GET") {
+    res.status(405).end();
+    return;
+  }
+  const code = req.path.split("/").filter(Boolean).pop();
+  try {
+    const { b } = await loadByCode(code);
+    res.set("Cache-Control", "public, max-age=30, s-maxage=60");
+    res.json(enrollInfoOf(b));
+  } catch (err) {
+    if (err instanceof HttpsError && err.code === "not-found") {
+      res.set("Cache-Control", "public, max-age=30, s-maxage=60");
+      res.status(404).json({ error: "not-found" });
+      return;
+    }
+    logger.error("enrollInfo falló", { code, err });
+    res.status(500).json({ error: "internal" });
+  }
 });
 
 // Con la suscripción vencida el negocio no suma clientes nuevos (las tarjetas existentes siguen).

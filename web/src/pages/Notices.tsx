@@ -6,6 +6,7 @@ import { callable, db } from '../lib/firebase'
 import { scannerError } from '../lib/scanner'
 import { accessLevel, canOperate } from '../lib/subscription'
 import type { Business } from '../lib/types'
+import { confirmar, toast } from '../lib/feedback'
 
 // Panel → Avisos: mensajes del negocio que llegan como notificación a la tarjeta del Wallet de sus
 // clientes. Solo a quienes aceptaron recibir novedades. Ver functions/src/notices/index.ts.
@@ -47,11 +48,18 @@ export default function Notices({ business }: { business: Business }) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!title.trim() || !body.trim()) return setError('Escribí un título y un mensaje.')
+    const ok = await confirmar({
+      title: `¿Mandar el aviso a ${audience ?? 0} ${audience === 1 ? 'cliente' : 'clientes'}?`,
+      text: 'Llega como notificación al celular y no se puede deshacer. Podés mandar uno por día.',
+      confirmLabel: 'Enviar aviso',
+    })
+    if (!ok) return
     setBusy(true)
     setError(null)
     setSent(false)
     try {
       await sendNotice({ businessId: business.id, title: title.trim(), body: body.trim() })
+      toast('¡Aviso enviado!')
       setTitle('')
       setBody('')
       setSent(true)

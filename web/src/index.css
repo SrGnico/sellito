@@ -86,6 +86,9 @@ main .loading-screen { min-height: 50vh; }
 /* Variante Apple Wallet (iPhone) */
 .wallet-card-iphone { text-align: left; }
 .wallet-card-iphone-header { display: flex; align-items: center; gap: 10px; padding: 14px 14px 10px; }
+/* Logo horizontal con el nombre (design.wideLogoUrl): reemplaza logo redondo + nombre. */
+.wallet-card-wide-logo { display: block; max-width: 72%; height: 44px; object-fit: contain; }
+.wallet-card-iphone-header .wallet-card-wide-logo { flex: 1; min-width: 0; max-width: none; height: 36px; object-position: left center; }
 .wallet-card-iphone-header .wallet-card-logo { width: 36px; height: 36px; font-size: 18px; }
 .wallet-card-iphone-header .wallet-card-issuer { flex: 1; font-size: var(--text-md); font-weight: 600; }
 .wallet-card-iphone-points { text-align: right; }
@@ -157,3 +160,8 @@ main.pin-screen { max-width: 400px; padding: calc(env(safe-area-inset-top) + 20p
 /* Alta desde una compu: QR para seguir en el celular y selector de celular. */
 .enroll-desktop { flex-direction: row; align-items: center; gap: 16px; }
 .enroll-desktop img { flex-shrink: 0; border: var(--border-width) solid var(--border); border-radius: var(--radius-sm); background: #fff; padding: 4px; }
+
+/* Login: botón de Google y separador */
+.btn-google { background: #fff; color: #1f1f1f; gap: 10px; }
+.or-divider { display: flex; align-items: center; gap: 12px; color: var(--text-soft); font-size: var(--text-sm); }
+.or-divider::before, .or-divider::after { content: ""; flex: 1; height: 2px; background: var(--cream-deep); }

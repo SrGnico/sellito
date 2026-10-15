@@ -115,3 +115,10 @@
 .swatch-custom input { opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 /* En el celular, primero el formulario (con el botón cerca) y después la vista previa. */
 @media (max-width: 899px) { .wizard .editor-preview { order: 2; } }
+
+/* Admin: embudo */
+.funnel { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.funnel li { display: grid; grid-template-columns: minmax(150px, 1.2fr) 2fr 48px; gap: 12px; align-items: center; font-size: var(--text-sm); }
+.funnel strong { text-align: right; }
+.funnel-bar { height: 14px; border-radius: var(--radius-full); background: var(--cream-deep); overflow: hidden; }
+.funnel-bar span { display: block; height: 100%; background: var(--pink); border-right: 2px solid var(--green); }

@@ -14,12 +14,14 @@ import Support from './pages/Support'
 import ScannerLauncher from './pages/ScannerLauncher'
 import { updateRobots } from './lib/seo'
 import { isSiteHost } from './lib/urls'
+import Feedback from './components/Feedback'
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <RobotsTag />
+        <Feedback />
         <Routes>
           {/* misellito.com.ar muestra la landing; app.misellito.com.ar (y localhost) van al panel. */}
           <Route path="/" element={isSiteHost() ? <Landing /> : <Navigate to="/panel" replace />} />

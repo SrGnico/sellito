@@ -9,6 +9,7 @@ import Spinner from '../components/Spinner'
 import { businessFieldsFrom, cardConfigFrom, MAX_STAMPS, MIN_STAMPS, type CardConfig } from '../lib/cardDesign'
 import { db } from '../lib/firebase'
 import { accessLevel, canOperate, isReadOnly } from '../lib/subscription'
+import { track } from '../lib/track'
 import type { Business } from '../lib/types'
 
 // Asistente de primeros pasos para un negocio nuevo: tarjeta lista en unos minutos.
@@ -55,7 +56,10 @@ export default function SetupWizard({ business }: { business: Business }) {
       }
       setSaving(false)
     }
-    if (step === STEPS.length - 1) return navigate('/panel')
+    if (step === STEPS.length - 1) {
+      track('wizard_done')
+      return navigate('/panel')
+    }
     setStep(step + 1)
     window.scrollTo({ top: 0 })
   }
