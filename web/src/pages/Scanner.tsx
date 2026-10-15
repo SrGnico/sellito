@@ -8,9 +8,11 @@ import Mascot from '../components/Mascot'
 import Spinner from '../components/Spinner'
 import StampGrid from '../components/StampGrid'
 import { DEFAULT_CARD } from '../lib/cardDesign'
+import { canPromptInstall, isIOS, isStandalone, onInstallChange, promptInstall } from '../lib/install'
 import { autoTextColor } from '../lib/color'
 import {
   loadToken,
+  rememberScannerBusiness,
   saveToken,
   scannerError,
   scannerLogin,
@@ -24,7 +26,7 @@ import {
 type Phase =
   | { kind: 'loading' }
   | { kind: 'pin'; message?: string }
-  | { kind: 'blocked'; reason: 'subscription' | 'no-card' | 'not-found' }
+  | { kind: 'blocked'; reason: 'subscription' | 'no-subscription' | 'no-card' | 'not-found' }
   | { kind: 'ready'; token: string; business: ScannerBusiness }
 
 export default function Scanner() {
@@ -39,7 +41,7 @@ export default function Scanner() {
         setPhase({ kind: 'pin', message: 'La sesión del escáner se cerró (puede que hayan cambiado el PIN). Entrá de nuevo.' })
         return true
       }
-      if (e.reason === 'subscription' || e.reason === 'no-card') {
+      if (e.reason === 'subscription' || e.reason === 'no-subscription' || e.reason === 'no-card') {
         setPhase({ kind: 'blocked', reason: e.reason })
         return true
       }
@@ -70,6 +72,7 @@ export default function Scanner() {
           setPhase({ kind: 'ready', token, business })
         }}
         onNotFound={() => setPhase({ kind: 'blocked', reason: 'not-found' })}
+        onBlocked={(reason) => setPhase({ kind: 'blocked', reason })}
       />
     )
   }
@@ -77,8 +80,13 @@ export default function Scanner() {
     return (
       <main>
         {phase.reason === 'subscription' ? (
-          <EmptyState illustration="expired" title="El escáner está en pausa">
-            La suscripción del local no está al día. Cuando se regularice, el escáner vuelve a funcionar solo.
+          <EmptyState illustration="expired" title="Suscripción vencida">
+            El escáner está en pausa: por ahora no se pueden sumar sellos ni canjear premios. Los clientes conservan sus
+            tarjetas. Cuando el dueño reactive la suscripción, vuelve a funcionar solo.
+          </EmptyState>
+        ) : phase.reason === 'no-subscription' ? (
+          <EmptyState illustration="expired" title="El escáner todavía no está activo">
+            El dueño tiene que activar la suscripción desde el panel. Después, el escáner funciona solo.
           </EmptyState>
         ) : phase.reason === 'no-card' ? (
           <EmptyState illustration="search" title="La tarjeta todavía no está lista">
@@ -113,11 +121,13 @@ function PinScreen({
   message,
   onLogin,
   onNotFound,
+  onBlocked,
 }: {
   businessId: string
   message?: string
   onLogin: (token: string, business: ScannerBusiness) => void
   onNotFound: () => void
+  onBlocked: (reason: 'subscription' | 'no-subscription') => void
 }) {
   const [pin, setPin] = useState('')
   const [busy, setBusy] = useState(false)
@@ -137,6 +147,7 @@ function PinScreen({
     } catch (err) {
       const e = scannerError(err)
       if (e.code === 'not-found') return onNotFound()
+      if (e.reason === 'subscription' || e.reason === 'no-subscription') return onBlocked(e.reason)
       setPin('')
       if (e.reason === 'wrong') setError(`PIN incorrecto. Te quedan ${e.value} intentos.`)
       else if (e.reason === 'locked') setError(`Hubo muchos intentos. Esperá ${e.value} minutos y probá de nuevo.`)
@@ -184,10 +195,15 @@ function PinScreen({
   )
 }
 
-// ---------- Cámara y resultado ----------
+// ---------- Panel, cámara y resultado ----------
+
+// La cámara NO queda prendida: se abre al tocar "Escanear QR" y se apaga sola después de leer
+// un código o de CAMERA_IDLE_MS sin leer nada (ahorra batería y no molesta en el mostrador).
+const CAMERA_IDLE_MS = 60_000
 
 type View =
-  | { kind: 'scanning' }
+  | { kind: 'idle' }
+  | { kind: 'camera' }
   | { kind: 'searching' }
   | { kind: 'choose'; cards: ScannedCard[] }
   | { kind: 'card'; card: ScannedCard; cooldown?: number }
@@ -210,12 +226,13 @@ function ScannerView({
   onLogout: () => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const scannerRef = useRef<QrScanner | null>(null)
-  const [view, setView] = useState<View>({ kind: 'scanning' })
+  const [view, setView] = useState<View>({ kind: 'idle' })
   const [cameraError, setCameraError] = useState(false)
   const [manualOpen, setManualOpen] = useState(false)
   const [busy, setBusy] = useState(false)
-  const scanning = view.kind === 'scanning' && !manualOpen
+  const cameraOn = view.kind === 'camera'
+
+  useScannerInstallable(businessId)
 
   const lookup = useCallback(
     async (code: string) => {
@@ -232,9 +249,9 @@ function ScannerView({
     [businessId, token, onSessionError],
   )
 
-  // La cámara corre solo mientras se está escaneando.
+  // Cámara: solo mientras view es 'camera'. Al salir de ese estado se apaga (stop + destroy).
   useEffect(() => {
-    if (!scanning || !videoRef.current) return
+    if (!cameraOn || !videoRef.current) return
     let handled = false
     const scanner = new QrScanner(
       videoRef.current,
@@ -247,17 +264,17 @@ function ScannerView({
       },
       { preferredCamera: 'environment', maxScansPerSecond: 8, highlightScanRegion: false, returnDetailedScanResult: true },
     )
-    scannerRef.current = scanner
     scanner
       .start()
       .then(() => setCameraError(false))
       .catch(() => setCameraError(true))
+    const idle = setTimeout(() => setView({ kind: 'idle' }), CAMERA_IDLE_MS)
     return () => {
+      clearTimeout(idle)
       scanner.stop()
       scanner.destroy()
-      scannerRef.current = null
     }
-  }, [scanning, lookup])
+  }, [cameraOn, lookup])
 
   async function act(card: ScannedCard, action: 'add' | 'redeem', force = false) {
     setBusy(true)
@@ -276,15 +293,20 @@ function ScannerView({
     }
   }
 
-  // Después de sumar o canjear, vuelve solo a la cámara.
+  // Después de sumar o canjear, vuelve solo al panel (la cámara queda apagada).
   useEffect(() => {
     if (view.kind !== 'done') return
-    const t = setTimeout(() => setView({ kind: 'scanning' }), 3000)
+    const t = setTimeout(() => setView({ kind: 'idle' }), 4000)
     return () => clearTimeout(t)
   }, [view])
 
   const bg = business.design.bgColor ?? DEFAULT_CARD.bgColor
-  const back = () => setView({ kind: 'scanning' })
+  const toIdle = () => setView({ kind: 'idle' })
+  const openCamera = () => {
+    setCameraError(false)
+    setView({ kind: 'camera' })
+  }
+  const showSheet = view.kind !== 'idle' && view.kind !== 'camera'
 
   return (
     <div className="scanner">
@@ -295,24 +317,38 @@ function ScannerView({
         </button>
       </header>
 
-      <div className="scanner-camera">
-        <video ref={videoRef} muted playsInline aria-label="Cámara para escanear la tarjeta" />
-        {scanning && !cameraError && <div className="scanner-frame" aria-hidden="true" />}
-        {scanning && cameraError && (
-          <div className="scanner-camera-msg" role="alert">
-            <p>No pudimos abrir la cámara. Dale permiso en el navegador o tipeá el código de la tarjeta.</p>
-          </div>
-        )}
-        {scanning && !cameraError && <p className="scanner-hint">Apuntá al QR de la tarjeta del cliente</p>}
-      </div>
+      {cameraOn ? (
+        <div className="scanner-camera">
+          <video ref={videoRef} muted playsInline aria-label="Cámara para escanear la tarjeta" />
+          {!cameraError && <div className="scanner-frame" aria-hidden="true" />}
+          {cameraError ? (
+            <div className="scanner-camera-msg" role="alert">
+              <p>No pudimos abrir la cámara. Dale permiso en el navegador o tipeá el código de la tarjeta.</p>
+            </div>
+          ) : (
+            <p className="scanner-hint">Apuntá al QR de la tarjeta del cliente</p>
+          )}
+          <button className="btn btn-lg scanner-close" type="button" onClick={toIdle}>
+            Cerrar cámara
+          </button>
+        </div>
+      ) : (
+        <div className="scanner-idle">
+          <Mascot size={96} />
+          <p style={{ margin: 0, color: 'var(--text-soft)', textAlign: 'center' }}>
+            Escaneá la tarjeta del cliente para sumar un sello o canjear su premio.
+          </p>
+          <button className="btn btn-lg btn-primary" type="button" onClick={openCamera}>
+            Escanear QR
+          </button>
+          <button className="btn btn-lg" type="button" onClick={() => setManualOpen(true)}>
+            Tipear código
+          </button>
+          <InstallHint />
+        </div>
+      )}
 
-      <div className="scanner-bottom">
-        <button className="btn btn-lg" type="button" onClick={() => setManualOpen(true)} disabled={!scanning}>
-          Tipear código
-        </button>
-      </div>
-
-      {view.kind !== 'scanning' && (
+      {showSheet && (
         <div className="scanner-sheet fade-up" role="dialog" aria-modal="true" aria-label="Tarjeta escaneada">
           {view.kind === 'searching' && (
             <p role="status" className="scanner-center">
@@ -325,8 +361,11 @@ function ScannerView({
               <div className="alert alert-err" role="alert">
                 <span className="alert-text">{view.message}</span>
               </div>
-              <button className="btn btn-lg btn-primary" type="button" onClick={back}>
-                Escanear otra
+              <button className="btn btn-lg btn-primary" type="button" onClick={openCamera}>
+                Escanear de nuevo
+              </button>
+              <button className="btn btn-ghost" type="button" onClick={toIdle}>
+                Cerrar
               </button>
             </>
           )}
@@ -340,7 +379,7 @@ function ScannerView({
                   {c.name ?? 'Sin nombre'} · {c.stamps} de {c.total}
                 </button>
               ))}
-              <button className="btn btn-ghost" type="button" onClick={back}>
+              <button className="btn btn-ghost" type="button" onClick={toIdle}>
                 Cancelar
               </button>
             </>
@@ -355,7 +394,7 @@ function ScannerView({
               busy={busy}
               onAdd={(force) => act(view.card, 'add', force)}
               onRedeem={() => act(view.card, 'redeem')}
-              onCancel={back}
+              onCancel={toIdle}
             />
           )}
 
@@ -376,8 +415,11 @@ function ScannerView({
                   </p>
                 </>
               )}
-              <button className="btn btn-lg btn-primary" type="button" onClick={back} style={{ marginTop: 12 }}>
+              <button className="btn btn-lg btn-primary" type="button" onClick={openCamera} style={{ marginTop: 12 }}>
                 Escanear otra
+              </button>
+              <button className="btn btn-ghost" type="button" onClick={toIdle}>
+                Listo
               </button>
             </div>
           )}
@@ -393,6 +435,83 @@ function ScannerView({
           }}
         />
       )}
+    </div>
+  )
+}
+
+// ---------- Instalar como app ----------
+
+// Agrega el manifest y los íconos solo en el escáner (el panel no se instala) y recuerda el local,
+// así el acceso directo (que abre /escaner) vuelve a este escáner.
+function useScannerInstallable(businessId: string) {
+  useEffect(() => {
+    rememberScannerBusiness(businessId)
+    const tags = [
+      Object.assign(document.createElement('link'), { rel: 'manifest', href: '/escaner.webmanifest' }),
+      Object.assign(document.createElement('link'), { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' }),
+      Object.assign(document.createElement('meta'), { name: 'theme-color', content: '#12372A' }),
+      Object.assign(document.createElement('meta'), { name: 'apple-mobile-web-app-capable', content: 'yes' }),
+      Object.assign(document.createElement('meta'), { name: 'apple-mobile-web-app-title', content: 'Escáner' }),
+    ]
+    tags.forEach((t) => document.head.appendChild(t))
+    return () => tags.forEach((t) => t.remove())
+  }, [businessId])
+}
+
+const INSTALL_DISMISSED_KEY = 'sellito-scanner:install-dismissed'
+
+function InstallHint() {
+  const [canPrompt, setCanPrompt] = useState(canPromptInstall)
+  const [showIosHelp, setShowIosHelp] = useState(false)
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return localStorage.getItem(INSTALL_DISMISSED_KEY) === '1'
+    } catch {
+      return false
+    }
+  })
+
+  useEffect(() => onInstallChange(() => setCanPrompt(canPromptInstall())), [])
+
+  if (dismissed || isStandalone() || (!canPrompt && !isIOS())) return null
+
+  const dismiss = () => {
+    setDismissed(true)
+    try {
+      localStorage.setItem(INSTALL_DISMISSED_KEY, '1')
+    } catch {
+      // nada
+    }
+  }
+
+  return (
+    <div className="card install-hint">
+      <strong>Tené el escáner a mano</strong>
+      <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-soft)' }}>
+        Agregalo a la pantalla de inicio y abrilo como una app, sin buscar el link.
+      </p>
+      {showIosHelp ? (
+        <ol style={{ margin: 0, paddingLeft: 20, fontSize: 'var(--text-sm)' }}>
+          <li>Tocá el botón <strong>Compartir</strong> (el cuadrado con la flecha hacia arriba) de Safari.</li>
+          <li>Elegí <strong>Agregar a inicio</strong>.</li>
+          <li>Tocá <strong>Agregar</strong>.</li>
+        </ol>
+      ) : (
+        <button
+          className="btn btn-secondary"
+          type="button"
+          onClick={async () => {
+            if (canPrompt) {
+              if (await promptInstall()) dismiss()
+            } else setShowIosHelp(true)
+          }}
+        >
+          {canPrompt ? 'Instalar en este celular' : 'Cómo agregarlo a inicio'}
+        </button>
+      )}
+      <button className="btn btn-ghost btn-sm" type="button" onClick={dismiss}>
+        Ahora no
+      </button>
     </div>
   )
 }

@@ -53,3 +53,22 @@ export function scannerError(err: unknown): { code: string; reason: string; valu
   const [reason, value] = err.message.split(':')
   return { code: err.code.replace('functions/', ''), reason, value: value ? Number(value) : null }
 }
+
+// Último escáner abierto en este celular: el acceso directo instalado abre /escaner y vuelve acá.
+const LAST_BUSINESS_KEY = 'sellito-scanner:last'
+
+export function rememberScannerBusiness(businessId: string) {
+  try {
+    localStorage.setItem(LAST_BUSINESS_KEY, businessId)
+  } catch {
+    // sin almacenamiento: el acceso directo pedirá el link de nuevo
+  }
+}
+
+export function lastScannerBusiness(): string | null {
+  try {
+    return localStorage.getItem(LAST_BUSINESS_KEY)
+  } catch {
+    return null
+  }
+}

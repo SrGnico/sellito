@@ -6,6 +6,7 @@ import Enroll from './pages/Enroll'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import Scanner from './pages/Scanner'
+import ScannerLauncher from './pages/ScannerLauncher'
 import Panel from './pages/Panel'
 import { APP_NAME } from './lib/urls'
 
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/panel/*" element={<RequireAuth><Panel /></RequireAuth>} />
           <Route path="/c/:code" element={<Enroll />} />
+          <Route path="/escaner" element={<ScannerLauncher />} />
           <Route path="/escaner/:businessId" element={<Scanner />} />
           <Route path="/admin/*" element={<Placeholder title="Super admin" />} />
           <Route path="*" element={<NotFound />} />
