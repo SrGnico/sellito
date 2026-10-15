@@ -1,4 +1,4 @@
-import { collection, documentId, getDocs, limit, orderBy, query } from 'firebase/firestore'
+import { collection, documentId, getDocs, query, where } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { db } from '../lib/firebase'
 
@@ -22,7 +22,9 @@ export default function Funnel() {
   const [failed, setFailed] = useState(false)
 
   useEffect(() => {
-    getDocs(query(collection(db, 'analytics'), orderBy(documentId(), 'desc'), limit(30)))
+    // Los documentos se llaman AAAA-MM-DD: alcanza con comparar el nombre (no necesita índice).
+    const since = new Date(Date.now() - 29 * 86400000).toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' })
+    getDocs(query(collection(db, 'analytics'), where(documentId(), '>=', since)))
       .then((snap) => {
         const events: Record<string, number> = {}
         const sources: Record<string, number> = {}
@@ -40,7 +42,13 @@ export default function Funnel() {
       .catch(() => setFailed(true))
   }, [])
 
-  if (failed) return null
+  if (failed) {
+    return (
+      <div className="alert alert-err" role="alert" style={{ marginTop: 24 }}>
+        <span className="alert-text">No pudimos cargar el embudo. Recargá la página.</span>
+      </div>
+    )
+  }
   const top = Math.max(1, totals?.events.landing_view ?? 0)
 
   return (

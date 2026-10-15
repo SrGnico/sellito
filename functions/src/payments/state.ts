@@ -1,6 +1,6 @@
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
-import { sendMail } from "../mail";
+import { notifyAdmin, sendMail } from "../mail";
 import type { BusinessDoc, Subscription } from "../types";
 import { DAY_MS, GRACE_DAYS } from "./access";
 import { cancelPreapproval, type Preapproval } from "./mercadopago";
@@ -63,6 +63,11 @@ export async function markActive(businessId: string, p: Preapproval): Promise<vo
     } catch (err) {
       logger.error("No se pudo encolar la confirmación de la suscripción", { businessId, err });
     }
+    const amount = res.sub.amount ? `$${res.sub.amount.toLocaleString("es-AR")} por mes` : "monto sin dato";
+    await notifyAdmin(
+      res.b.subscription?.status === "past_due" ? `Pagó y volvió al día: ${res.b.name}` : `💰 Nueva suscripción: ${res.b.name}`,
+      [`${res.b.name} tiene la suscripción activa (${amount}).`, `ID: ${businessId}`],
+    );
   }
   // La suscripción anterior (la del cobro que falló) se da de baja para que no cobre dos veces.
   if (oldPreapproval) {
@@ -90,6 +95,7 @@ export async function markPastDue(businessId: string, preapprovalId: string): Pr
   if (res) {
     logger.warn("Cobro fallido: empieza la gracia", { businessId });
     await notify(businessId, res, "pastDue");
+    await notifyAdmin(`Cobro fallido: ${res.b.name}`, [`No se pudo cobrar a ${res.b.name}. Empezó el período de gracia.`, `ID: ${businessId}`]);
   }
 }
 
@@ -110,6 +116,13 @@ export async function markCancelled(businessId: string, p: Preapproval): Promise
     return blockedSub(s);
   });
   if (res?.sub.status === "canceled") await notify(businessId, res, "blocked");
+  if (res && p.id === res.b.subscription?.mpPreapprovalId) {
+    await notifyAdmin(`Canceló: ${res.b.name}`, [
+      `${res.b.name} dio de baja la suscripción en Mercado Pago.`,
+      res.sub.cancelAtPeriodEnd ? "Sigue activa hasta el fin del período pagado." : "Quedó en pausa.",
+      `ID: ${businessId}`,
+    ]);
+  }
 }
 
 const blockedSub = (s: Subscription): Subscription => ({
@@ -125,6 +138,7 @@ export async function markBlocked(businessId: string, expectedStatus: Subscripti
   if (res) {
     logger.warn("Negocio bloqueado por falta de pago", { businessId, from: expectedStatus });
     await notify(businessId, res, "blocked");
+    await notifyAdmin(`Se pausó: ${res.b.name}`, [`${res.b.name} quedó en pausa (venció ${expectedStatus === "past_due" ? "la gracia" : expectedStatus === "trial" ? "la prueba" : "el período pagado"}).`, `ID: ${businessId}`]);
   }
 }
 

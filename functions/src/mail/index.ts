@@ -13,6 +13,8 @@ import type { BusinessDoc } from "../types";
 const resendKey = defineSecret("RESEND_API_KEY");
 const MAIL_FROM = defineString("MAIL_FROM");
 const MAIL_REPLY_TO = defineString("MAIL_REPLY_TO", { default: "" });
+// Avisos internos para quien administra Sellito (altas, suscripciones, cobros fallidos).
+const ADMIN_EMAIL = defineString("ADMIN_EMAIL", { default: "" });
 
 // Los documentos de `mail` se borran solos a los 180 días (política TTL sobre expiresAt).
 const KEEP_DAYS = 180;
@@ -152,6 +154,29 @@ export async function sendMail(ownerUid: string, template: MailTemplate, vars: V
   return true;
 }
 
+// Aviso interno al administrador. Texto simple: es para vos, no para el cliente.
+export async function notifyAdmin(subject: string, lines: string[]): Promise<void> {
+  const to = ADMIN_EMAIL.value();
+  if (!to) return;
+  try {
+    const admin = `${APP_URL.value()}/admin`;
+    const text = [...lines, "", `Panel de administración: ${admin}`].join("\n");
+    const html =
+      `<div style="font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;color:#12372A">` +
+      lines.map((l) => `<p style="margin:0 0 8px">${escape(l)}</p>`).join("") +
+      `<p style="margin:16px 0 0"><a href="${admin}" style="color:#12372A">Abrir el panel de administración</a></p></div>`;
+    await getFirestore().collection("mail").add({
+      to,
+      message: { subject: `[${APP_NAME.value()}] ${subject}`, text, html },
+      template: "admin",
+      createdAt: FieldValue.serverTimestamp(),
+      expiresAt: Timestamp.fromMillis(Date.now() + KEEP_DAYS * 86_400_000),
+    });
+  } catch (err) {
+    logger.error("No se pudo encolar el aviso al administrador", { subject, err });
+  }
+}
+
 // Envío real con la API de Resend. El id del documento evita mandar dos veces el mismo mail si se reintenta.
 export const deliverMail = onDocumentCreated({ document: "mail/{mailId}", secrets: [resendKey] }, async (event) => {
   const mail = event.data?.data() as { to: string; message: { subject: string; text: string; html?: string } } | undefined;
@@ -193,4 +218,6 @@ export const welcomeMail = onDocumentCreated("businesses/{businessId}", async (e
   } catch (err) {
     logger.error("No se pudo encolar la bienvenida", { businessId: event.params.businessId, err });
   }
+  const email = await ownerEmail(b.ownerUid);
+  await notifyAdmin(`Nuevo negocio: ${b.name}`, [`Se registró ${b.name}.`, `Cuenta: ${email ?? "sin mail"}`, `ID: ${event.params.businessId}`]);
 });

@@ -36,6 +36,7 @@
 - [x] Página `/soporte`
 - [x] Política sin datos personales a la vista (se informan a pedido)
 - [x] Alta instantánea: `GET API_URL/enrollInfo/{código}` cacheado en el CDN (sin esperar a App Check); App Check se pide en segundo plano para crear la tarjeta
+- [x] Avisos al administrador por mail (ADMIN_EMAIL): negocio nuevo, suscripción nueva, cobro fallido, cancelación, pausa
 - [x] Analítica propia sin cookies (`track` → `analytics/{día}`), embudo en /admin
 - [x] Landing ("Y el tuyo": nombre y color en vivo, cada letra un sello, llegan cargados al panel): celular con aviso, 5 negocios de ejemplo con logo/banner, rubros clickeables, confianza (badges oficiales), precio por día, botón fijo en celular, lista de clientes de muestra, video sin barra
 - [x] Logo horizontal con el nombre (`design.wideLogoUrl`): Apple sin logoText, Google `wideProgramLogo`
