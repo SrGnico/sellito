@@ -13,6 +13,7 @@ export { exportCustomers, upgradeCards } from "./customers";
 export { dailySubscriptionCheck } from "./payments/daily";
 export { createSubscription, mpWebhook, startTrial } from "./payments";
 export { scannerLogin, scannerLookup, scannerSession, scannerStamp, setScannerPin } from "./scanner";
+export { geocodeAddress } from "./locations/geocode";
 export { syncGoogleClass } from "./wallet/sync";
 
 // Chequeo de vida para probar el deploy.

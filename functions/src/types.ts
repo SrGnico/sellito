@@ -12,7 +12,11 @@ export type BusinessDoc = {
     stampIconId?: string;
     stampIconUrl?: string;
   };
-  rule?: { stampsRequired: number; rewardText: string };
+  // itemSingular/itemPlural: lo que se cuenta ("café" / "cafés"), para "Te faltan 3 cafés".
+  rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string };
+  // Locales (máx. 10) y si la tarjeta los usa para aparecer cerca (wallet/proximity.ts).
+  locations?: { label?: string; address?: string; lat: number; lng: number }[];
+  proximityEnabled?: boolean;
   askFields?: { name: boolean; phone: boolean; email: boolean };
   googleClassId?: string;
   enrollCode?: string;
@@ -59,6 +63,7 @@ export type CardDoc = {
   platform: "google" | "apple";
   googleObjectId?: string;
   lastStampAt?: Timestamp;
+  walletNotifyAt?: Timestamp[]; // avisos push enviados (últimas 24 h), ver wallet/proximity.ts
   lastActivityAt?: Timestamp; // último sello o canje; al crearla, la fecha de alta (filtro "inactivos")
   searchTokens?: string[]; // prefijos de nombre, teléfono y mail para buscar (cards/search.ts)
   consent?: { marketing: boolean; at: Timestamp; version: string }; // aceptación de novedades del negocio

@@ -74,6 +74,15 @@
 - [ ] PWA: manifest e ícono para "Agregar a pantalla de inicio" en el escáner
 - [ ] Sacar `testSetStamps` y el panel "Prueba de tarjetas" cuando el escáner esté probado
 
+### 5b. Cercanía y avisos
+- [x] Hasta 10 locales en el editor: dirección → lat/lng con OpenStreetMap (`geocodeAddress`), nombre editable
+- [x] Interruptor "Mostrar mi tarjeta cuando el cliente está cerca" (`proximityEnabled`); apagado = sin ubicaciones
+- [x] Google: `merchantLocations` en la clase (el texto del aviso lo escribe Google); "Tu progreso" en la tarjeta
+- [x] Texto desde la regla: "Te faltan {N} {cafés}" / "¡Tenés tu premio! Pasá a canjearlo" (`rule.itemSingular/itemPlural`)
+- [x] Avisos: al sumar (actualización del contador) y al completar (mensaje); máx. 3 por tarjeta cada 24 h, el último reservado para "tarjeta completa"
+- [ ] Probar: cargar un local, activar, sumar sellos desde el escáner y ver los avisos en el celular
+- [ ] Si crece el volumen, pasar el geocoding a un servicio pago (Nominatim pide uso liviano)
+
 ### 6. Imágenes de sellos ✅ (adelantado)
 - [x] Imagen por estado (0/N … N/N) con `@resvg/resvg-js` en `businesses/{id}/generated/{huella}/{n}-de-{N}.png`; no se regenera si existe
 - [x] URL distinta por diseño (huella) y por estado: Google no muestra versiones viejas
@@ -82,6 +91,8 @@
 - [ ] Limpiar imágenes generadas de diseños viejos
 
 ### 7. Apple Wallet
+- [ ] Cercanía: `locations` con `relevantText` = `appleLocations()` (wallet/proximity.ts); sin locales o apagado, no incluir
+- [ ] Campo "Tu progreso" con `changeMessage` ("%@") para avisar al sumar y al completar; regenerar el pase en cada sello
 - [ ] Imagen de sellos con la proporción de Apple (strip 1125 × 432) y ajustar la vista previa iPhone a la tarjeta real
 - [ ] Cuenta Apple Developer (USD 99/año) y certificado de Pass Type ID
 - [ ] Generar `.pkpass` con `passkit-generator`
@@ -136,6 +147,7 @@
 - [ ] Landing separada de la app
 - [x] Favicon
 - [ ] Imagen para compartir y banner de la landing
+- [ ] Landing: describir la cercanía como "puede aparecer en la pantalla de bloqueo cuando está cerca del local" (no prometer que siempre aparece)
 
 ## Diseño (SELLITO_DESIGN_SYSTEM.md §6, §7 y §9)
 - [x] Assets y motion integrados (`web/src/assets/`, `sellito-motion.css`, favicon)

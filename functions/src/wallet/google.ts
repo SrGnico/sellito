@@ -3,6 +3,7 @@ import { defineSecret, defineString } from "firebase-functions/params";
 import { GoogleAuth } from "google-auth-library";
 import { cardCodeSuffix } from "../cards/codes";
 import { walletOrigins } from "../config";
+import { activeLocations, proximityText } from "./proximity";
 import type { BusinessDoc, CardDoc } from "../types";
 
 // Clave JSON de sellito-wallet@… (Secret Manager) e Issuer ID (functions/.env).
@@ -61,6 +62,8 @@ function loyaltyClass(businessId: string, b: BusinessDoc) {
     programName: PROGRAM_NAME,
     programLogo: image(b.design!.logoUrl!, b.name),
     hexBackgroundColor: b.design?.bgColor ?? "#FF9EC4",
+    // Cercanía: con la opción apagada o sin locales no se mandan (el PUT las borra de la clase).
+    merchantLocations: activeLocations(b).map((l) => ({ latitude: l.lat, longitude: l.lng })),
     countryCode: "AR",
     reviewStatus: "UNDER_REVIEW",
     multipleDevicesAndHoldersAllowedStatus: "ONE_USER_ALL_DEVICES",
@@ -92,6 +95,7 @@ function loyaltyObjectFields(b: BusinessDoc, card: Pick<CardDoc, "stamps" | "bar
     heroImage: image(heroUrl, `${stamps} de ${required} sellos`),
     loyaltyPoints: { label: "Sellos", balance: { string: balance } },
     textModulesData: [
+      { id: "progreso", header: "Tu progreso", body: proximityText(b, stamps) },
       { id: "premio", header: "Premio", body: `Al juntar ${required} sellos: ${b.rule!.rewardText}` },
     ],
   };
@@ -116,13 +120,25 @@ export async function insertLoyaltyObject(
 }
 
 // Actualiza una tarjeta ya emitida: el Wallet del cliente la refresca solo, sin volver a agregarla.
+// `notify`: avisa al cliente que cambió el contador (Google solo avisa por loyaltyPoints.balance).
 export async function patchLoyaltyObject(
   cardId: string,
   b: BusinessDoc,
   card: Pick<CardDoc, "stamps" | "barcodeValue">,
   heroUrl: string,
+  notify = false,
 ): Promise<void> {
-  await request("PATCH", `loyaltyObject/${objectIdFor(cardId)}`, loyaltyObjectFields(b, card, heroUrl));
+  await request("PATCH", `loyaltyObject/${objectIdFor(cardId)}`, {
+    ...loyaltyObjectFields(b, card, heroUrl),
+    ...(notify ? { notifyPreference: "NOTIFY_ON_UPDATE" } : {}),
+  });
+}
+
+// Mensaje en la tarjeta (se ve atrás). Con `notify`, además llega como notificación al celular.
+export async function addLoyaltyMessage(cardId: string, header: string, body: string, notify: boolean): Promise<void> {
+  await request("POST", `loyaltyObject/${objectIdFor(cardId)}/addMessage`, {
+    message: { id: `msg-${Date.now()}`, header, body, messageType: notify ? "TEXT_AND_NOTIFY" : "TEXT" },
+  });
 }
 
 // Link "Agregar a Google Wallet": JWT firmado con la clave de la cuenta de servicio.

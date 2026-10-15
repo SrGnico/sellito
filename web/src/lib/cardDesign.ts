@@ -1,4 +1,4 @@
-import type { Business } from './types'
+import type { Business, BusinessLocation } from './types'
 
 // Todo lo que define cómo se ve la tarjeta, con los valores por defecto ya aplicados.
 export type CardConfig = {
@@ -10,7 +10,11 @@ export type CardConfig = {
   stampIconUrl?: string
   stampsRequired: number
   rewardText: string
+  itemSingular: string
+  itemPlural: string
   askFields: { name: boolean; phone: boolean; email: boolean }
+  locations: BusinessLocation[]
+  proximityEnabled: boolean
 }
 
 export const MIN_STAMPS = 2
@@ -33,7 +37,11 @@ export function cardConfigFrom(b: Business): CardConfig {
     stampIconUrl: b.design?.stampIconUrl,
     stampsRequired: b.rule?.stampsRequired ?? DEFAULT_CARD.stampsRequired,
     rewardText: b.rule?.rewardText ?? DEFAULT_CARD.rewardText,
+    itemSingular: b.rule?.itemSingular ?? '',
+    itemPlural: b.rule?.itemPlural ?? '',
     askFields: b.askFields ?? DEFAULT_CARD.askFields,
+    locations: b.locations ?? [],
+    proximityEnabled: b.proximityEnabled ?? false,
   }
 }
 
@@ -62,7 +70,13 @@ export function businessFieldsFrom(c: CardConfig) {
       stampIconId: c.stampIconId,
       stampIconUrl: c.stampIconUrl,
     }),
-    rule: { stampsRequired: Math.round(c.stampsRequired), rewardText: c.rewardText.trim() },
+    rule: {
+      stampsRequired: Math.round(c.stampsRequired),
+      rewardText: c.rewardText.trim(),
+      ...compact({ itemSingular: c.itemSingular.trim(), itemPlural: c.itemPlural.trim() }),
+    },
     askFields: c.askFields,
+    locations: c.locations.map((l) => ({ label: l.label.trim(), lat: l.lat, lng: l.lng, ...compact({ address: l.address }) })),
+    proximityEnabled: c.proximityEnabled,
   }
 }

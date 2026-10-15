@@ -4,16 +4,27 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { StampImages } from "../images/stamps";
 import { accessLevel, canOperate } from "../payments/access";
 import type { BusinessDoc, CardDoc } from "../types";
-import { patchLoyaltyObject, upsertLoyaltyClass, walletKey } from "../wallet/google";
+import { addLoyaltyMessage, patchLoyaltyObject, upsertLoyaltyClass, walletKey } from "../wallet/google";
+import { proximityText, type NotifyKind } from "../wallet/proximity";
 import { cardCodeSuffix, reserveCardCode } from "./codes";
 
 const db = () => getFirestore();
 
 // Lleva una tarjeta ya emitida al estado actual: contador, imagen de sellos, premio y código.
 // La usan el escáner (paso 5), los cambios de diseño y la prueba de sellos.
-export async function pushCardToWallet(cardId: string, b: BusinessDoc, card: CardDoc, images: StampImages) {
+// `notify` (solo el escáner, ya filtrado por notifyDecision): "stamp" avisa el cambio de contador;
+// "complete" manda el mensaje de tarjeta completa.
+export async function pushCardToWallet(cardId: string, b: BusinessDoc, card: CardDoc, images: StampImages, notify?: NotifyKind) {
   if (card.platform !== "google" || !card.googleObjectId) return;
-  await patchLoyaltyObject(cardId, b, card, await images.urlFor(card.stamps));
+  await patchLoyaltyObject(cardId, b, card, await images.urlFor(card.stamps), notify === "stamp");
+  if (notify === "complete") {
+    try {
+      await addLoyaltyMessage(cardId, "¡Completaste tu tarjeta!", `${proximityText(b, card.stamps)}: ${b.rule!.rewardText}.`, true);
+    } catch (err) {
+      // Si Google rechaza el aviso (cupo diario), la tarjeta igual quedó actualizada.
+      logger.warn("No se pudo mandar el aviso de tarjeta completa", { cardId, err });
+    }
+  }
 }
 
 // Tarjetas creadas con el formato viejo (S1.{id}.{secreto}): les asigna un código corto.

@@ -111,7 +111,12 @@ export default function Enroll() {
     bgColor: info.design.bgColor ?? DEFAULT_CARD.bgColor,
     stampsRequired: info.rule.stampsRequired,
     rewardText: info.rule.rewardText,
+    itemSingular: info.rule.itemSingular ?? '',
+    itemPlural: info.rule.itemPlural ?? '',
     askFields: info.askFields,
+    // La vista previa del alta no muestra ubicaciones.
+    locations: [],
+    proximityEnabled: false,
   }
   const fields = FIELDS.filter((f) => info.askFields[f.key])
 

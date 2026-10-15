@@ -30,9 +30,11 @@ export type Business = {
     stampIconId?: string
     stampIconUrl?: string
   }
-  rule?: { stampsRequired: number; rewardText: string }
+  // itemSingular/itemPlural: lo que se cuenta ("café" / "cafés"), para "Te faltan 3 cafés".
+  rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string }
   askFields?: { name: boolean; phone: boolean; email: boolean }
-  locations?: { lat: number; lng: number; label: string }[]
+  locations?: BusinessLocation[]
+  proximityEnabled?: boolean // mostrar la tarjeta cerca de los locales (functions/src/wallet/proximity.ts)
   enrollCode?: string
   scannerPinVersion?: number // > 0 si el negocio ya eligió PIN (el hash lo escriben solo las Functions)
   subscription?: Subscription
@@ -63,3 +65,6 @@ export type StampEvent = {
   stampsAfter: number
   forced?: boolean
 }
+
+// Local del negocio (máx. 10) para la cercanía en el Wallet.
+export type BusinessLocation = { label: string; address?: string; lat: number; lng: number }

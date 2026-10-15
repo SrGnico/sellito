@@ -30,7 +30,8 @@ export const syncGoogleClass = onDocumentUpdated(
       return;
     }
 
-    const classFields = (b: BusinessDoc) => JSON.stringify([b.name, b.design?.logoUrl, b.design?.bgColor]);
+    const classFields = (b: BusinessDoc) =>
+      JSON.stringify([b.name, b.design?.logoUrl, b.design?.bgColor, b.proximityEnabled ?? false, b.locations ?? []]);
     const cardFields = (b: BusinessDoc) =>
       JSON.stringify([
         b.design?.bgColor,
@@ -39,6 +40,8 @@ export const syncGoogleClass = onDocumentUpdated(
         b.design?.stampIconUrl,
         b.rule?.stampsRequired,
         b.rule?.rewardText,
+        b.rule?.itemSingular,
+        b.rule?.itemPlural,
       ]);
 
     if (classFields(before) !== classFields(after)) {

@@ -23,12 +23,13 @@ service cloud.firestore {
 
     // Campos que el dueño puede escribir desde el panel.
     function ownerEditableFields() {
-      return ['name', 'slug', 'design', 'rule', 'askFields', 'locations', 'createdAt', 'updatedAt'];
+      return ['name', 'slug', 'design', 'rule', 'askFields', 'locations', 'proximityEnabled', 'createdAt', 'updatedAt'];
     }
 
     function validBusinessData(data) {
       return data.name is string && data.name.size() > 0 && data.name.size() <= 80
         && (!('locations' in data) || (data.locations is list && data.locations.size() <= 10))
+        && (!('proximityEnabled' in data) || data.proximityEnabled is bool)
         && (!('rule' in data) || (data.rule.stampsRequired is int
               && data.rule.stampsRequired >= 2 && data.rule.stampsRequired <= 20));
     }

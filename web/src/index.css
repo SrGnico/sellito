@@ -132,3 +132,13 @@ main .loading-screen { min-height: 50vh; }
 .scanner-close { position: absolute; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); }
 .scanner-camera .scanner-hint { bottom: calc(88px + env(safe-area-inset-bottom)); }
 .install-hint { gap: 10px; margin-top: 12px; }
+
+/* ---------- Locales y cercanía ---------- */
+.location-row { display: flex; align-items: flex-start; gap: 8px; padding-bottom: 12px; border-bottom: 2px solid var(--cream-deep); }
+.location-add { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 2px dashed var(--border); border-radius: var(--radius-md); }
+.location-result { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--surface); border: 2px solid var(--cream-deep); border-radius: var(--radius-sm); }
+.switch-row { display: flex; align-items: center; gap: 12px; font-weight: 500; }
+.switch-row .switch { flex-shrink: 0; }
+.lockscreen-preview { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 18px; background: rgba(18, 55, 42, .88); color: #fff; }
+.lockscreen-preview div { display: flex; flex-direction: column; font-size: var(--text-sm); }
+.lockscreen-icon { width: 34px; height: 34px; border-radius: 9px; border: 2px solid #fff; flex-shrink: 0; }

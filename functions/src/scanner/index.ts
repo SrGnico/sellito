@@ -9,6 +9,7 @@ import { StampImages } from "../images/stamps";
 import { accessLevel, canEdit, canOperate } from "../payments/access";
 import type { BusinessDoc, CardDoc } from "../types";
 import { walletKey } from "../wallet/google";
+import { notifyDecision, type NotifyKind } from "../wallet/proximity";
 
 // Escáner del local (SELLITO_SPEC.md §4.2 y §7): no usa Firebase Auth. Entra con el PIN del negocio
 // y recibe un token de sesión que manda en cada llamada. Cambiar el PIN cierra todas las sesiones.
@@ -193,8 +194,10 @@ export const scannerStamp = onCall({ secrets: [walletKey], memory: "512MiB" }, a
   if (!validId(cardId) || (action !== "add" && action !== "redeem")) throw new HttpsError("invalid-argument", "Datos inválidos.");
   const total = b.rule!.stampsRequired;
   const cardRef = db().doc(`businesses/${businessId}/cards/${cardId}`);
+  let notify: NotifyKind | undefined;
 
   const card = await db().runTransaction(async (tx) => {
+    notify = undefined; // la transacción puede reintentarse
     const snap = await tx.get(cardRef);
     if (!snap.exists) throw new HttpsError("not-found", "card");
     const c = snap.data() as CardDoc;
@@ -214,6 +217,14 @@ export const scannerStamp = onCall({ secrets: [walletKey], memory: "512MiB" }, a
       next = { stamps: 0, rewardsAvailable: 0, rewardsRedeemed: FieldValue.increment(1), lastActivityAt: FieldValue.serverTimestamp() };
     }
 
+    // Aviso al cliente: al sumar (si no completa) o al completar la tarjeta, dentro del cupo diario.
+    if (action === "add") {
+      notify = (next.stamps as number) >= total ? "complete" : "stamp";
+      const decision = notifyDecision(c, notify);
+      if (decision.notify) next.walletNotifyAt = decision.log;
+      else notify = undefined;
+    }
+
     tx.update(cardRef, next);
     tx.create(db().collection(`businesses/${businessId}/stamps`).doc(), {
       cardId,
@@ -228,7 +239,7 @@ export const scannerStamp = onCall({ secrets: [walletKey], memory: "512MiB" }, a
 
   // El Wallet se actualiza después de guardar: si Google falla, el sello ya quedó registrado.
   try {
-    await pushCardToWallet(cardId, b, card, new StampImages(businessId, b));
+    await pushCardToWallet(cardId, b, card, new StampImages(businessId, b), notify);
   } catch (err) {
     logger.error("scannerStamp: no se pudo actualizar el Wallet", { businessId, cardId, err });
   }

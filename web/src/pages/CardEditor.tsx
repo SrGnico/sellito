@@ -9,7 +9,13 @@ import StampIconSvg from '../components/StampIconSvg'
 import { CHECK_ICON, STAMP_ICONS, type StampIcon } from '../lib/stampIcons'
 import type { Business } from '../lib/types'
 import { imageFileError, uploadBusinessImage, uploadErrorMessage } from '../lib/uploads'
+import LocationsEditor from '../components/LocationsEditor'
 import Spinner from '../components/Spinner'
+import { MAX_LOCATIONS, proximityText } from '../lib/proximity'
+
+// Compara sin depender del orden de las claves (Firestore puede devolver los mapas en otro orden).
+const stableJson = (value: unknown) =>
+  JSON.stringify(value, (_, v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort()) : v))
 
 export default function CardEditor({ business, readOnly = false }: { business: Business; readOnly?: boolean }) {
   const [draft, setDraft] = useState<CardConfig>(() => cardConfigFrom(business))
@@ -20,7 +26,7 @@ export default function CardEditor({ business, readOnly = false }: { business: B
   const [nameError, setNameError] = useState<string | null>(null)
 
   const saved = cardConfigFrom(business)
-  const dirty = JSON.stringify(draft) !== JSON.stringify(saved)
+  const dirty = stableJson(draft) !== stableJson(saved)
 
   useEffect(() => {
     if (!dirty) return
@@ -257,6 +263,65 @@ export default function CardEditor({ business, readOnly = false }: { business: B
                 En la tarjeta va a decir: “Al juntar {draft.stampsRequired} sellos: {draft.rewardText.trim() || '…'}”
               </p>
             </div>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 140px' }}>
+                <label className="label" htmlFor="item-singular">¿Qué se cuenta? (uno)</label>
+                <input id="item-singular" className="input" placeholder="Ej.: café" maxLength={30}
+                  value={draft.itemSingular} onChange={(e) => update({ itemSingular: e.target.value })} aria-describedby="item-help" />
+              </div>
+              <div style={{ flex: '1 1 140px' }}>
+                <label className="label" htmlFor="item-plural">(varios)</label>
+                <input id="item-plural" className="input" placeholder="Ej.: cafés" maxLength={30}
+                  value={draft.itemPlural} onChange={(e) => update({ itemPlural: e.target.value })} aria-describedby="item-help" />
+              </div>
+            </div>
+            <p className="help" id="item-help" style={{ marginTop: 0 }}>
+              Se usa en los avisos: “{proximityText(draft, Math.max(0, draft.stampsRequired - 3))}”. Si lo dejás vacío, dice “sellos”.
+            </p>
+          </section>
+
+          <section className="card">
+            <h4>Locales y cercanía</h4>
+            <p className="help" style={{ marginTop: 0 }}>
+              Cargá hasta {MAX_LOCATIONS} locales. Si activás la cercanía, la tarjeta puede aparecer en la pantalla de bloqueo
+              del cliente cuando está cerca de uno. No aparece siempre: depende del celular, de la ubicación y de los permisos
+              que dio cada cliente.
+            </p>
+            <LocationsEditor businessId={business.id} value={draft.locations} onChange={(locations) => update({ locations })} />
+            <div className="switch-row">
+              <button
+                id="proximity-switch"
+                className="switch"
+                type="button"
+                role="switch"
+                aria-checked={draft.proximityEnabled}
+                aria-labelledby="proximity-label"
+                aria-describedby="proximity-help"
+                onClick={() => update({ proximityEnabled: !draft.proximityEnabled })}
+              >
+                <span className="knob" />
+              </button>
+              <span id="proximity-label">Mostrar mi tarjeta cuando el cliente está cerca</span>
+            </div>
+            <p className="help" id="proximity-help" style={{ marginTop: 0 }}>
+              {draft.proximityEnabled && draft.locations.length === 0
+                ? 'Agregá al menos un local para que funcione.'
+                : 'Apagado, la tarjeta no lleva ninguna ubicación.'}
+            </p>
+            {draft.proximityEnabled && draft.locations.length > 0 && (
+              <div className="lockscreen-preview" aria-label="Ejemplo de aviso en la pantalla de bloqueo">
+                <span className="lockscreen-icon" aria-hidden="true" style={{ background: draft.bgColor }} />
+                <div>
+                  <strong>{draft.name.trim() || 'Tu negocio'}</strong>
+                  <span>{proximityText(draft, Math.max(0, draft.stampsRequired - 3))}</span>
+                </div>
+              </div>
+            )}
+            {draft.proximityEnabled && draft.locations.length > 0 && (
+              <p className="help" style={{ marginTop: 0 }}>
+                Así puede verse en iPhone. En Android, el texto del aviso lo escribe Google; el tuyo aparece dentro de la tarjeta.
+              </p>
+            )}
           </section>
 
           <section className="card">

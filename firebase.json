@@ -152,6 +152,13 @@
             "functionId": "upgradeCards",
             "region": "southamerica-east1"
           }
+        },
+        {
+          "source": "/geocodeAddress",
+          "function": {
+            "functionId": "geocodeAddress",
+            "region": "southamerica-east1"
+          }
         }
       ]
     }
