@@ -12,7 +12,8 @@ import '../styles/landing.css'
 
 // Landing de venta (misellito.com.ar). Mensajes clave (pedido del dueño del producto):
 // 1) sirve para cualquier negocio que quiera juntar datos de sus clientes, darles una tarjeta y regalar algo;
-// 2) no se descarga nada: el cliente la guarda en su Wallet y el local suma sellos desde un celular o una compu.
+// 2) no se descarga nada: el cliente la guarda en su Wallet y el local suma sellos desde un celular o una compu;
+// 3) la lista de clientes (los leads) es el resultado: es solo del negocio, siempre, aunque deje de pagar.
 
 const base = { askFields: { name: true, phone: true, email: false }, locations: [], proximityEnabled: false }
 
@@ -51,11 +52,12 @@ export default function Landing() {
             <p className="eyebrow">Tarjetas de fidelidad digitales</p>
             <h1>Tu tarjeta de sellos, en el celular de tus clientes</h1>
             <p className="hero-lead">
-              Para cualquier negocio que quiera conocer a sus clientes, darles una tarjeta y regalarles algo. Simple.
+              Conocé a tus clientes, armá tu propia lista de contactos y hacé que vuelvan. Para cualquier negocio. Simple.
             </p>
             <ul className="hero-points">
               <li><strong>No se descarga nada.</strong> Tus clientes escanean un QR y la guardan en Apple Wallet o Google Wallet.</li>
-              <li><strong>Sumás sellos desde cualquier celular o compu</strong> con internet. Sin lectores ni aparatos.</li>
+              <li><strong>Sumás sellos desde el celular o la compu de la caja:</strong> escaneás la tarjeta o tipeás su código.</li>
+              <li><strong>Te quedás con la lista de tus clientes.</strong> Es tuya y la descargás cuando quieras.</li>
             </ul>
             <div className="hero-actions">
               <a className="btn btn-lg btn-primary" href={signupUrl}>Crear mi tarjeta</a>
@@ -64,7 +66,7 @@ export default function Landing() {
             <p className="hero-note">Diseñar tu tarjeta es gratis. Pagás recién cuando empezás a sumar sellos.</p>
           </div>
           <div className="hero-card" aria-hidden="true">
-            <div key={i} className="fade-up">
+            <div key={i} className="card-swap">
               <CardPreview config={example} filled={example.filled} />
             </div>
           </div>
@@ -79,7 +81,7 @@ export default function Landing() {
             </div>
             <div>
               <h3>Vos</h3>
-              <p>Abrís el escáner en el celular o la compu del local, apuntás a la tarjeta y tocás “+1 sello”. Listo.</p>
+              <p>Escaneás la tarjeta con el celular o un lector, o tipeás su código en la compu de la caja. Tocás “+1 sello” y listo.</p>
             </div>
             <div>
               <h3>La tarjeta</h3>
@@ -105,9 +107,28 @@ export default function Landing() {
             <li>
               <img src={step3} alt="" width={320} height={240} />
               <h3>3. Sumás sellos</h3>
-              <p>En cada compra escaneás su tarjeta con el escáner del local. El sello aparece al instante en el celular de tu cliente.</p>
+              <p>En cada compra escaneás su tarjeta o tipeás el código. El sello aparece al instante en el celular de tu cliente.</p>
             </li>
           </ol>
+        </section>
+
+        {/* ---------- La lista es tuya ---------- */}
+        <section className="section leads">
+          <div className="leads-text">
+            <p className="eyebrow">Lo más valioso</p>
+            <h2>Tu lista de clientes, siempre tuya</h2>
+            <p className="section-lead" style={{ textAlign: 'left', margin: '12px 0 0' }}>
+              Cada persona que guarda tu tarjeta te deja sus datos. Con el tiempo armás una lista de clientes reales que ya te
+              compraron: la base para que vuelvan.
+            </p>
+          </div>
+          <ul className="leads-list">
+            <li><strong>Elegís qué pedir:</strong> nombre, teléfono, mail, o solo lo que necesites.</li>
+            <li><strong>Ves quién vuelve y quién no:</strong> cuántos sellos lleva cada uno, quiénes tienen premio y quiénes hace rato que no pasan.</li>
+            <li><strong>Es solo tuya:</strong> no la compartimos con nadie ni la usamos para otra cosa.</li>
+            <li><strong>La descargás cuando quieras,</strong> en un archivo que abrís con Excel o Google Sheets.</li>
+            <li><strong>Si dejás de pagar, no se pierde:</strong> la seguís pudiendo descargar. Solo se borra si vos nos lo pedís.</li>
+          </ul>
         </section>
 
         {/* ---------- Para cualquier negocio ---------- */}
@@ -126,8 +147,8 @@ export default function Landing() {
           <h2>Todo lo que necesitás</h2>
           <div className="features">
             <article className="card">
-              <h3>Tus clientes, tus datos</h3>
-              <p>Nombre, teléfono o mail: elegís qué pedir. Ves quién vino, cuántos sellos lleva y le escribís por WhatsApp o mail.</p>
+              <h3>Clientes que vuelven</h3>
+              <p>El premio les da un motivo para volver, y cada sello te muestra quién viene seguido y quién no.</p>
             </article>
             <article className="card">
               <h3>Avisos en el celular</h3>
@@ -143,7 +164,7 @@ export default function Landing() {
             </article>
             <article className="card">
               <h3>Escáner para el local</h3>
-              <p>Funciona en cualquier celular o compu con cámara. Se entra con un PIN y no hace falta instalar nada.</p>
+              <p>Con la cámara del celular, con un lector de QR o tipeando el código en la compu de la caja. Se entra con un PIN.</p>
             </article>
             <article className="card card-pink">
               <h3>Estadísticas simples</h3>
@@ -163,6 +184,7 @@ export default function Landing() {
             </span>
             <ul>
               <li>Clientes y tarjetas ilimitados</li>
+              <li>Tu lista de clientes, descargable siempre</li>
               <li>Apple Wallet y Google Wallet</li>
               <li>Escáner para todos los celulares del local</li>
               <li>Afiche con QR, avisos y cercanía</li>
@@ -179,12 +201,13 @@ export default function Landing() {
           <div className="faq">
             {[
               ['¿Mis clientes tienen que descargar una app?', 'No. Escanean el QR con la cámara y guardan la tarjeta en Apple Wallet o Google Wallet, que ya vienen en el celular.'],
-              ['¿Qué necesito para sumar sellos?', 'Un celular o una computadora con cámara e internet. Abrís el escáner, entrás con tu PIN y listo. Podés usarlo en varios a la vez.'],
+              ['¿Qué necesito para sumar sellos?', 'Un celular o una computadora con internet. Escaneás la tarjeta con la cámara o con un lector de QR, o tipeás los 4 caracteres que tiene debajo del código. Podés usarlo en varios equipos a la vez.'],
               ['¿Funciona en iPhone y en Android?', 'Sí. En iPhone la tarjeta va a Apple Wallet y en Android a Google Wallet.'],
               ['¿Sirve para mi rubro?', 'Si tenés clientes que vuelven, sí: cafeterías, peluquerías, gimnasios, kioscos, veterinarias o lo que sea. Vos elegís qué se cuenta y qué se regala.'],
               ['¿La tarjeta aparece sola cuando el cliente pasa por el local?', 'Puede aparecer en la pantalla de bloqueo cuando está cerca, si cargás tus locales. Depende del celular y de sus permisos, así que no aparece siempre.'],
               ['¿Puedo cancelar?', 'Sí, cuando quieras desde tu cuenta de Mercado Pago. Seguís usando el servicio hasta el final del período pagado.'],
-              ['¿De quién son los datos de mis clientes?', 'Tuyos. Los podés exportar cuando quieras. Nosotros solo los guardamos para que tu tarjeta funcione.'],
+              ['¿De quién son los datos de mis clientes?', 'Solo tuyos. Los descargás cuando quieras y nosotros solo los guardamos para que tu tarjeta funcione: no los compartimos ni los usamos para otra cosa.'],
+              ['¿Qué pasa con mi lista si dejo de pagar?', 'No se borra. El escáner se pausa, pero tu lista sigue ahí y la podés descargar cuando quieras. Solo se elimina si nos lo pedís.'],
             ].map(([q, a]) => (
               <details key={q}>
                 <summary>{q}</summary>

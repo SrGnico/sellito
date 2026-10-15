@@ -99,3 +99,31 @@
 .legal h2 { font-size: var(--text-xl); }
 .legal p, .legal li { line-height: 1.6; }
 .legal ul { padding-left: 22px; }
+
+/* La lista es tuya */
+.leads { display: grid; gap: 32px; align-items: center; }
+@media (min-width: 900px) { .leads { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); } }
+.leads > h2, .leads h2 { text-align: left; }
+.leads-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.leads-list li {
+  position: relative; padding: 14px 16px 14px 48px; background: var(--surface);
+  border: var(--border-width) solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
+}
+.leads-list li::before {
+  content: "✓"; position: absolute; left: 14px; top: 14px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
+  background: var(--pink); border: var(--border-width) solid var(--border);
+}
+
+/* Tarjeta del encabezado: al cambiar de ejemplo entra con un sacudón sutil. */
+@keyframes card-swap {
+  0% { opacity: 0; transform: translateY(8px) rotate(0deg) scale(.97); }
+  45% { opacity: 1; transform: translateY(0) rotate(3.5deg) scale(1.01); }
+  70% { transform: rotate(0.8deg); }
+  85% { transform: rotate(2.6deg); }
+  100% { opacity: 1; transform: rotate(2deg) scale(1); }
+}
+.hero-card .card-swap { animation: card-swap 650ms var(--ease) both; }
+.hero-card .card-swap .wallet-card { transform: none; }
+.hero-card > .card-swap { transform: rotate(2deg); }
+@media (prefers-reduced-motion: reduce) { .hero-card .card-swap { animation: none; } }

@@ -293,6 +293,33 @@ function ScannerView({
     }
   }
 
+  // Lector de QR (USB o Bluetooth): se comporta como un teclado que escribe el código muy rápido y
+  // termina con Enter. Se escucha siempre que no haya un cartel abierto ni se esté escribiendo en un campo.
+  useEffect(() => {
+    if (manualOpen || (view.kind !== 'idle' && view.kind !== 'camera' && view.kind !== 'done' && view.kind !== 'error')) return
+    let buffer = ''
+    let last = 0
+    function onKey(e: KeyboardEvent) {
+      if ((e.target as HTMLElement).matches('input, textarea')) return
+      const now = Date.now()
+      if (now - last > 80) buffer = '' // una persona tipeando es más lenta que un lector
+      last = now
+      if (e.key === 'Enter') {
+        const code = buffer.toUpperCase()
+        buffer = ''
+        if (VALID_SCAN.test(code)) {
+          e.preventDefault()
+          navigator.vibrate?.(40)
+          lookup(code)
+        }
+      } else if (e.key.length === 1) {
+        buffer = (buffer + e.key).slice(-24)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [view.kind, manualOpen, lookup])
+
   // Después de sumar o canjear, vuelve solo al panel (la cámara queda apagada).
   useEffect(() => {
     if (view.kind !== 'done') return
@@ -336,7 +363,8 @@ function ScannerView({
         <div className="scanner-idle">
           <Mascot size={96} />
           <p style={{ margin: 0, color: 'var(--text-soft)', textAlign: 'center' }}>
-            Escaneá la tarjeta del cliente para sumar un sello o canjear su premio.
+            Escaneá la tarjeta del cliente para sumar un sello o canjear su premio. ¿Tenés un lector de QR? Escaneala con el
+            lector y listo.
           </p>
           <button className="btn btn-lg btn-primary" type="button" onClick={openCamera}>
             Escanear QR
