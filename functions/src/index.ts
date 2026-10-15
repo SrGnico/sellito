@@ -8,7 +8,7 @@ initializeApp();
 setGlobalOptions({ region: "southamerica-east1", maxInstances: 10 });
 
 export { createCard, ensureEnrollCode, getEnrollInfo } from "./cards/enroll";
-export { resyncCards, testSetStamps } from "./cards/sync";
+export { resyncCards } from "./cards/sync";
 export { exportCustomers, upgradeCards } from "./customers";
 export { dailySubscriptionCheck } from "./payments/daily";
 export { createSubscription, mpWebhook, startTrial } from "./payments";

@@ -37,7 +37,7 @@
 - [x] Google Wallet API habilitada y cuenta de servicio `sellito-wallet@sellito-23c14.iam.gserviceaccount.com`
 - [x] Agregar la cuenta de servicio como usuario en la consola de Google Pay & Wallet
 - [x] Clave de la cuenta de servicio en Secret Manager (`GOOGLE_WALLET_SA_KEY`)
-- [ ] Agregar cuentas de prueba (modo demo) para probar en celulares
+- [x] Cuentas de prueba (modo demo) para probar en celulares
 - [x] Function: crear la clase de loyalty por negocio (`googleClassId`), en el primer alta
 - [x] Function `syncGoogleClass`: actualiza la clase cuando el dueño cambia nombre, logo o colores
 - [x] Página pública de alta `/c/{código}` con los campos configurados (`getEnrollInfo`)
@@ -52,10 +52,12 @@
 - [x] Vista previa del editor igual al frente de la tarjeta en Google Wallet
 - [x] Al cambiar diseño o regla se actualizan la clase y todas las tarjetas (`syncGoogleClass` → `resyncBusinessCards`)
 - [x] Prueba: las tarjetas viejas se migraron y un +1 actualizó imagen y contador en el Wallet sin volver a agregarla
-- [ ] Borrar la tarjeta "Prueba (Claude)" (creada para verificar la imagen en producción)
+- [x] Borrada la tarjeta "Prueba (Claude)"
 - [ ] Botón oficial "Add to Google Wallet" (guía de marca de Google)
 - [ ] Afiche imprimible con el QR (A5/A4 con la marca del negocio)
-- [ ] Rate limit / App Check en `createCard` (hoy cualquiera puede crear tarjetas sin límite)
+- [x] Límite de altas: 10 por hora por IP y 500 por día por negocio (`security/rateLimit.ts`)
+- [ ] App Check (reCAPTCHA) en el alta y el escáner
+- [ ] Política TTL de Firestore sobre `rateLimits.expiresAt` para borrar contadores viejos
 - [ ] Clientes duplicados: deduplicar por teléfono/mail cuando el negocio los pide
 
 ### 5. Escáner, sellos y canje
@@ -69,10 +71,10 @@
 - [x] Log de cada sello/canje en `businesses/{id}/stamps` (quién: sesión del escáner)
 - [x] Actualiza el Wallet después de cada sello o canje
 - [x] Escáner en pausa si la suscripción está `past_due` o `canceled` (se activa con el paso 8)
-- [ ] Probar en el celular del local: PIN → escanear → +1 → canjear
+- [x] Probado en el celular del local: PIN → escanear → +1 → canjear
 - [ ] Firebase App Check en las Functions del escáner y del alta
 - [x] PWA: manifest e ícono para "Agregar a pantalla de inicio" en el escáner; cámara a pedido
-- [ ] Sacar `testSetStamps` y el panel "Prueba de tarjetas" cuando el escáner esté probado
+- [x] Sacados `testSetStamps` y el panel "Prueba de tarjetas"
 
 ### 5b. Cercanía y avisos
 - [x] Hasta 10 locales en el editor: dirección → lat/lng con OpenStreetMap (`geocodeAddress`), nombre editable
@@ -80,7 +82,7 @@
 - [x] Google: `merchantLocations` en la clase (el texto del aviso lo escribe Google); "Tu progreso" en la tarjeta
 - [x] Texto desde la regla: "Te faltan {N} {cafés}" / "¡Tenés tu premio! Pasá a canjearlo" (`rule.itemSingular/itemPlural`)
 - [x] Avisos: al sumar (actualización del contador) y al completar (mensaje); máx. 3 por tarjeta cada 24 h, el último reservado para "tarjeta completa"
-- [ ] Probar: cargar un local, activar, sumar sellos desde el escáner y ver los avisos en el celular
+- [x] Probado: locales, cercanía y avisos
 - [ ] Si crece el volumen, pasar el geocoding a un servicio pago (Nominatim pide uso liviano)
 
 ### 6. Imágenes de sellos ✅ (adelantado)
@@ -114,7 +116,8 @@
 - [x] Secretos `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` cargados y Functions desplegadas
 - [ ] En Mercado Pago: webhook a `API_URL/mpWebhook` con los eventos de suscripciones (preapproval y authorized_payment)
 - [ ] Instalar la extensión "Trigger Email from Firestore" (colección `mail`) con SMTP (Resend) y remitente `avisos@misellito.com.ar`
-- [ ] Probar con usuarios de prueba de MP: alta, cobro rechazado → gracia → bloqueo → reactivar
+- [x] Probado el alta con usuarios de prueba de MP
+- [ ] Probar cobro rechazado → gracia → bloqueo → reactivar
 - [x] El dueño confirma el mail de su cuenta de MP antes de pagar (prueba: `test_user_<USER_ID>@testuser.com`)
 - [ ] Actualizar monto de suscripciones existentes por inflación (PUT `auto_recurring.transaction_amount`)
 
@@ -127,8 +130,8 @@
 - [x] Exportar contactos (CSV UTF-8 con BOM, separador `;`) en Function, respeta filtros, anda en modo lectura
 - [x] Aviso de privacidad para el dueño y casilla de novedades en el alta (`consent` en la tarjeta). Textos en `web/src/content/privacy.ts`
 - [x] Índices desplegados
-- [ ] Custom claim `superadmin` para mi cuenta
-- [ ] Panel super admin: negocios, estado de pago, métricas
+- [x] Custom claim `superadmin` para srgnicor@gmail.com
+- [x] Panel super admin (`/admin`): negocios, estado, plan, tarjetas, PIN; métricas (negocios, activas, ingreso mensual, tarjetas)
 
 ### Antes de lanzar
 - [x] Direcciones en variables de entorno (`SITE_URL`, `APP_URL`, `API_URL`); ninguna escrita a mano

@@ -16,6 +16,7 @@ import {
 } from "./mercadopago";
 import { DEFAULT_PLAN, loadPlan, loadPlans } from "./plans";
 import { markActive, markCancelled, markPastDue } from "./state";
+import { HOUR, rateLimit } from "../security/rateLimit";
 
 const db = () => getFirestore();
 
@@ -37,6 +38,7 @@ export const createSubscription = onCall({ secrets: [mpAccessToken] }, async (re
     throw new HttpsError("failed-precondition", "already-active");
   }
 
+  await rateLimit(`createSubscription:${uid}`, 10, HOUR);
   const plan = await loadPlan(planId);
   // Mercado Pago pide el mail de la cuenta de MP que va a pagar (puede no ser el del panel).
   const given = typeof req.data?.payerEmail === "string" ? req.data.payerEmail.trim().toLowerCase() : "";

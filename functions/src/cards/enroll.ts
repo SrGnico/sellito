@@ -8,6 +8,7 @@ import { insertLoyaltyObject, saveUrl, upsertLoyaltyClass, walletKey } from "../
 import { accessLevel } from "../payments/access";
 import { cardCodeSuffix, reserveCardCode } from "./codes";
 import { searchTokens } from "./search";
+import { clientIp, DAY, HOUR, rateLimit } from "../security/rateLimit";
 
 const db = () => getFirestore();
 
@@ -126,6 +127,9 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
     at: Timestamp.now(),
     version: CONSENT_VERSION_RE.test(consentVersion) ? consentVersion : "desconocida",
   };
+  // Una persona no suma decenas de tarjetas: 10 por hora por IP y 500 por día por negocio.
+  await rateLimit(`createCard:ip:${clientIp(req)}`, 10, HOUR);
+  await rateLimit(`createCard:biz:${businessId}`, 500, DAY);
   const cardRef = db().collection(`businesses/${businessId}/cards`).doc();
 
   try {

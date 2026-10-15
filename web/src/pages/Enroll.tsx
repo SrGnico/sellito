@@ -143,6 +143,8 @@ export default function Enroll() {
         document.getElementById(`enroll-${field}`)?.focus()
       } else if (code === 'functions/failed-precondition' && err instanceof FirebaseError && err.message === 'paused') {
         setInfo({ ready: false, paused: true, name: config.name })
+      } else if (code === 'functions/resource-exhausted') {
+        setError('Hubo muchos intentos desde esta conexión. Esperá un rato y probá de nuevo.')
       } else {
         setError('No pudimos crear tu tarjeta. Revisá tu conexión e intentá de nuevo.')
       }

@@ -1,4 +1,4 @@
-import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { StampImages } from "../images/stamps";
@@ -85,39 +85,4 @@ export const resyncCards = onCall({ secrets: [walletKey], memory: "512MiB", time
   if (!b.rule) throw new HttpsError("failed-precondition", "El negocio todavía no terminó su tarjeta.");
   if (b.googleClassId) await upsertLoyaltyClass(businessId, b);
   return resyncBusinessCards(businessId, b);
-});
-
-// SOLO PARA PROBAR (el panel lo muestra en `npm run dev`): fija el contador de una tarjeta.
-// El escáner real (paso 5) va a sumar sellos con PIN, rate limit y log de quién lo cargó.
-export const testSetStamps = onCall({ secrets: [walletKey], memory: "512MiB" }, async (req) => {
-  const { businessId, cardId, stamps } = req.data ?? {};
-  const b = await ownedBusiness(req.auth?.uid, businessId);
-  if (!b.rule) throw new HttpsError("failed-precondition", "El negocio todavía no terminó su tarjeta.");
-  if (typeof cardId !== "string" || !/^[A-Za-z0-9]{1,40}$/.test(cardId)) {
-    throw new HttpsError("invalid-argument", "Tarjeta inválida.");
-  }
-  if (!Number.isInteger(stamps) || stamps < 0 || stamps > b.rule.stampsRequired) {
-    throw new HttpsError("invalid-argument", "Cantidad de sellos inválida.");
-  }
-
-  const cardRef = db().doc(`businesses/${businessId}/cards/${cardId}`);
-  const snap = await cardRef.get();
-  if (!snap.exists) throw new HttpsError("not-found", "No encontramos la tarjeta.");
-  const card = { ...(snap.data() as CardDoc), stamps };
-
-  await cardRef.update({ stamps, lastStampAt: FieldValue.serverTimestamp(), lastActivityAt: FieldValue.serverTimestamp() });
-  await db().collection(`businesses/${businessId}/stamps`).add({
-    cardId,
-    type: "test",
-    at: FieldValue.serverTimestamp(),
-    by: `owner:${req.auth!.uid}`,
-    stampsAfter: stamps,
-  });
-  try {
-    await pushCardToWallet(cardId, b, card, new StampImages(businessId, b));
-  } catch (err) {
-    logger.error("testSetStamps: no se pudo actualizar el Wallet", { businessId, cardId, err });
-    throw new HttpsError("internal", "Se guardó el sello pero no pudimos actualizar el Wallet.");
-  }
-  return { stamps };
 });

@@ -88,3 +88,8 @@
 /* ---------- Secciones QR / Escáner ---------- */
 .section-page { max-width: 640px; display: flex; flex-direction: column; gap: 16px; }
 .section-intro { margin: 0; color: var(--text-soft); }
+
+/* ---------- Super admin ---------- */
+.admin-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: var(--border-width) solid var(--border); background: var(--green); color: var(--cream); }
+.admin-header a, .admin-header h4 { color: var(--cream); }
+.admin-header .help { color: var(--cream-deep); }

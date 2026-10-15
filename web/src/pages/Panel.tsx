@@ -25,7 +25,6 @@ import Mascot from '../components/Mascot'
 import Onboarding from '../components/Onboarding'
 import ScannerSettings from '../components/ScannerSettings'
 import Spinner from '../components/Spinner'
-import TestCards from '../components/TestCards'
 import { APP_NAME } from '../lib/urls'
 
 type LoadState =
@@ -229,7 +228,6 @@ function ScannerPage({ business, readOnly }: { business: Business; readOnly: boo
       ) : (
         <p className="help">Primero terminá de diseñar tu tarjeta.</p>
       )}
-      {import.meta.env.DEV && business.rule && !readOnly && <TestCards business={business} />}
     </div>
   )
 }
