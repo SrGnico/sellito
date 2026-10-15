@@ -141,7 +141,7 @@ export default function Login() {
           {isLogin ? 'Creá una' : 'Iniciá sesión'}
         </button>
       </p>
-      <p className="help" style={{ marginTop: 32, textAlign: 'center' }}>
+      <p className="help" style={{ marginTop: 32, display: 'block', textAlign: 'center' }}>
         <a href={SITE_URL}>{APP_NAME}</a> · Diseñado y desarrollado por{' '}
         <a href={STUDIO.url} target="_blank" rel="noopener">{STUDIO.name}</a>
       </p>
