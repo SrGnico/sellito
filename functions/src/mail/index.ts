@@ -31,7 +31,7 @@ function content(t: MailTemplate, v: Vars): Mail {
   switch (t) {
     case "welcome":
       return {
-        subject: `¡Bienvenido a ${app}!`,
+        subject: `¡Te damos la bienvenida a ${app}!`,
         paragraphs: [
           `Ya creaste ${v.businessName}. En unos minutos tenés tu tarjeta de sellos lista:`,
           "1. Diseñala: logo, color y el premio que quieras regalar.\n2. Creá el PIN del escáner.\n3. Imprimí el QR y ponelo en el mostrador.",
@@ -100,7 +100,7 @@ function content(t: MailTemplate, v: Vars): Mail {
 const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 // HTML simple con tablas y estilos en línea (lo que leen bien Gmail, Outlook y Apple Mail).
-function render(t: MailTemplate, v: Vars): { subject: string; text: string; html: string } {
+export function render(t: MailTemplate, v: Vars): { subject: string; text: string; html: string } {
   const { subject, paragraphs, cta } = content(t, v);
   const panel = `${APP_URL.value()}/panel`;
   const app = APP_NAME.value();
