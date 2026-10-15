@@ -53,15 +53,25 @@ function fitImage(src: string, w: number, h: number, bg: string | null, align: "
   );
 }
 
+// Logo en círculo, igual que Google Wallet (que recorta el logo en un círculo). Apple lo muestra tal
+// cual: sin esto, un logo con fondo se ve como un cuadrado. 150×150 px = 50 pt de alto en @3x.
+function circleLogo(src: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" width="150" height="150">` +
+    `<clipPath id="c"><circle cx="75" cy="75" r="75"/></clipPath>` +
+    `<image href="${src}" width="150" height="150" preserveAspectRatio="xMidYMid slice" clip-path="url(#c)"/></svg>`
+  );
+}
+
 async function logoBuffers(logoUrl: string): Promise<Record<string, Buffer>> {
   const src = await dataUri(logoUrl);
   if (!src) return {};
-  const logo = fitImage(src, 480, 150, null, "xMinYMid"); // área de logo: 160×50 pt
+  const logo = circleLogo(src);
   const icon = fitImage(src, 87, 87, "#FFFFFF", "xMidYMid"); // ícono: 29×29 pt
   return {
-    "logo.png": renderPng(logo, 160),
-    "logo@2x.png": renderPng(logo, 320),
-    "logo@3x.png": renderPng(logo, 480),
+    "logo.png": renderPng(logo, 50),
+    "logo@2x.png": renderPng(logo, 100),
+    "logo@3x.png": renderPng(logo, 150),
     "icon.png": renderPng(icon, 29),
     "icon@2x.png": renderPng(icon, 58),
     "icon@3x.png": renderPng(icon, 87),
