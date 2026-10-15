@@ -138,6 +138,8 @@
 - [x] Panel super admin (`/admin`): negocios, estado, plan, tarjetas, PIN; métricas (negocios, activas, ingreso mensual, tarjetas)
 
 ### Antes de lanzar
+- [ ] CNAME `www` → `sellito-23c14.web.app` en Cloudflare (Firebase ya redirige www → misellito.com.ar)
+- [ ] Dar de alta el sitio en Google Search Console (verificación por DNS)
 - [ ] Mercado Pago en producción: credenciales de producción (no de prueba), webhook de la app de producción y volver a cargar `MP_ACCESS_TOKEN` / `MP_WEBHOOK_SECRET`
 - [ ] Crear y verificar `hola@misellito.com.ar` (Cloudflare Email Routing → Gmail); se usa en la landing y la política de privacidad
 - [x] Direcciones en variables de entorno (`SITE_URL`, `APP_URL`, `API_URL`); ninguna escrita a mano
@@ -149,15 +151,14 @@
 - [ ] Cada Function nueva que llame la web: agregar su rewrite en el sitio `sellito-api` (`firebase.json`)
 - [ ] Ojo: Hosting corta a los 60 s. `resyncCards` con muchas tarjetas puede pasarse: hacerlo en segundo plano
 - [x] Dominios autorizados de Firebase Auth: `misellito.com.ar` y `app.misellito.com.ar`
-- [ ] Separar la landing (`misellito.com.ar`) del panel (`app.`) cuando exista la landing
+- [ ] (opcional) Prerender de la landing o sitio aparte para mejor SEO (hoy: mismo build, ruta según dominio)
 - [ ] Google Wallet: pedir acceso de publicación (salir del modo demo)
 
 ### 10. Landing de venta
 - [x] Landing publicada en misellito.com.ar (ruta según dominio, mismo build). Pendiente: prerender para SEO.
-- [ ] (viejo) Landing separada de la app. Mensajes clave: sirve para **cualquier negocio** que quiera juntar datos de clientes, dar tarjetas y regalar algo; **no se descarga nada** (el cliente escanea y la guarda en el Wallet; el local solo necesita un celular o una compu con internet). Contacto: `hola@misellito.com.ar`
 - [x] Favicon
-- [ ] Imagen para compartir y banner de la landing
-- [ ] Landing: describir la cercanía como "puede aparecer en la pantalla de bloqueo cuando está cerca del local" (no prometer que siempre aparece)
+- [x] Imagen para compartir (og.png), SEO, video y tarjeta de ejemplo en la landing
+- [x] Landing: cercanía descripta como "puede aparecer…"
 
 ## Diseño (SELLITO_DESIGN_SYSTEM.md §6, §7 y §9)
 - [x] Assets y motion integrados (`web/src/assets/`, `sellito-motion.css`, favicon)
@@ -168,10 +169,10 @@
 - [ ] Skeletons en tablas/cards y barra de progreso (el CSS ya está; usarlos cuando haya listas)
 - [ ] Ayuda: tooltip y popover
 - [x] Página de suscripción vencida (escáner)
-- [ ] Usar `reward.svg` al canjear (paso 5) y `empty-clients.svg` en la tabla de clientes (paso 9, hecho)
+- [x] `reward.svg` al canjear y `empty-clients.svg` en la tabla de clientes
 - [ ] Toasts y diálogos de confirmación (Radix UI + `sonner` o similar)
 - [ ] Ícono del Wallet en PNG (varios tamaños) y sellos por rubro (café, pizza, tijera…)
-- [ ] Decidir si el ícono del Wallet lleva el borde punteado
+- [x] Logo en Apple recortado en círculo, igual que Google
 
 ## Pendientes por verificar o decidir
 - [x] Dominio: `misellito.com.ar`
