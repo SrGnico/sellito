@@ -2,6 +2,7 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { StampImages } from "../images/stamps";
+import { accessLevel, canOperate } from "../payments/access";
 import type { BusinessDoc, CardDoc } from "../types";
 import { patchLoyaltyObject, upsertLoyaltyClass, walletKey } from "../wallet/google";
 import { cardCodeSuffix, reserveCardCode } from "./codes";
@@ -59,7 +60,11 @@ async function ownedBusiness(uid: string | undefined, businessId: unknown): Prom
   }
   const snap = await db().doc(`businesses/${businessId}`).get();
   if (!snap.exists || snap.get("ownerUid") !== uid) throw new HttpsError("permission-denied", "Este negocio no es tuyo.");
-  return snap.data() as BusinessDoc;
+  const b = snap.data() as BusinessDoc;
+  // Con la suscripción vencida las actualizaciones del Wallet quedan en pausa hasta reactivar.
+  const level = accessLevel(b.subscription);
+  if (level !== "none" && !canOperate(level)) throw new HttpsError("failed-precondition", "subscription");
+  return b;
 }
 
 // Botón "Actualizar tarjetas" del panel: vuelve a mandar todas las tarjetas al Wallet.
@@ -89,7 +94,7 @@ export const testSetStamps = onCall({ secrets: [walletKey], memory: "512MiB" }, 
   if (!snap.exists) throw new HttpsError("not-found", "No encontramos la tarjeta.");
   const card = { ...(snap.data() as CardDoc), stamps };
 
-  await cardRef.update({ stamps, lastStampAt: FieldValue.serverTimestamp() });
+  await cardRef.update({ stamps, lastStampAt: FieldValue.serverTimestamp(), lastActivityAt: FieldValue.serverTimestamp() });
   await db().collection(`businesses/${businessId}/stamps`).add({
     cardId,
     type: "test",

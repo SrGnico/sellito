@@ -2,6 +2,7 @@ import { FirebaseError } from 'firebase/app'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
 import CardPreview from '../components/CardPreview'
+import { CONSENT_VERSION, consentText } from '../content/privacy'
 import { DEFAULT_CARD, type CardConfig } from '../lib/cardDesign'
 import { callable } from '../lib/firebase'
 import type { Business } from '../lib/types'
@@ -10,7 +11,7 @@ import LoadingScreen from '../components/LoadingScreen'
 import Spinner from '../components/Spinner'
 
 type EnrollInfo =
-  | { ready: false; name: string }
+  | { ready: false; name: string; paused?: boolean }
   | {
       ready: true
       name: string
@@ -23,7 +24,13 @@ type Field = 'name' | 'phone' | 'email'
 
 const getEnrollInfo = callable<{ code: string }, EnrollInfo>('getEnrollInfo')
 const createCard = callable<
-  { code: string; platform: 'google' | 'apple'; customer: Partial<Record<Field, string>> },
+  {
+    code: string
+    platform: 'google' | 'apple'
+    customer: Partial<Record<Field, string>>
+    consent: boolean
+    consentVersion: string
+  },
   { saveUrl: string }
 >('createCard')
 
@@ -42,6 +49,7 @@ export default function Enroll() {
   const { code = '' } = useParams()
   const [info, setInfo] = useState<EnrollInfo | 'loading' | 'not-found' | 'error'>('loading')
   const [values, setValues] = useState<Partial<Record<Field, string>>>({})
+  const [consent, setConsent] = useState(false)
   const [fieldError, setFieldError] = useState<Field | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -71,6 +79,15 @@ export default function Enroll() {
             Revisá tu conexión a internet y volvé a probar.
           </EmptyState>
         )}
+      </main>
+    )
+  }
+  if (!info.ready && info.paused) {
+    return (
+      <main>
+        <EmptyState illustration="expired" title={`${info.name} no está sumando clientes por ahora`}>
+          Si ya tenés tu tarjeta, sigue en tu celular con todos tus sellos.
+        </EmptyState>
       </main>
     )
   }
@@ -110,7 +127,7 @@ export default function Enroll() {
     }
     setBusy(true)
     try {
-      const r = await createCard({ code, platform: 'google', customer: values })
+      const r = await createCard({ code, platform: 'google', customer: values, consent, consentVersion: CONSENT_VERSION })
       setSaveUrl(r.data.saveUrl)
       window.location.assign(r.data.saveUrl)
     } catch (err) {
@@ -119,6 +136,8 @@ export default function Enroll() {
       if (code === 'functions/invalid-argument' && field && fields.some((f) => f.key === field)) {
         setFieldError(field)
         document.getElementById(`enroll-${field}`)?.focus()
+      } else if (code === 'functions/failed-precondition' && err instanceof FirebaseError && err.message === 'paused') {
+        setInfo({ ready: false, paused: true, name: config.name })
       } else {
         setError('No pudimos crear tu tarjeta. Revisá tu conexión e intentá de nuevo.')
       }
@@ -178,7 +197,13 @@ export default function Enroll() {
             </div>
           ))}
           {fields.length > 0 && (
-            <p className="help" style={{ margin: 0 }}>Tus datos los usa solo {info.name} para tu tarjeta de sellos.</p>
+            <>
+              <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 'var(--text-sm)', cursor: 'pointer' }}>
+                <input className="checkbox" type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+                <span>{consentText(info.name)} (opcional)</span>
+              </label>
+              <p className="help" style={{ margin: 0 }}>Tus datos los usa solo {info.name} para tu tarjeta de sellos.</p>
+            </>
           )}
           {/* TODO: reemplazar por el botón oficial "Add to Google Wallet" (guía de marca de Google). */}
           <button className="btn btn-lg btn-primary" type="submit" disabled={busy} aria-busy={busy}>

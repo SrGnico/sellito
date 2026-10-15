@@ -5,7 +5,9 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { enrollMissing, type BusinessDoc, type CardDoc, type Customer } from "../types";
 import { StampImages } from "../images/stamps";
 import { insertLoyaltyObject, saveUrl, upsertLoyaltyClass, walletKey } from "../wallet/google";
+import { accessLevel } from "../payments/access";
 import { cardCodeSuffix, reserveCardCode } from "./codes";
+import { searchTokens } from "./search";
 
 const db = () => getFirestore();
 
@@ -64,6 +66,7 @@ async function loadByCode(code: unknown): Promise<{ businessId: string; b: Busin
 // Datos públicos para la página de alta (SITE_URL/c/{código}). El cliente final no lee Firestore directo.
 export const getEnrollInfo = onCall(async (req) => {
   const { b } = await loadByCode(req.data?.code);
+  if (isPaused(b)) return { ready: false, paused: true, name: b.name };
   const missing = enrollMissing(b);
   if (missing.length > 0) return { ready: false, name: b.name };
   return {
@@ -74,6 +77,12 @@ export const getEnrollInfo = onCall(async (req) => {
     askFields: b.askFields ?? { name: true, phone: true, email: false },
   };
 });
+
+// Con la suscripción vencida el negocio no suma clientes nuevos (las tarjetas existentes siguen).
+const isPaused = (b: BusinessDoc) => ["blocked", "archived"].includes(accessLevel(b.subscription));
+
+// Versión del texto de aceptación que se mostró (web/src/content/privacy.ts).
+const CONSENT_VERSION_RE = /^[a-z0-9-]{1,20}$/;
 
 function cleanCustomer(input: unknown, ask: NonNullable<BusinessDoc["askFields"]>): Customer {
   const raw = (input ?? {}) as Record<string, unknown>;
@@ -103,6 +112,7 @@ function cleanCustomer(input: unknown, ask: NonNullable<BusinessDoc["askFields"]
 // Alta de cliente: crea la tarjeta y devuelve el link para guardarla en el Wallet.
 export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, async (req) => {
   const { businessId, b } = await loadByCode(req.data?.code);
+  if (isPaused(b)) throw new HttpsError("failed-precondition", "paused");
   if (enrollMissing(b).length > 0) {
     throw new HttpsError("failed-precondition", "El negocio todavía no terminó su tarjeta.");
   }
@@ -110,6 +120,12 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
     throw new HttpsError("unimplemented", "Apple Wallet todavía no está disponible.");
   }
   const customer = cleanCustomer(req.data?.customer, b.askFields ?? { name: true, phone: true, email: false });
+  const consentVersion = String(req.data?.consentVersion ?? "");
+  const consent = {
+    marketing: req.data?.consent === true,
+    at: Timestamp.now(),
+    version: CONSENT_VERSION_RE.test(consentVersion) ? consentVersion : "desconocida",
+  };
   const cardRef = db().collection(`businesses/${businessId}/cards`).doc();
 
   try {
@@ -129,9 +145,16 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
         barcodeValue,
         codeSuffix: cardCodeSuffix(barcodeValue),
         platform: "google",
+        searchTokens: searchTokens(customer),
+        consent,
         createdAt: Timestamp.now(),
       };
-      tx.create(cardRef, { ...data, createdAt: FieldValue.serverTimestamp() });
+      tx.create(cardRef, {
+        ...data,
+        consent: { ...consent, at: FieldValue.serverTimestamp() },
+        createdAt: FieldValue.serverTimestamp(),
+        lastActivityAt: FieldValue.serverTimestamp(),
+      });
       return data;
     });
 

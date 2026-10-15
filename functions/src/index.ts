@@ -9,6 +9,9 @@ setGlobalOptions({ region: "southamerica-east1", maxInstances: 10 });
 
 export { createCard, ensureEnrollCode, getEnrollInfo } from "./cards/enroll";
 export { resyncCards, testSetStamps } from "./cards/sync";
+export { exportCustomers, upgradeCards } from "./customers";
+export { dailySubscriptionCheck } from "./payments/daily";
+export { createSubscription, mpWebhook, startTrial } from "./payments";
 export { scannerLogin, scannerLookup, scannerSession, scannerStamp, setScannerPin } from "./scanner";
 export { syncGoogleClass } from "./wallet/sync";
 

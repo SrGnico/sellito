@@ -124,6 +124,34 @@
             "functionId": "scannerStamp",
             "region": "southamerica-east1"
           }
+        },
+        {
+          "source": "/createSubscription",
+          "function": {
+            "functionId": "createSubscription",
+            "region": "southamerica-east1"
+          }
+        },
+        {
+          "source": "/mpWebhook",
+          "function": {
+            "functionId": "mpWebhook",
+            "region": "southamerica-east1"
+          }
+        },
+        {
+          "source": "/exportCustomers",
+          "function": {
+            "functionId": "exportCustomers",
+            "region": "southamerica-east1"
+          }
+        },
+        {
+          "source": "/upgradeCards",
+          "function": {
+            "functionId": "upgradeCards",
+            "region": "southamerica-east1"
+          }
         }
       ]
     }

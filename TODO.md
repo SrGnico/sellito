@@ -88,18 +88,34 @@
 - [ ] Endpoints del PassKit web service (registro de dispositivos, pases actualizados)
 - [ ] Push a APNs en cada sello
 
-### 8. Mercado Pago
-- [ ] Definir planes y precios (¿plan único o por cantidad de clientes?)
-- [ ] Definir si hay período de prueba gratis
-- [ ] Suscripción (preapproval) desde el panel
-- [ ] Webhook que actualiza `subscription.status`
-- [ ] Bloquear el escáner si la suscripción no está activa
-- [ ] Planes y precios en un documento de configuración (actualizar monto por inflación)
-- [ ] Página de "suscripción vencida"
+### 8. Mercado Pago (código listo, falta configurar y probar)
+- [x] Suscripción (preapproval) desde el panel: `createSubscription` (suscribirse, reactivar, cambiar medio de pago)
+- [x] Webhook `mpWebhook` con firma validada; consulta el estado real a MP
+- [x] Estados: `none` (sin suscripción), `trial`, `active`, `past_due` + gracia (`graceUntil`, 7 días), `canceled` (bloqueado), `archived` (60 días bloqueado). Constantes en `functions/src/payments/access.ts`
+- [x] Bloqueo: escáner sin sellos ni canje (pantalla "Suscripción vencida"), panel en modo lectura (reglas de Firestore + Functions), Wallet en pausa y resincronización al reactivar
+- [x] Sin suscripción: puede diseñar y tener QR, pero el escáner no funciona
+- [x] Altas de clientes pausadas con el negocio bloqueado
+- [x] Tarea diaria `dailySubscriptionCheck` (09:00 AR): bloquea gracia/prueba vencidas, archiva, manda mails
+- [x] Mails (colección `mail`): cobro fallido, faltan 2 días, bloqueado, aviso de archivo, archivado
+- [x] Prueba gratis preparada (`trialDays` en `config/plans`, hoy 0) y `subscription.plan` admite un plan anual
+- [x] Precios en `config/plans` (se copian a la suscripción: cambiar el precio no toca las existentes)
+- [ ] Crear `config/plans` en Firestore (ver formato en `functions/src/payments/plans.ts`) y definir el precio
+- [ ] Secretos: `firebase functions:secrets:set MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET`
+- [ ] En Mercado Pago: webhook a `API_URL/mpWebhook` con los eventos de suscripciones (preapproval y authorized_payment)
+- [ ] Instalar la extensión "Trigger Email from Firestore" (colección `mail`) con SMTP (Resend) y remitente `avisos@misellito.com.ar`
+- [ ] Probar con usuarios de prueba de MP: alta, cobro rechazado → gracia → bloqueo → reactivar
+- [ ] Ojo: MP exige que `payer_email` sea el mail de la cuenta que paga; hoy se usa el mail del dueño
+- [ ] Actualizar monto de suscripciones existentes por inflación (PUT `auto_recurring.transaction_amount`)
 
-### 9. Estadísticas y super admin
-- [ ] `StatCard` y estadísticas simples en el panel (clientes, sellos, premios canjeados)
-- [ ] Tabla de clientes con paginación
+### 9. Clientes, estadísticas y super admin
+- [x] Sección Clientes (`/panel/clientes`): tabla de a 25 con paginación, orden por alta / último sello / sellos
+- [x] Búsqueda por nombre, teléfono o mail (prefijos en `searchTokens`; tarjetas viejas se completan con `upgradeCards`)
+- [x] Filtros: con premio, inactivos +30 días, nuevos esta semana
+- [x] Detalle del cliente con historial de sellos; botones de WhatsApp y mail
+- [x] `StatCard`: clientes, nuevos 7 días, sellos del mes, premios canjeados
+- [x] Exportar contactos (CSV UTF-8 con BOM, separador `;`) en Function, respeta filtros, anda en modo lectura
+- [x] Aviso de privacidad para el dueño y casilla de novedades en el alta (`consent` en la tarjeta). Textos en `web/src/content/privacy.ts`
+- [ ] Desplegar índices (`firestore.indexes.json`) antes de usar búsqueda y filtros
 - [ ] Custom claim `superadmin` para mi cuenta
 - [ ] Panel super admin: negocios, estado de pago, métricas
 
@@ -129,8 +145,8 @@
 - [ ] Contenido: tabla, tabs, paginación, lista vacía con el sello triste
 - [ ] Skeletons en tablas/cards y barra de progreso (el CSS ya está; usarlos cuando haya listas)
 - [ ] Ayuda: tooltip y popover
-- [ ] Página de suscripción vencida (ilustración lista, falta el paso 8)
-- [ ] Usar `reward.svg` al canjear (paso 5) y `empty-clients.svg` en la tabla de clientes (paso 9)
+- [x] Página de suscripción vencida (escáner)
+- [ ] Usar `reward.svg` al canjear (paso 5) y `empty-clients.svg` en la tabla de clientes (paso 9, hecho)
 - [ ] Toasts y diálogos de confirmación (Radix UI + `sonner` o similar)
 - [ ] Ícono del Wallet en PNG (varios tamaños) y sellos por rubro (café, pizza, tijera…)
 - [ ] Decidir si el ícono del Wallet lleva el borde punteado

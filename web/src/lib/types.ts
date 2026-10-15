@@ -1,7 +1,21 @@
 import type { Timestamp } from 'firebase/firestore'
 
 // Ver SELLITO_SPEC.md §6. Los campos que escriben solo las Functions son opcionales acá.
-export type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'canceled'
+export type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'canceled' | 'archived'
+
+// Solo la escriben las Functions (functions/src/types.ts tiene todos los campos).
+export type Subscription = {
+  status?: SubscriptionStatus
+  plan?: string
+  amount?: number
+  currency?: string
+  pendingPreapprovalId?: string
+  currentPeriodEnd?: Timestamp
+  cancelAtPeriodEnd?: boolean
+  trialEndsAt?: Timestamp
+  graceUntil?: Timestamp
+  blockedAt?: Timestamp
+}
 
 export type Business = {
   id: string
@@ -21,7 +35,31 @@ export type Business = {
   locations?: { lat: number; lng: number; label: string }[]
   enrollCode?: string
   scannerPinVersion?: number // > 0 si el negocio ya eligió PIN (el hash lo escriben solo las Functions)
-  subscription?: { status: SubscriptionStatus; plan?: string; currentPeriodEnd?: Timestamp }
+  subscription?: Subscription
+  cardsVersion?: number
   createdAt?: Timestamp
   updatedAt?: Timestamp
+}
+
+// businesses/{id}/cards/{cardId}: la escriben solo las Functions; el dueño la lee.
+export type Card = {
+  id: string
+  customer: { name?: string; phone?: string; email?: string }
+  stamps: number
+  rewardsAvailable: number
+  rewardsRedeemed: number
+  codeSuffix?: string
+  lastStampAt?: Timestamp
+  lastActivityAt?: Timestamp
+  consent?: { marketing: boolean; at: Timestamp; version: string }
+  createdAt?: Timestamp
+}
+
+export type StampEvent = {
+  id: string
+  cardId: string
+  type: 'add' | 'redeem' | 'test'
+  at?: Timestamp
+  stampsAfter: number
+  forced?: boolean
 }

@@ -11,7 +11,7 @@ import type { Business } from '../lib/types'
 import { imageFileError, uploadBusinessImage, uploadErrorMessage } from '../lib/uploads'
 import Spinner from '../components/Spinner'
 
-export default function CardEditor({ business }: { business: Business }) {
+export default function CardEditor({ business, readOnly = false }: { business: Business; readOnly?: boolean }) {
   const [draft, setDraft] = useState<CardConfig>(() => cardConfigFrom(business))
   const [demoFilled, setDemoFilled] = useState(2)
   const [platform, setPlatform] = useState<WalletPlatform>('android')
@@ -85,6 +85,7 @@ export default function CardEditor({ business }: { business: Business }) {
 
   async function handleSave(e: FormEvent) {
     e.preventDefault()
+    if (readOnly) return
     if (!draft.name.trim()) {
       setNameError('Escribí el nombre de tu negocio.')
       document.getElementById('card-name')?.focus()
@@ -111,10 +112,16 @@ export default function CardEditor({ business }: { business: Business }) {
   return (
     <form onSubmit={handleSave} noValidate>
       <Link to="/panel">← Volver al panel</Link>
-      <h2 style={{ marginTop: 16 }}>Diseñá tu tarjeta</h2>
-      <p style={{ color: 'var(--text-soft)', marginTop: 8 }}>
-        Los cambios se ven al instante en la vista previa. Cuando te guste, guardalo.
-      </p>
+      <h2 style={{ marginTop: 16 }}>{readOnly ? 'Tu tarjeta' : 'Diseñá tu tarjeta'}</h2>
+      {readOnly ? (
+        <p style={{ color: 'var(--text-soft)', marginTop: 8 }}>
+          Con la suscripción vencida el panel está en modo lectura. Reactivala para volver a editar.
+        </p>
+      ) : (
+        <p style={{ color: 'var(--text-soft)', marginTop: 8 }}>
+          Los cambios se ven al instante en la vista previa. Cuando te guste, guardalo.
+        </p>
+      )}
 
       <div className="editor">
         <aside className="editor-preview">
@@ -138,7 +145,7 @@ export default function CardEditor({ business }: { business: Business }) {
           </div>
         </aside>
 
-        <div className="editor-form">
+        <fieldset className="editor-form" disabled={readOnly} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
           <section className="card">
             <h4>Nombre y logo</h4>
             <div>
@@ -273,10 +280,10 @@ export default function CardEditor({ business }: { business: Business }) {
               </label>
             ))}
           </section>
-        </div>
+        </fieldset>
       </div>
 
-      <div className="save-bar">
+      {!readOnly && <div className="save-bar">
         <span role="status" className={result === 'error' ? 'help help-error' : 'help'} style={{ margin: 0 }}>
           {result === 'saved' && '✓ Cambios guardados'}
           {result === 'error' && 'No pudimos guardar. Revisá tu conexión e intentá de nuevo.'}
@@ -299,7 +306,7 @@ export default function CardEditor({ business }: { business: Business }) {
             {saving ? 'Guardando…' : 'Guardar cambios'}
           </button>
         </div>
-      </div>
+      </div>}
     </form>
   )
 }

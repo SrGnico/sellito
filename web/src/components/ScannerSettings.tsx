@@ -6,7 +6,7 @@ import { APP_URL } from '../lib/urls'
 import Spinner from './Spinner'
 
 // Panel → escáner del local: PIN compartido (v1) y link/QR para abrirlo en el celular del local.
-export default function ScannerSettings({ business }: { business: Business }) {
+export default function ScannerSettings({ business, readOnly = false }: { business: Business; readOnly?: boolean }) {
   const hasPin = (business.scannerPinVersion ?? 0) > 0
   const url = `${APP_URL}/escaner/${business.id}`
   const [editing, setEditing] = useState(false)
@@ -24,7 +24,11 @@ export default function ScannerSettings({ business }: { business: Business }) {
         Con el escáner sumás sellos y canjeás premios desde cualquier celular del local. Se entra con un PIN.
       </p>
 
-      {!hasPin || editing ? (
+      {readOnly ? (
+        <div className="alert alert-err" role="status">
+          <span className="alert-text">El escáner está en pausa hasta que reactives la suscripción. El PIN no se puede cambiar.</span>
+        </div>
+      ) : !hasPin || editing ? (
         <PinForm business={business} hasPin={hasPin} onDone={() => setEditing(false)} />
       ) : (
         <>

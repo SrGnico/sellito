@@ -33,6 +33,16 @@ service cloud.firestore {
               && data.rule.stampsRequired >= 2 && data.rule.stampsRequired <= 20));
     }
 
+    // Modo lectura con la suscripción vencida (misma lógica que functions/src/payments/access.ts):
+    // sin suscripción, activa, en prueba vigente o en gracia se puede editar; si no, no.
+    function canEdit(data) {
+      let sub = data.get('subscription', {});
+      let status = sub.get('status', 'none');
+      return status == 'none' || status == 'active'
+        || (status == 'trial' && sub.get('trialEndsAt', request.time) > request.time)
+        || (status == 'past_due' && sub.get('graceUntil', request.time) > request.time);
+    }
+
     match /businesses/{businessId} {
       allow read: if isSuperadmin()
         || (signedIn() && resource.data.ownerUid == request.auth.uid);
@@ -45,6 +55,7 @@ service cloud.firestore {
 
       allow update: if signedIn()
         && resource.data.ownerUid == request.auth.uid
+        && canEdit(resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(ownerEditableFields())
         && validBusinessData(request.resource.data);
 
@@ -82,6 +93,17 @@ service cloud.firestore {
 
     // PassKit web service: solo Functions.
     match /appleRegistrations/{doc=**} {
+      allow read, write: if false;
+    }
+
+    // Planes y precios (los edita el admin desde la consola). El panel los lee para mostrar el precio.
+    match /config/plans {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // Mails para la extensión Trigger Email: solo Functions.
+    match /mail/{id} {
       allow read, write: if false;
     }
 

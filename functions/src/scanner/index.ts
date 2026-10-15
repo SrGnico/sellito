@@ -6,6 +6,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { CARD_CODE_LENGTH, CARD_CODE_SUFFIX_LENGTH, normalizeCardCode } from "../cards/codes";
 import { pushCardToWallet } from "../cards/sync";
 import { StampImages } from "../images/stamps";
+import { accessLevel, canEdit, canOperate } from "../payments/access";
 import type { BusinessDoc, CardDoc } from "../types";
 import { walletKey } from "../wallet/google";
 
@@ -50,6 +51,8 @@ export const setScannerPin = onCall(async (req) => {
   const ref = db().doc(`businesses/${businessId}`);
   const snap = await ref.get();
   if (!snap.exists || snap.get("ownerUid") !== uid) throw new HttpsError("permission-denied", "Este negocio no es tuyo.");
+  // Con la suscripción vencida el panel queda en modo lectura: tampoco se cambia el PIN.
+  if (!canEdit(accessLevel((snap.data() as BusinessDoc).subscription))) throw new HttpsError("failed-precondition", "subscription");
 
   await ref.update({
     scannerPinHash: await hashPin(pin),
@@ -92,6 +95,7 @@ export const scannerLogin = onCall(async (req) => {
   }
 
   if (guard) await guardRef.delete();
+  assertCanOperate(b);
   const token = randomBytes(32).toString("base64url");
   await db().doc(`scannerSessions/${sha256(token)}`).set({
     businessId,
@@ -111,6 +115,14 @@ function publicBusiness(b: BusinessDoc) {
   };
 }
 
+// Sin pago el escáner se pausa (paso 8): no suma sellos ni canjea. Durante la gracia sigue andando.
+// "no-subscription": el negocio todavía no se suscribió; "subscription": la suscripción venció.
+function assertCanOperate(b: BusinessDoc) {
+  const level = accessLevel(b.subscription);
+  if (level === "none") throw new HttpsError("failed-precondition", "no-subscription");
+  if (!canOperate(level)) throw new HttpsError("failed-precondition", "subscription");
+}
+
 type Session = { businessId: string; sessionId: string; b: BusinessDoc };
 
 async function requireSession(token: unknown, businessId: unknown): Promise<Session> {
@@ -123,14 +135,11 @@ async function requireSession(token: unknown, businessId: unknown): Promise<Sess
     db().doc(`businesses/${businessId}`).get(),
   ]);
   const s = session.data();
-  const b = biz.data() as (BusinessDoc & { scannerPinVersion?: number; subscription?: { status?: string } }) | undefined;
+  const b = biz.data() as BusinessDoc | undefined;
   if (!s || !b || s.businessId !== businessId || s.expiresAt.toMillis() < Date.now() || s.pinVersion !== (b.scannerPinVersion ?? 0)) {
     throw new HttpsError("unauthenticated", "session");
   }
-  // Sin pago, el escáner se pausa (SELLITO_SPEC.md §7). Mientras no haya cobros (paso 8) no hay `subscription`.
-  if (b.subscription?.status === "past_due" || b.subscription?.status === "canceled") {
-    throw new HttpsError("failed-precondition", "subscription");
-  }
+  assertCanOperate(b);
   if (!b.rule) throw new HttpsError("failed-precondition", "no-card");
   return { businessId, sessionId, b };
 }
@@ -198,11 +207,11 @@ export const scannerStamp = onCall({ secrets: [walletKey], memory: "512MiB" }, a
       if (since < STAMP_COOLDOWN_MINUTES && force !== true) {
         throw new HttpsError("resource-exhausted", `cooldown:${Math.floor(since)}`);
       }
-      next = { stamps: stamps + 1, lastStampAt: FieldValue.serverTimestamp() };
+      next = { stamps: stamps + 1, lastStampAt: FieldValue.serverTimestamp(), lastActivityAt: FieldValue.serverTimestamp() };
       if (stamps + 1 >= total) next.rewardsAvailable = 1;
     } else {
       if (stamps < total) throw new HttpsError("failed-precondition", "no-reward");
-      next = { stamps: 0, rewardsAvailable: 0, rewardsRedeemed: FieldValue.increment(1) };
+      next = { stamps: 0, rewardsAvailable: 0, rewardsRedeemed: FieldValue.increment(1), lastActivityAt: FieldValue.serverTimestamp() };
     }
 
     tx.update(cardRef, next);

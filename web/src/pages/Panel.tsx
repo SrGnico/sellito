@@ -8,7 +8,7 @@ import {
   where,
 } from 'firebase/firestore'
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, NavLink, Route, Routes } from 'react-router-dom'
 import CardPreview from '../components/CardPreview'
 import EnrollQr from '../components/EnrollQr'
 import { cardConfigFrom } from '../lib/cardDesign'
@@ -16,6 +16,10 @@ import { useAuth } from '../lib/auth'
 import { auth, db } from '../lib/firebase'
 import type { Business } from '../lib/types'
 import CardEditor from './CardEditor'
+import Customers from './Customers'
+import SubscriptionBanner from '../components/SubscriptionBanner'
+import { accessLevel, isReadOnly } from '../lib/subscription'
+import '../styles/panel.css'
 import EmptyState from '../components/EmptyState'
 import LoadingScreen from '../components/LoadingScreen'
 import Mascot from '../components/Mascot'
@@ -83,8 +87,16 @@ export default function Panel() {
           </button>
         </div>
       </header>
+      {state.status === 'ready' && state.businesses[0] && (
+        <nav className="panel-nav" aria-label="Secciones del panel">
+          <NavLink to="/panel" end>Inicio</NavLink>
+          <NavLink to="/panel/clientes">Clientes</NavLink>
+          <NavLink to="/panel/tarjeta">Tarjeta</NavLink>
+        </nav>
+      )}
 
       <main className="main-wide">
+        {state.status === 'ready' && state.businesses[0] && <SubscriptionBanner business={state.businesses[0]} />}
         {state.status === 'loading' && <LoadingScreen label="Cargando tu negocio…" />}
 
         {state.status === 'error' && (
@@ -104,7 +116,17 @@ export default function Panel() {
         {state.status === 'ready' && state.businesses[0] && (
           <Routes>
             <Route index element={<BusinessHome business={state.businesses[0]} />} />
-            <Route path="tarjeta" element={<CardEditor key={state.businesses[0].id} business={state.businesses[0]} />} />
+            <Route
+              path="tarjeta"
+              element={
+                <CardEditor
+                  key={state.businesses[0].id}
+                  business={state.businesses[0]}
+                  readOnly={isReadOnly(accessLevel(state.businesses[0].subscription))}
+                />
+              }
+            />
+            <Route path="clientes" element={<Customers key={state.businesses[0].id} business={state.businesses[0]} />} />
           </Routes>
         )}
       </main>
@@ -182,6 +204,7 @@ function CreateBusiness({ uid }: { uid: string }) {
 
 function BusinessHome({ business }: { business: Business }) {
   const designed = Boolean(business.rule)
+  const readOnly = isReadOnly(accessLevel(business.subscription))
   return (
     <>
       <h2>{business.name}</h2>
@@ -204,12 +227,23 @@ function BusinessHome({ business }: { business: Business }) {
               Logo, colores, ícono del sello y cuántos sellos hacen falta para el premio.
             </p>
             <Link className="btn btn-primary" to="tarjeta" style={{ alignSelf: 'flex-start', marginTop: 8 }}>
-              {designed ? 'Editar tarjeta' : 'Diseñar tarjeta'}
+              {readOnly ? 'Ver tarjeta' : designed ? 'Editar tarjeta' : 'Diseñar tarjeta'}
             </Link>
           </div>
+          {designed && (
+            <div className="card">
+              <h4>Tus clientes</h4>
+              <p style={{ margin: 0, color: 'var(--text-soft)' }}>
+                Quiénes tienen tu tarjeta, cuántos sellos llevan y a quién escribirle.
+              </p>
+              <Link className="btn" to="clientes" style={{ alignSelf: 'flex-start', marginTop: 8 }}>
+                Ver clientes
+              </Link>
+            </div>
+          )}
           <EnrollQr business={business} />
-          {business.rule && <ScannerSettings business={business} />}
-          {import.meta.env.DEV && business.rule && <TestCards business={business} />}
+          {business.rule && <ScannerSettings business={business} readOnly={readOnly} />}
+          {import.meta.env.DEV && business.rule && !readOnly && <TestCards business={business} />}
         </div>
       </div>
     </>
