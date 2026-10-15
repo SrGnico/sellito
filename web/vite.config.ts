@@ -2,7 +2,9 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 
 // Manifest del escáner instalable (PWA). Se genera con VITE_APP_NAME para no escribir el nombre a mano.
-// Abre /escaner, que redirige al escáner del último local usado en ese celular.
+// Se sirve en /escaner/{local}/manifest.webmanifest (rewrite en firebase.json) y start_url/scope son
+// relativos ("./"), así el acceso directo abre el escáner de ESE local. En iPhone la app instalada no
+// comparte almacenamiento con Safari, así que no puede depender de lo guardado.
 function scannerManifest(appName: string): Plugin {
   const manifest = JSON.stringify(
     {
@@ -10,8 +12,8 @@ function scannerManifest(appName: string): Plugin {
       short_name: 'Escáner',
       description: `Sumá sellos y canjeá premios con ${appName}.`,
       lang: 'es-AR',
-      start_url: '/escaner',
-      scope: '/escaner',
+      start_url: './',
+      scope: './',
       display: 'standalone',
       orientation: 'portrait',
       background_color: '#FFF4E0',
@@ -28,7 +30,9 @@ function scannerManifest(appName: string): Plugin {
   return {
     name: 'scanner-manifest',
     configureServer(server) {
-      server.middlewares.use('/escaner.webmanifest', (_req, res) => {
+      server.middlewares.use((req, res, next) => {
+        const path = req.url?.split('?')[0] ?? ''
+        if (path !== '/escaner.webmanifest' && !/^\/escaner\/[^/]+\/manifest\.webmanifest$/.test(path)) return next()
         res.setHeader('Content-Type', 'application/manifest+json')
         res.end(manifest)
       })

@@ -34,11 +34,30 @@
       ],
       "rewrites": [
         {
+          "source": "/escaner/*/manifest.webmanifest",
+          "destination": "/escaner.webmanifest"
+        },
+        {
           "source": "**",
           "destination": "/index.html"
         }
       ],
-      "site": "sellito-23c14"
+      "site": "sellito-23c14",
+      "headers": [
+        {
+          "source": "**/*.webmanifest",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/manifest+json"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        }
+      ]
     },
     {
       "site": "sellito-api",

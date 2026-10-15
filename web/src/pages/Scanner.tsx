@@ -447,7 +447,7 @@ function useScannerInstallable(businessId: string) {
   useEffect(() => {
     rememberScannerBusiness(businessId)
     const tags = [
-      Object.assign(document.createElement('link'), { rel: 'manifest', href: '/escaner.webmanifest' }),
+      Object.assign(document.createElement('link'), { rel: 'manifest', href: `/escaner/${businessId}/manifest.webmanifest` }),
       Object.assign(document.createElement('link'), { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' }),
       Object.assign(document.createElement('meta'), { name: 'theme-color', content: '#12372A' }),
       Object.assign(document.createElement('meta'), { name: 'apple-mobile-web-app-capable', content: 'yes' }),
