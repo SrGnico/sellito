@@ -146,7 +146,7 @@
 - [x] Panel super admin (`/admin`): negocios, estado, plan, tarjetas, PIN; métricas (negocios, activas, ingreso mensual, tarjetas)
 
 ### Antes de lanzar
-- [ ] CNAME `www` → `sellito-23c14.web.app` en Cloudflare (Firebase ya redirige www → misellito.com.ar)
+- [x] CNAME `www` → `sellito-23c14.web.app` en Cloudflare (Firebase ya redirige www → misellito.com.ar)
 - [ ] Dar de alta el sitio en Google Search Console (verificación por DNS)
 - [x] Mercado Pago en producción: credenciales de producción (no de prueba), webhook de la app de producción y volver a cargar `MP_ACCESS_TOKEN` / `MP_WEBHOOK_SECRET`
 - [x] Crear y verificar `hola@misellito.com.ar` (Cloudflare Email Routing → Gmail); se usa en la landing y la política de privacidad
