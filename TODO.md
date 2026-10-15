@@ -28,7 +28,7 @@
 - [x] Probar el editor en Safari (subir imágenes, guardar, recargar)
 - [x] Deshacer/rehacer, descartar cambios y volver al color guardado
 - [x] Permiso IAM para que storage.rules lea Firestore
-- [ ] Ubicaciones (hasta 10): necesita un buscador de direcciones o mapa
+- [x] Ubicaciones (hasta 10) con buscador de direcciones (ver 5b)
 - [ ] Stepper de alta del negocio (1 diseño, 2 regla, 3 pago)
 - [ ] Borrar de Storage las imágenes viejas que ya no se usan
 
@@ -71,7 +71,7 @@
 - [x] Escáner en pausa si la suscripción está `past_due` o `canceled` (se activa con el paso 8)
 - [ ] Probar en el celular del local: PIN → escanear → +1 → canjear
 - [ ] Firebase App Check en las Functions del escáner y del alta
-- [ ] PWA: manifest e ícono para "Agregar a pantalla de inicio" en el escáner
+- [x] PWA: manifest e ícono para "Agregar a pantalla de inicio" en el escáner; cámara a pedido
 - [ ] Sacar `testSetStamps` y el panel "Prueba de tarjetas" cuando el escáner esté probado
 
 ### 5b. Cercanía y avisos
@@ -110,12 +110,12 @@
 - [x] Mails (colección `mail`): cobro fallido, faltan 2 días, bloqueado, aviso de archivo, archivado
 - [x] Prueba gratis preparada (`trialDays` en `config/plans`, hoy 0) y `subscription.plan` admite un plan anual
 - [x] Precios en `config/plans` (se copian a la suscripción: cambiar el precio no toca las existentes)
-- [ ] Crear `config/plans` en Firestore (ver formato en `functions/src/payments/plans.ts`) y definir el precio
+- [x] `config/plans`: Mensual $25.000, sin prueba gratis
 - [x] Secretos `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` cargados y Functions desplegadas
 - [ ] En Mercado Pago: webhook a `API_URL/mpWebhook` con los eventos de suscripciones (preapproval y authorized_payment)
 - [ ] Instalar la extensión "Trigger Email from Firestore" (colección `mail`) con SMTP (Resend) y remitente `avisos@misellito.com.ar`
 - [ ] Probar con usuarios de prueba de MP: alta, cobro rechazado → gracia → bloqueo → reactivar
-- [ ] Ojo: MP exige que `payer_email` sea el mail de la cuenta que paga; hoy se usa el mail del dueño
+- [x] El dueño confirma el mail de su cuenta de MP antes de pagar (prueba: `test_user_<USER_ID>@testuser.com`)
 - [ ] Actualizar monto de suscripciones existentes por inflación (PUT `auto_recurring.transaction_amount`)
 
 ### 9. Clientes, estadísticas y super admin
@@ -153,7 +153,7 @@
 - [x] Assets y motion integrados (`web/src/assets/`, `sellito-motion.css`, favicon)
 - [x] `LoadingScreen`, `Spinner` en botones, `EmptyState`, `Mascot`, página 404, onboarding del dueño (3 pasos)
 - [x] Sello nuevo que se "estampa" (`.stamp-in`) en `StampGrid`
-- [ ] Navegación: menú lateral del panel, menú de usuario, breadcrumbs (la barra superior con logo ya está)
+- [x] Navegación del panel por secciones (Inicio, Clientes, Tarjeta, QR, Escáner) e inicio como resumen
 - [ ] Contenido: tabla, tabs, paginación, lista vacía con el sello triste
 - [ ] Skeletons en tablas/cards y barra de progreso (el CSS ya está; usarlos cuando haya listas)
 - [ ] Ayuda: tooltip y popover
@@ -166,7 +166,7 @@
 ## Pendientes por verificar o decidir
 - [x] Dominio: `misellito.com.ar`
 - [ ] Confirmar Instagram para "Sellito"
-- [ ] Notificaciones por cercanía: verificar si `locations` sigue vigente en Google Wallet (aparece como *deprecated*) y cómo lo trata iOS
+- [x] Cercanía verificada: Google usa `merchantLocations` (texto del aviso lo pone Google); Apple `locations` + `relevantText`
 - [ ] Privacidad y términos para los datos de clientes finales
 - [ ] Ley 25.326: evaluar inscripción de la base ante la AAIP
 
