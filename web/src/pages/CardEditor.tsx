@@ -1,7 +1,7 @@
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import CardPreview from '../components/CardPreview'
+import CardPreview, { PlatformToggle, type WalletPlatform } from '../components/CardPreview'
 import { businessFieldsFrom, cardConfigFrom, MAX_STAMPS, MIN_STAMPS, type CardConfig } from '../lib/cardDesign'
 import { isHexColor } from '../lib/color'
 import { db } from '../lib/firebase'
@@ -14,6 +14,7 @@ import Spinner from '../components/Spinner'
 export default function CardEditor({ business }: { business: Business }) {
   const [draft, setDraft] = useState<CardConfig>(() => cardConfigFrom(business))
   const [demoFilled, setDemoFilled] = useState(2)
+  const [platform, setPlatform] = useState<WalletPlatform>('android')
   const [saving, setSaving] = useState(false)
   const [result, setResult] = useState<'saved' | 'error' | null>(null)
   const [nameError, setNameError] = useState<string | null>(null)
@@ -117,7 +118,10 @@ export default function CardEditor({ business }: { business: Business }) {
 
       <div className="editor">
         <aside className="editor-preview">
-          <CardPreview config={draft} filled={demoFilled} />
+          <div style={{ marginBottom: 12 }}>
+            <PlatformToggle value={platform} onChange={setPlatform} />
+          </div>
+          <CardPreview config={draft} filled={demoFilled} platform={platform} />
           <div style={{ marginTop: 16 }}>
             <label className="label" htmlFor="demo-filled">
               Probá cómo se ve con {Math.min(demoFilled, draft.stampsRequired)} sellos

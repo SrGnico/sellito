@@ -134,8 +134,8 @@ export default function Enroll() {
         Juntá {info.rule.stampsRequired} sellos y llevate: <strong>{info.rule.rewardText}</strong>. Sin descargar ninguna app.
       </p>
 
-      <div style={{ margin: '24px 0' }}>
-        <CardPreview config={config} filled={0} />
+      <div className="enroll-preview" style={{ margin: '24px 0' }}>
+        <CardPreview config={config} filled={0} platform={ios ? 'iphone' : 'android'} />
       </div>
 
       {saveUrl ? (

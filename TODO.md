@@ -43,6 +43,7 @@
 - [x] Página pública de alta `/c/{código}` con los campos configurados (`getEnrollInfo`)
 - [x] Function `createCard`: tarjeta con `barcodeValue` = `S1.{cardId}.{secreto}` y objeto de Google Wallet
 - [x] Detección de iPhone (muestra "Apple Wallet llega pronto")
+- [x] Vista previa por plataforma: selector Android / iPhone en el editor; en el alta, según el celular
 - [x] QR de alta en el panel (descargar PNG, copiar link)
 - [x] Probar el ciclo completo en un Android (subir logo → escanear QR → guardar en Wallet)
 - [x] Código de tarjeta corto: 12 caracteres sin 0/O/1/I/L, único por negocio (`businesses/{id}/codes/{código}`); la tarjeta muestra solo los últimos 4 (`T9HZ`) bajo el QR y como "ID de miembro"; se guardan en `codeSuffix`
@@ -76,6 +77,7 @@
 - [ ] Limpiar imágenes generadas de diseños viejos
 
 ### 7. Apple Wallet
+- [ ] Imagen de sellos con la proporción de Apple (strip 1125 × 432) y ajustar la vista previa iPhone a la tarjeta real
 - [ ] Cuenta Apple Developer (USD 99/año) y certificado de Pass Type ID
 - [ ] Generar `.pkpass` con `passkit-generator`
 - [ ] Endpoints del PassKit web service (registro de dispositivos, pases actualizados)
@@ -99,11 +101,14 @@
 ### Antes de lanzar
 - [x] Direcciones en variables de entorno (`SITE_URL`, `APP_URL`, `API_URL`); ninguna escrita a mano
 - [x] Links de alta cortos y permanentes: `SITE_URL/c/{código}`
-- [ ] Conectar `misellito.com.ar` (landing + `/c/*`) a Firebase Hosting cuando termine de propagar
-- [ ] Conectar `app.misellito.com.ar` (panel y escáner): probablemente un segundo sitio de Hosting
-- [ ] Conectar `api.misellito.com.ar` a las Functions (sitio de Hosting con rewrites a cada Function)
-- [ ] Cambiar las variables en `web/.env.local` y `functions/.env`, sacar `DEV_ORIGINS` y volver a desplegar
-- [ ] Agregar los dominios nuevos a los dominios autorizados de Firebase Auth
+- [x] `misellito.com.ar` conectado (sitio `sellito-23c14`); `SITE_URL` ya apunta ahí y el QR se puede imprimir
+- [x] `app.misellito.com.ar` agregado en Firebase (mismo sitio) → falta el CNAME en Cloudflare: `app` → `sellito-23c14.web.app`
+- [x] `api.misellito.com.ar` agregado en Firebase (sitio `sellito-api`, rewrites a cada Function en `firebase.json`) → falta el CNAME: `api` → `sellito-api.web.app`
+- [ ] Cuando `api.` responda: `VITE_API_URL` y `API_URL` = `https://api.misellito.com.ar`, sacar `sellito-23c14.web.app` de `DEV_ORIGINS` y desplegar
+- [ ] Cada Function nueva que llame la web: agregar su rewrite en el sitio `sellito-api` (`firebase.json`)
+- [ ] Ojo: Hosting corta a los 60 s. `resyncCards` con muchas tarjetas puede pasarse: hacerlo en segundo plano
+- [x] Dominios autorizados de Firebase Auth: `misellito.com.ar` y `app.misellito.com.ar`
+- [ ] Separar la landing (`misellito.com.ar`) del panel (`app.`) cuando exista la landing
 - [ ] Google Wallet: pedir acceso de publicación (salir del modo demo)
 
 ### 10. Landing de venta

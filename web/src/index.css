@@ -82,3 +82,25 @@ main .loading-screen { min-height: 50vh; }
 
 /* Animaciones CSS dentro del SVG de sellos: girar y escalar desde el centro de cada sello. */
 .stamp-grid g { transform-box: fill-box; transform-origin: center; }
+
+/* Variante Apple Wallet (iPhone) */
+.wallet-card-iphone { text-align: left; }
+.wallet-card-iphone-header { display: flex; align-items: center; gap: 10px; padding: 14px 14px 10px; }
+.wallet-card-iphone-header .wallet-card-logo { width: 36px; height: 36px; font-size: 18px; }
+.wallet-card-iphone-header .wallet-card-issuer { flex: 1; font-size: var(--text-md); font-weight: 600; }
+.wallet-card-iphone-points { text-align: right; }
+.wallet-card-iphone-points .wallet-card-value { font-size: var(--text-md); }
+.wallet-card-iphone-fields { padding: 12px 14px 0; }
+.wallet-card-iphone-fields .wallet-card-value { font-size: var(--text-md); font-weight: 500; }
+.wallet-card-iphone .wallet-card-code { padding-bottom: 18px; }
+
+/* Selector de dos o más opciones (Android / iPhone) */
+.segmented { display: inline-flex; padding: 3px; gap: 3px; border: var(--border-width) solid var(--border); border-radius: var(--radius-full); background: var(--surface); }
+.segmented button {
+  min-height: 36px; padding: 0 16px; border: 0; border-radius: var(--radius-full); background: transparent;
+  font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; color: var(--text); cursor: pointer;
+}
+.segmented button[aria-pressed="true"] { background: var(--green); color: var(--cream); }
+
+/* En la página de alta la tarjeta ocupa el mismo ancho que el formulario. */
+.enroll-preview .wallet-card { max-width: none; }

@@ -3,52 +3,105 @@ import { autoTextColor } from '../lib/color'
 import { PROGRAM_NAME } from '../lib/wallet'
 import StampGrid from './StampGrid'
 
+export type WalletPlatform = 'android' | 'iphone'
+
 // Código de muestra: la tarjeta muestra los últimos 4 caracteres (functions/src/cards/codes.ts).
 const SAMPLE_CODE = 'T9HZ'
 
-// Copia del frente de la tarjeta en Google Wallet: logo y nombre, título, QR con su código,
-// contador de sellos y, abajo, la imagen de sellos (la misma que genera el backend).
-export default function CardPreview({ config, filled }: { config: CardConfig; filled: number }) {
+type Props = { config: CardConfig; filled: number; platform?: WalletPlatform }
+
+// Copia del frente de la tarjeta en cada Wallet. El orden lo fija cada plataforma:
+// - Google Wallet (Android): logo y nombre, título, QR, contador y la imagen de sellos abajo.
+// - Apple Wallet (iPhone): logo y nombre arriba con el contador, imagen de sellos, premio y QR abajo.
+export default function CardPreview({ config, filled, platform = 'android' }: Props) {
   const total = config.stampsRequired
   const stamps = Math.min(filled, total)
   const fg = autoTextColor(config.bgColor)
   const name = config.name.trim() || 'Tu negocio'
+  const balance = stamps === total ? '¡Premio listo!' : `${stamps} de ${total}`
+
+  const logo = config.logoUrl ? (
+    <img className="wallet-card-logo" src={config.logoUrl} alt="" />
+  ) : (
+    <span className="wallet-card-logo" aria-hidden="true" style={{ background: '#fff', color: '#12372A' }}>
+      {name.charAt(0).toUpperCase()}
+    </span>
+  )
+  const stampsImage = (
+    <StampGrid
+      total={total}
+      filled={stamps}
+      bgColor={config.bgColor}
+      textColor={fg}
+      stampIconId={config.stampIconId}
+      stampIconUrl={config.stampIconUrl}
+      bannerUrl={config.bannerUrl}
+    />
+  )
+  const code = (
+    <div className="wallet-card-code">
+      <FakeQr />
+      <span>{SAMPLE_CODE}</span>
+    </div>
+  )
+
+  if (platform === 'iphone') {
+    return (
+      <figure className="wallet-card wallet-card-iphone" style={{ background: config.bgColor, color: fg }}>
+        <div className="wallet-card-iphone-header">
+          {logo}
+          <span className="wallet-card-issuer">{name}</span>
+          <span className="wallet-card-iphone-points">
+            <span className="wallet-card-label">Sellos</span>
+            <span className="wallet-card-value">{balance}</span>
+          </span>
+        </div>
+        {stampsImage}
+        <div className="wallet-card-iphone-fields">
+          <span className="wallet-card-label">Premio</span>
+          <span className="wallet-card-value">
+            Al juntar {total} sellos: {config.rewardText.trim() || '…'}
+          </span>
+        </div>
+        {code}
+        <figcaption className="sr-only">Vista previa de la tarjeta en Apple Wallet</figcaption>
+      </figure>
+    )
+  }
 
   return (
     <figure className="wallet-card" style={{ background: config.bgColor, color: fg }}>
       <div className="wallet-card-header">
-        {config.logoUrl ? (
-          <img className="wallet-card-logo" src={config.logoUrl} alt="" />
-        ) : (
-          <span className="wallet-card-logo" aria-hidden="true" style={{ background: '#fff', color: '#12372A' }}>
-            {name.charAt(0).toUpperCase()}
-          </span>
-        )}
+        {logo}
         <span className="wallet-card-issuer">{name}</span>
       </div>
       <p className="wallet-card-title">{PROGRAM_NAME}</p>
-
-      <div className="wallet-card-code">
-        <FakeQr />
-        <span>{SAMPLE_CODE}</span>
-      </div>
-
+      {code}
       <div className="wallet-card-points">
         <span className="wallet-card-label">Sellos</span>
-        <span className="wallet-card-value">{stamps === total ? '¡Premio listo!' : `${stamps} de ${total}`}</span>
+        <span className="wallet-card-value">{balance}</span>
       </div>
-
-      <StampGrid
-        total={total}
-        filled={stamps}
-        bgColor={config.bgColor}
-        textColor={fg}
-        stampIconId={config.stampIconId}
-        stampIconUrl={config.stampIconUrl}
-        bannerUrl={config.bannerUrl}
-      />
+      {stampsImage}
       <figcaption className="sr-only">Vista previa de la tarjeta en Google Wallet</figcaption>
     </figure>
+  )
+}
+
+// Selector "Android / iPhone" para la vista previa.
+export function PlatformToggle({ value, onChange }: { value: WalletPlatform; onChange: (p: WalletPlatform) => void }) {
+  return (
+    <div className="segmented" role="group" aria-label="Ver la tarjeta en">
+      {(
+        [
+          ['android', 'Android'],
+          ['iphone', 'iPhone'],
+        ] as const
+      ).map(([id, label]) => (
+        <button key={id} type="button" aria-pressed={value === id} onClick={() => onChange(id)}>
+          {label}
+        </button>
+      ))}
+    </div>
   )
 }
 
