@@ -95,3 +95,23 @@
 .admin-header .help { color: var(--cream-deep); }
 
 .poster-preview { width: 100%; max-width: 320px; border: var(--border-width) solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+
+/* ---------- Asistente de primeros pasos ---------- */
+.wizard-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.wizard-steps { list-style: none; margin: 16px 0 24px; padding: 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.wizard-steps li { display: flex; align-items: center; gap: 6px; padding: 6px 12px 6px 6px; border-radius: var(--radius-full); border: var(--border-width) solid var(--border); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text-soft); }
+.wizard-steps li span { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--cream-deep); font-size: 12px; }
+.wizard-steps li.active { background: var(--pink); color: var(--text); }
+.wizard-steps li.active span { background: var(--surface); }
+.wizard-steps li.done span { background: var(--green); color: var(--cream); }
+@media (max-width: 560px) { .wizard-steps li:not(.active) { font-size: 0; padding: 4px; gap: 0; } }
+.wizard .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.wizard-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; margin-top: 24px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch { width: 44px; height: 44px; border-radius: 50%; border: var(--border-width) solid var(--border); cursor: pointer; position: relative; }
+.swatch:has(input:checked) { outline: 3px solid var(--green); outline-offset: 3px; }
+.swatch:has(input:focus-visible) { outline: 3px solid var(--focus, var(--green)); outline-offset: 3px; }
+.swatch-custom { overflow: hidden; background: conic-gradient(#FF9EC4, #FFD166, #7BD389, #8EC5FF, #C9A7FF, #FF9EC4); }
+.swatch-custom input { opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+/* En el celular, primero el formulario (con el botón cerca) y después la vista previa. */
+@media (max-width: 899px) { .wizard .editor-preview { order: 2; } }

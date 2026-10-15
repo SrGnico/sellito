@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test e2e/public.spec.ts",
+    "test:e2e:full": "E2E_FULL=1 playwright test e2e/full.spec.ts --project=desktop"
   },
   "dependencies": {
     "firebase": "^13.0.0",
@@ -18,6 +20,7 @@
     "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/node": "^24.13.3",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.18",

@@ -8,7 +8,7 @@ import {
   where,
 } from 'firebase/firestore'
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, NavLink, Route, Routes } from 'react-router-dom'
+import { Link, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import EnrollPoster from '../components/EnrollPoster'
 import EnrollQr from '../components/EnrollQr'
 import { useAuth } from '../lib/auth'
@@ -18,6 +18,7 @@ import CardEditor from './CardEditor'
 import Customers from './Customers'
 import Notices from './Notices'
 import PanelHome from './PanelHome'
+import SetupWizard from './SetupWizard'
 import SubscriptionBanner from '../components/SubscriptionBanner'
 import { accessLevel, isReadOnly } from '../lib/subscription'
 import '../styles/panel.css'
@@ -38,6 +39,8 @@ export default function Panel() {
   const { user } = useAuth()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [onboarded, setOnboarded] = useState(false)
+  // En el asistente el aviso de suscripción distrae (y dice que la tarjeta ya está lista).
+  const inWizard = useLocation().pathname.startsWith('/panel/configurar')
 
   useEffect(() => {
     if (!user) return
@@ -99,7 +102,7 @@ export default function Panel() {
       )}
 
       <main className="main-wide">
-        {state.status === 'ready' && state.businesses[0] && <SubscriptionBanner business={state.businesses[0]} />}
+        {state.status === 'ready' && state.businesses[0] && !inWizard && <SubscriptionBanner business={state.businesses[0]} />}
         {state.status === 'loading' && <LoadingScreen label="Cargando tu negocio…" />}
 
         {state.status === 'error' && (
@@ -119,6 +122,7 @@ export default function Panel() {
         {state.status === 'ready' && state.businesses[0] && (
           <Routes>
             <Route index element={<PanelHome business={state.businesses[0]} />} />
+            <Route path="configurar" element={<SetupWizard key={state.businesses[0].id} business={state.businesses[0]} />} />
             <Route path="qr" element={<QrPage business={state.businesses[0]} />} />
             <Route
               path="escaner"
@@ -144,6 +148,7 @@ export default function Panel() {
 }
 
 function CreateBusiness({ uid }: { uid: string }) {
+  const navigate = useNavigate()
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -169,6 +174,7 @@ function CreateBusiness({ uid }: { uid: string }) {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       })
+      navigate('/panel/configurar')
     } catch {
       setError('No pudimos crear el negocio. Intentá de nuevo.')
       setBusy(false)

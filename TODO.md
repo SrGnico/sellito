@@ -35,8 +35,9 @@
 - [x] Avisos desde el panel (Panel → Avisos): uno por día, solo a quienes aceptaron novedades
 - [x] Página `/soporte`
 - [x] Política sin datos personales a la vista (se informan a pedido)
-- [ ] Stepper de alta del negocio (1 diseño, 2 regla, 3 pago) → asistente de primeros pasos
-- [ ] Tests E2E (Playwright): landing, tarjeta de prueba, alta, diseño, PIN, sello
+- [x] Asistente de primeros pasos (`/panel/configurar`): logo y color → premio → datos → PIN → QR
+- [x] Tests E2E (Playwright): `npm run test:e2e` (públicas) y `npm run test:e2e:full` (alta completa; crea y borra un negocio real)
+- [ ] E2E: sumar un sello desde el escáner (necesita un negocio de prueba con suscripción)
 - [ ] Borrar de Storage las imágenes viejas que ya no se usan
 
 ### 4. Alta de cliente + Google Wallet

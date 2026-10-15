@@ -22,6 +22,14 @@ export default function PanelHome({ business }: { business: Business }) {
         </div>
       </div>
 
+      {!designed && !isReadOnly(level) && (
+        <section className="card card-pink setup" aria-labelledby="wizard-cta">
+          <h4 id="wizard-cta">Armá tu tarjeta en 3 minutos</h4>
+          <p style={{ margin: 0 }}>Te guiamos paso a paso: logo y color, premio, datos de tus clientes, escáner y QR.</p>
+          <Link className="btn btn-primary" to="configurar" style={{ alignSelf: 'flex-start' }}>Empezar</Link>
+        </section>
+      )}
+
       <SetupChecklist business={business} level={level} />
 
       {designed && <BusinessStats businessId={business.id} />}
@@ -93,7 +101,7 @@ function SetupChecklist({ business, level }: { business: Business; level: Access
   )
 
   const steps: Step[] = [
-    { id: 'design', title: 'Diseñá tu tarjeta', detail: 'Logo, color y premio.', done: enrollMissing(business).length === 0, to: 'tarjeta', action: 'Diseñar' },
+    { id: 'design', title: 'Diseñá tu tarjeta', detail: 'Logo, color y premio.', done: enrollMissing(business).length === 0, to: 'configurar', action: 'Diseñar' },
     {
       id: 'subscription',
       title: 'Activá tu suscripción',
