@@ -28,6 +28,21 @@ Meta: construirlo una vez y venderlo a muchos negocios. Cada negocio ve solo lo 
 | Landing de venta | Página aparte, separada de la app |
 | Ícono del sello | Imagen: galería de íconos predefinidos + opción de subir uno propio |
 
+## 2.1 Dominios
+
+Dominio: `misellito.com.ar` (NIC Argentina, DNS en Cloudflare, Hosting en Firebase).
+
+| Dirección | Qué sirve | Variable |
+|---|---|---|
+| `misellito.com.ar` | Landing de venta | `SITE_URL` |
+| `misellito.com.ar/c/{código}` | Alta de cliente de cada local (el link del QR) | `SITE_URL` |
+| `app.misellito.com.ar` | Panel de los negocios y escáner | `APP_URL` |
+| `api.misellito.com.ar` | Cloud Functions (Apple Wallet, Mercado Pago, escáner) | `API_URL` |
+
+- Las direcciones viven solo en variables de entorno: `web/.env.local` (`VITE_SITE_URL`, `VITE_APP_URL`, `VITE_API_URL`) y `functions/.env` (`SITE_URL`, `APP_URL`, `API_URL`). **Nunca escribirlas a mano en el código.**
+- Hasta conectar el dominio se usan las provisorias de Firebase. **Nada que se imprima o se emita en tarjetas puede usar `*.web.app` ni `*.cloudfunctions.net`**: el panel avisa "Todavía no lo imprimas" y oculta la descarga del QR mientras la dirección sea provisoria.
+- El `{código}` de alta tiene 6 caracteres, lo asigna la Function `ensureEnrollCode` y no cambia nunca (está impreso). Se guarda en `businesses/{id}.enrollCode` y en `enrollCodes/{código}` → `businessId`.
+
 ## 3. Piezas del sistema
 
 1. **Landing de venta** (separada).
@@ -40,7 +55,7 @@ Meta: construirlo una vez y venderlo a muchos negocios. Cada negocio ve solo lo 
 ## 4. Flujos
 
 ### 4.1 Alta del cliente
-1. Escanea el QR estático del local (apunta a `/alta/{businessId}`).
+1. Escanea el QR estático del local (apunta a `SITE_URL/c/{código}`).
 2. Completa los datos que ese negocio pidió.
 3. Una Cloud Function crea el documento de la tarjeta con un ID único.
 4. La web detecta el sistema operativo:
@@ -70,7 +85,7 @@ Meta: construirlo una vez y venderlo a muchos negocios. Cada negocio ve solo lo 
 - API REST. Una sola cuenta de emisor (issuer) de Sellito.
 - Cada negocio = una **clase** (class) de loyalty con su diseño. Cada cliente = un **objeto** (object).
 - Se actualiza modificando el objeto vía API.
-- **Pendiente de verificar:** que la cuenta de emisor se pueda registrar desde Argentina.
+- Cuenta de emisor registrada desde Argentina (Issuer ID en `functions/.env`).
 
 ### Apple Wallet
 - Archivos `.pkpass` generados con `passkit-generator` (Node).
@@ -178,8 +193,8 @@ sellito/
 
 ## 11. Pendientes por decidir o verificar
 
-- Verificar que se pueda crear la cuenta de emisor de Google Wallet desde Argentina.
-- Confirmar el dominio y el nombre en Instagram para "Sellito".
+- ~~Verificar que se pueda crear la cuenta de emisor de Google Wallet desde Argentina.~~ Confirmado (2026-10-14).
+- ~~Confirmar el dominio~~ `misellito.com.ar` (ver §2.1). Falta confirmar el nombre en Instagram.
 - Definir planes y precios (¿un plan único o por cantidad de clientes?).
 - Definir si habrá período de prueba gratis.
 - Política de datos de clientes finales (privacidad y términos).

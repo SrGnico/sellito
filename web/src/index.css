@@ -1,16 +1,84 @@
-:root {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
-  color: #1a1a1a;
-  background: #fafafa;
-}
-
-body {
-  margin: 0;
-}
+/* Tokens, base y componentes viven en styles/sellito-theme.css; acá solo layout global. */
+a.btn:not(.btn-ghost) { text-decoration: none; }
 
 main {
   max-width: 720px;
   margin: 0 auto;
   padding: 24px 16px;
 }
+
+main.main-wide { max-width: 1040px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- Panel ---------- */
+.home-grid { display: grid; gap: 24px; margin-top: 24px; align-items: start; }
+@media (min-width: 760px) { .home-grid { grid-template-columns: 360px minmax(0, 1fr); } }
+
+/* ---------- Editor de tarjeta ---------- */
+.editor { display: grid; gap: 24px; margin-top: 24px; }
+.editor-form { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.editor-form .card { gap: 16px; }
+@media (min-width: 900px) {
+  .editor { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
+  .editor-preview { position: sticky; top: 24px; order: 2; }
+}
+
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+.icon-option {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 72px; padding: 8px 4px; font-size: 13px; cursor: pointer;
+  background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-md);
+}
+.icon-option:has(input:checked) { background: var(--pink); box-shadow: var(--shadow-sm); font-weight: 500; }
+.icon-option:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.save-bar {
+  position: sticky; bottom: 0; z-index: var(--z-dropdown);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: 24px -16px -24px; padding: 12px 16px;
+  background: var(--cream); border-top: var(--border-width) solid var(--border);
+}
+
+/* ---------- Vista previa del Wallet (imita el frente de la tarjeta en Google Wallet) ---------- */
+.wallet-card {
+  margin: 0; width: 100%; max-width: 360px; overflow: hidden; text-align: center;
+  border: var(--border-width) solid var(--green); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+}
+.wallet-card-header { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px 16px 0; }
+.wallet-card-logo {
+  width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; object-fit: cover; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 600; font-size: 22px;
+}
+.wallet-card-issuer { font-size: var(--text-sm); font-weight: 500; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wallet-card-title { margin: 4px 16px 0; font-family: var(--font-display); font-weight: 600; font-size: var(--text-xl); line-height: 1.2; }
+.wallet-card-code { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 16px 0; font-size: 13px; font-weight: 500; letter-spacing: .04em; }
+.wallet-card-code svg { border-radius: 10px; padding: 6px; background: #fff; }
+.wallet-card-points { padding: 12px 16px 14px; }
+.wallet-card-label { display: block; font-size: 13px; }
+.wallet-card-value { display: block; font-size: var(--text-lg); font-weight: 600; }
+
+/* ---------- Vacíos y errores ---------- */
+.empty-state { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 32px 0; }
+.empty-state img { max-width: 100%; height: auto; }
+.empty-state p { margin: 0 0 8px; max-width: 360px; color: var(--text-soft); }
+
+/* ---------- Onboarding ---------- */
+.onboarding { max-width: 440px; margin: 0 auto; }
+.onboarding-top { display: flex; align-items: center; justify-content: space-between; min-height: 40px; margin-bottom: 16px; }
+.onboarding-dots { display: flex; gap: 8px; }
+.onboarding-dots span { width: 10px; height: 10px; border-radius: 50%; border: var(--border-width) solid var(--border); background: var(--surface); transition: width var(--dur-fast) var(--ease); }
+.onboarding-dots span.active { width: 28px; border-radius: var(--radius-full); background: var(--pink); }
+.onboarding-art { display: flex; justify-content: center; padding: 16px; background: var(--cream-deep); border-radius: 28px; }
+.onboarding-art img { max-width: 100%; height: auto; }
+.onboarding-actions { display: flex; gap: 12px; margin-top: 32px; }
+
+/* La pantalla de carga dentro de un <main> no necesita ocupar todo el alto. */
+main .loading-screen { min-height: 50vh; }
+
+/* Animaciones CSS dentro del SVG de sellos: girar y escalar desde el centro de cada sello. */
+.stamp-grid g { transform-box: fill-box; transform-origin: center; }

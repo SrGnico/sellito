@@ -1,0 +1,54 @@
+/* ==========================================================================
+   Sellito · movimiento y estados de carga
+   Usar junto con sellito-theme.css (necesita sus variables).
+   ========================================================================== */
+
+@keyframes sellito-spin { to { transform: rotate(360deg); } }
+@keyframes sellito-shimmer { to { background-position: -200% 0; } }
+@keyframes sellito-stamp {
+  0%   { opacity: 0; transform: scale(1.7) rotate(-12deg); }
+  60%  { opacity: 1; transform: scale(.92) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes sellito-pop { 0% { transform: scale(.96); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
+@keyframes sellito-fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* Spinner chico (puntos que giran). Hereda el color del texto.
+   <svg class="spinner" viewBox="0 0 24 24" aria-hidden="true">
+     <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3"
+             stroke-linecap="round" stroke-dasharray="0 5.65"/>
+   </svg> */
+.spinner { width: 24px; height: 24px; flex-shrink: 0; animation: sellito-spin 1.1s linear infinite; }
+.spinner-sm { width: 18px; height: 18px; }
+
+/* Botón con acción en curso: deshabilitado y con el mismo ancho */
+.btn[aria-busy="true"] { pointer-events: none; }
+
+/* Esqueleto de carga */
+.skeleton {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--cream-deep) 0%, var(--pink-tint) 50%, var(--cream-deep) 100%);
+  background-size: 200% 100%;
+  animation: sellito-shimmer 1.4s linear infinite;
+}
+.skeleton-circle { border-radius: 50%; }
+
+/* Barra de progreso
+   <div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+     <div class="progress-bar" style="width: 60%"></div>
+   </div> */
+.progress { height: 16px; overflow: hidden; background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-full); }
+.progress-bar { height: 100%; background: var(--pink); border-radius: var(--radius-full); transition: width var(--dur-base) var(--ease); }
+
+/* Pantalla de carga completa: usar sellito-assets/loader.svg */
+.loading-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-4); background: var(--bg); color: var(--text-soft); font-size: var(--text-sm); }
+
+/* Un sello nuevo que "se estampa" (al sumar un sello o canjear) */
+.stamp-in { animation: sellito-stamp 380ms var(--ease) both; }
+.pop { animation: sellito-pop 260ms var(--ease); }
+.fade-up { animation: sellito-fade-up var(--dur-base) var(--ease) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner, .skeleton, .stamp-in, .pop, .fade-up { animation: none; }
+  .progress-bar { transition: none; }
+}

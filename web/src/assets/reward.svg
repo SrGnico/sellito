@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" width="240" height="180" role="img" aria-label="Taza de café: premio listo">
+  <path d="M104 66 Q98 56 104 48 Q110 40 104 32M124 66 Q118 56 124 48 Q130 40 124 32M144 66 Q138 56 144 48 Q150 40 144 32" fill="none" stroke="#12372A" stroke-width="4" stroke-linecap="round"/>
+  <path d="M84 92 H168 L160 150 Q158 162 146 162 H106 Q94 162 92 150 Z" fill="#12372A"/>
+  <path d="M78 84 H162 L154 142 Q152 154 140 154 H100 Q88 154 86 142 Z" fill="#FF9EC4" stroke="#12372A" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M162 96 H174 Q188 96 188 110 Q188 124 174 124 H157" fill="none" stroke="#12372A" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="108" cy="112" r="4" fill="#12372A"/>
+  <circle cx="132" cy="112" r="4" fill="#12372A"/>
+  <path d="M110 124 Q120 134 130 124" fill="none" stroke="#12372A" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M64 160 H176" stroke="#12372A" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="50" cy="52" r="6" fill="#FF9EC4" stroke="#12372A" stroke-width="3"/>
+  <circle cx="204" cy="44" r="5" fill="#FFF4E0" stroke="#12372A" stroke-width="3"/>
+  <path d="M38 110v12M32 116h12" stroke="#12372A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M208 138v12M202 144h12" stroke="#12372A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M28 82l8-6" stroke="#12372A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M214 84l-8 -6" stroke="#12372A" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -37,7 +37,7 @@ service cloud.firestore {
       allow read: if isSuperadmin()
         || (signedIn() && resource.data.ownerUid == request.auth.uid);
 
-      // `subscription`, `scannerPinHash`, `googleClassId`, `appleTemplateRef` no se aceptan desde el cliente.
+      // `subscription`, `scannerPinHash`, `googleClassId`, `appleTemplateRef`, `enrollCode` no se aceptan desde el cliente.
       allow create: if signedIn()
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.keys().hasOnly(ownerEditableFields().concat(['ownerUid']))
@@ -65,6 +65,11 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if isSuperadmin() || (signedIn() && request.auth.uid == uid);
       allow write: if false;
+    }
+
+    // Códigos de alta (SITE_URL/c/{código} → businessId): solo Functions.
+    match /enrollCodes/{code} {
+      allow read, write: if false;
     }
 
     // PassKit web service: solo Functions.

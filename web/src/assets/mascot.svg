@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Sellito">
+  <circle cx="100" cy="100" r="96" fill="#FF9EC4"/>
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#12372A" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 14.36"/>
+  <circle cx="74" cy="88" r="9" fill="#12372A"/>
+  <circle cx="126" cy="88" r="9" fill="#12372A"/>
+  <path d="M66 116 Q100 150 134 116" fill="none" stroke="#12372A" stroke-width="9" stroke-linecap="round"/>
+</svg>

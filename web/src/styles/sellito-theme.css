@@ -1,0 +1,193 @@
+/* ==========================================================================
+   Sellito · tema (tokens + base + componentes)
+   Paleta B: rosa chicle, verde bosque y crema.
+   Fuentes: Fredoka (títulos) y DM Sans (texto). Cargarlas con:
+   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+   ========================================================================== */
+
+:root {
+  /* Marca */
+  --pink: #FF9EC4;
+  --pink-soft: #FFD3E4;
+  --pink-tint: #FFEAF2;
+  --green: #12372A;
+  --green-soft: #2D5A48;
+  --cream: #FFF4E0;
+  --cream-deep: #F6E7CB;
+  --field: #FFFBF3;
+
+  /* Semánticos (cada uno: fondo, texto, acento) */
+  --ok-bg: #DDF3E4;   --ok-fg: #14532D;   --ok: #2E8B57;
+  --err-bg: #FDE2E2;  --err-fg: #8A1C1C;  --err: #C23838;
+  --warn-bg: #FFEBC2; --warn-fg: #7A4A00; --warn: #E59A0B;
+  --info-bg: #DCEBFA; --info-fg: #0F3B66; --info: #3B82C4;
+
+  /* Roles (usar estos en la app, no los colores crudos) */
+  --bg: var(--cream);
+  --surface: var(--field);
+  --text: var(--green);
+  --text-soft: var(--green-soft);
+  --border: var(--green);
+  --disabled-bg: var(--cream-deep);
+  --disabled-border: #A9B8AE;
+  --disabled-text: #5E7A6C;
+  --placeholder: #4A6B5B;
+  --focus: var(--green);
+
+  /* Tipografía */
+  --font-display: 'Fredoka', 'Nunito', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --text-4xl: 48px;
+
+  /* Espaciado (base 4) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Formas */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+  --border-width: 2px;
+
+  /* Sombras "sticker": duras, sin desenfoque */
+  --shadow-sm: 0 3px 0 var(--green);
+  --shadow-md: 0 4px 0 var(--green);
+  --shadow-lg: 0 6px 0 var(--green);
+
+  /* Movimiento */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+
+  /* Capas */
+  --z-dropdown: 10;
+  --z-modal: 50;
+  --z-toast: 60;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.5;
+}
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0;
+}
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+a { color: var(--green); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  font-family: var(--font-body); font-weight: 500; font-size: var(--text-md);
+  min-height: 48px; padding: 0 22px;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  border: var(--border-width) solid var(--border); border-radius: var(--radius-md);
+  background: var(--cream); color: var(--green); box-shadow: var(--shadow-sm);
+  cursor: pointer; transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(3px); box-shadow: none; }
+.btn-primary { background: var(--green); color: var(--cream); box-shadow: 0 3px 0 var(--pink); }
+.btn-secondary { background: var(--pink); color: var(--green); }
+.btn-danger { background: var(--err); color: #FFFFFF; border-color: var(--err-fg); box-shadow: 0 3px 0 var(--err-fg); }
+.btn-ghost { background: transparent; border-color: transparent; box-shadow: none; text-decoration: underline; text-underline-offset: 4px; }
+.btn:disabled, .btn[aria-disabled="true"] {
+  background: var(--disabled-bg); color: var(--disabled-text); border-color: var(--disabled-border);
+  box-shadow: none; cursor: not-allowed; transform: none;
+}
+.btn-sm { min-height: 40px; padding: 0 16px; font-size: var(--text-sm); }
+.btn-lg { min-height: 56px; padding: 0 28px; font-size: var(--text-lg); }
+
+/* ---------- Campos ---------- */
+.label { display: block; font-weight: 500; font-size: var(--text-sm); margin-bottom: 6px; }
+.input, .textarea, .select {
+  display: block; width: 100%; min-height: 48px; padding: 0 14px;
+  font-family: var(--font-body); font-size: var(--text-md); color: var(--text);
+  background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-md);
+}
+.textarea { padding: 12px 14px; min-height: 96px; resize: vertical; }
+.input::placeholder, .textarea::placeholder { color: var(--placeholder); }
+.input[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--err); background: #FFF5F5; }
+.input:disabled, .textarea:disabled, .select:disabled {
+  background: var(--disabled-bg); border-color: var(--disabled-border); color: var(--disabled-text);
+}
+.help { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 13px; color: var(--text-soft); }
+.help-error { color: var(--err-fg); font-weight: 500; }
+.checkbox, .radio { width: 22px; height: 22px; accent-color: var(--green); margin: 0; }
+.switch {
+  width: 52px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: flex-start;
+  border: var(--border-width) solid var(--border); border-radius: var(--radius-full);
+  background: var(--cream-deep); cursor: pointer;
+}
+.switch[aria-checked="true"] { background: var(--green); justify-content: flex-end; }
+.switch .knob { width: 20px; height: 20px; margin: 0 3px; border-radius: 50%; background: var(--green); }
+.switch[aria-checked="true"] .knob { background: var(--cream); }
+
+/* ---------- Alertas (en la página) ---------- */
+.alert { display: flex; gap: var(--space-3); align-items: flex-start; padding: 14px 16px; border-radius: var(--radius-md); border: var(--border-width) solid; }
+.alert-title { display: block; font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+.alert-text { font-size: var(--text-sm); line-height: 1.4; }
+.alert-ok   { background: var(--ok-bg);   color: var(--ok-fg);   border-color: var(--ok); }
+.alert-err  { background: var(--err-bg);  color: var(--err-fg);  border-color: var(--err); }
+.alert-warn { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn); }
+.alert-info { background: var(--info-bg); color: var(--info-fg); border-color: var(--info); }
+
+/* ---------- Toasts ---------- */
+.toast-region { position: fixed; z-index: var(--z-toast); left: 16px; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 14px; align-items: center; pointer-events: none; }
+.toast {
+  pointer-events: auto; width: 100%; max-width: 420px;
+  display: flex; align-items: center; gap: var(--space-3); padding: 12px;
+  background: var(--cream); border: var(--border-width) solid var(--border); border-radius: 16px; box-shadow: var(--shadow-md);
+  animation: toast-in var(--dur-base) var(--ease);
+}
+.toast-brand { background: var(--pink); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Confirmación / diálogo ---------- */
+.scrim { position: fixed; inset: 0; z-index: var(--z-modal); background: rgba(18, 55, 42, .62); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.dialog {
+  width: 100%; max-width: 440px; padding: 24px; display: flex; flex-direction: column; gap: var(--space-3);
+  background: var(--cream); border: var(--border-width) solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
+}
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-2); }
+
+/* ---------- Insignias y tarjetas ---------- */
+.badge { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: var(--radius-full); border: var(--border-width) solid; font-weight: 500; font-size: 13px; }
+.badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.badge-ok   { background: var(--ok-bg);   color: var(--ok-fg);   border-color: var(--ok); }
+.badge-info { background: var(--info-bg); color: var(--info-fg); border-color: var(--info); }
+.badge-warn { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn); }
+.badge-err  { background: var(--err-bg);  color: var(--err-fg);  border-color: var(--err); }
+.card { padding: 20px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+.card-pink { background: var(--pink); }

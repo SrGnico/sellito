@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="96" height="96" role="img" aria-label="Cargando">
+  <style>
+    .body { transform-origin: 100px 100px; animation: pulse 1.2s ease-in-out infinite; }
+    .ring { transform-origin: 100px 100px; animation: spin 2.4s linear infinite; }
+    .eye { transform-box: fill-box; transform-origin: center; animation: blink 3.6s infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(.95); } }
+    @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+    @media (prefers-reduced-motion: reduce) { .body, .ring, .eye { animation: none; } }
+  </style>
+  <g class="body">
+    <circle cx="100" cy="100" r="96" fill="#FF9EC4"/>
+    <g class="ring">
+      <circle cx="100" cy="100" r="80" fill="none" stroke="#12372A" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 14.36"/>
+    </g>
+    <circle class="eye" cx="74" cy="88" r="9" fill="#12372A"/>
+    <circle class="eye" cx="126" cy="88" r="9" fill="#12372A"/>
+    <path d="M66 116 Q100 150 134 116" fill="none" stroke="#12372A" stroke-width="9" stroke-linecap="round"/>
+  </g>
+</svg>

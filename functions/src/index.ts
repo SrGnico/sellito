@@ -7,8 +7,11 @@ initializeApp();
 // São Paulo: la región más cercana a Argentina. El frontend usa la misma (web/src/lib/firebase.ts).
 setGlobalOptions({ region: "southamerica-east1", maxInstances: 10 });
 
-// Chequeo de vida para probar el deploy. Las funciones reales van en
-// cards/ (alta, sellos, canje), wallet/ (google, apple), images/ y payments/.
+export { createCard, ensureEnrollCode, getEnrollInfo } from "./cards/enroll";
+export { resyncCards, testSetStamps } from "./cards/sync";
+export { syncGoogleClass } from "./wallet/sync";
+
+// Chequeo de vida para probar el deploy.
 export const health = onRequest((_req, res) => {
   res.json({ ok: true, service: "sellito-functions" });
 });

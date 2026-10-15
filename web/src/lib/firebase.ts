@@ -1,8 +1,9 @@
 import { initializeApp } from 'firebase/app'
 import { connectAuthEmulator, getAuth } from 'firebase/auth'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
-import { connectFunctionsEmulator, getFunctions } from 'firebase/functions'
+import { connectFunctionsEmulator, getFunctions, httpsCallable, httpsCallableFromURL } from 'firebase/functions'
 import { connectStorageEmulator, getStorage } from 'firebase/storage'
+import { API_URL } from './urls'
 
 const env = import.meta.env
 
@@ -28,4 +29,12 @@ if (env.VITE_USE_EMULATORS === 'true') {
   connectFirestoreEmulator(db, '127.0.0.1', 8080)
   connectFunctionsEmulator(functions, '127.0.0.1', 5001)
   connectStorageEmulator(storage, '127.0.0.1', 9199)
+}
+
+// Llama a una Function por API_URL (api.misellito.com.ar) si está configurada; si no, por la
+// dirección por defecto de Firebase. Con emuladores siempre va al emulador.
+export function callable<Req, Res>(name: string) {
+  return API_URL && env.VITE_USE_EMULATORS !== 'true'
+    ? httpsCallableFromURL<Req, Res>(functions, `${API_URL}/${name}`)
+    : httpsCallable<Req, Res>(functions, name)
 }

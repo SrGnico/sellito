@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" width="240" height="180" role="img" aria-label="Tarjeta con sellos vacíos">
+  <g transform="rotate(-6 110 88)">
+    <rect x="46" y="46" width="140" height="96" rx="16" fill="#12372A"/>
+    <rect x="40" y="40" width="140" height="96" rx="16" fill="#FF9EC4" stroke="#12372A" stroke-width="4"/>
+    <g fill="none" stroke="#12372A" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 6">
+      <circle cx="72" cy="74" r="12"/>
+      <circle cx="110" cy="74" r="12"/>
+      <circle cx="148" cy="74" r="12"/>
+      <circle cx="72" cy="108" r="12"/>
+      <circle cx="110" cy="108" r="12"/>
+      <circle cx="148" cy="108" r="12"/>
+    </g>
+  </g>
+  <circle cx="192" cy="134" r="26" fill="#FFF4E0" stroke="#12372A" stroke-width="4"/>
+  <circle cx="183" cy="129" r="3.5" fill="#12372A"/>
+  <circle cx="201" cy="129" r="3.5" fill="#12372A"/>
+  <path d="M182 139 Q192 148 202 139" fill="none" stroke="#12372A" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M28 26v14M21 33h14" stroke="#12372A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M208 86v10M203 91h10" stroke="#12372A" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="214" cy="48" r="6" fill="#FF9EC4" stroke="#12372A" stroke-width="3"/>
+</svg>

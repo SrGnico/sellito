@@ -1,5 +1,12 @@
 import { BrowserRouter, Link, Route, Routes, useParams } from 'react-router-dom'
+import AuthProvider from './components/AuthProvider'
+import RequireAuth from './components/RequireAuth'
 import { app } from './lib/firebase'
+import Enroll from './pages/Enroll'
+import Login from './pages/Login'
+import NotFound from './pages/NotFound'
+import Panel from './pages/Panel'
+import { APP_NAME } from './lib/urls'
 
 // Pantallas provisorias: cada una se reemplaza en su paso del orden de construcción.
 function Placeholder({ title }: { title: string }) {
@@ -18,31 +25,37 @@ function Placeholder({ title }: { title: string }) {
 function Home() {
   return (
     <main>
-      <h1>Sellito</h1>
-      <p>Conectado a Firebase: <code>{app.options.projectId}</code></p>
-      <ul>
-        <li><Link to="/login">Login negocio</Link></li>
-        <li><Link to="/panel">Panel</Link></li>
-        <li><Link to="/alta/demo">Alta cliente (demo)</Link></li>
-        <li><Link to="/escaner/demo">Escáner (demo)</Link></li>
-        <li><Link to="/admin">Super admin</Link></li>
-      </ul>
+      <h1>{APP_NAME}</h1>
+      <div className="alert alert-ok" role="status" style={{ margin: '24px 0' }}>
+        <div>
+          <span className="alert-title">Conectado a Firebase</span>
+          <span className="alert-text">Proyecto: <code>{app.options.projectId}</code></span>
+        </div>
+      </div>
+      <div className="card" style={{ gap: 12 }}>
+        <Link className="btn btn-primary" to="/login">Login negocio</Link>
+        <Link className="btn" to="/panel">Panel</Link>
+                <Link className="btn" to="/escaner/demo">Escáner (demo)</Link>
+        <Link className="btn btn-ghost" to="/admin">Super admin</Link>
+      </div>
     </main>
   )
 }
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Placeholder title="Login" />} />
-        <Route path="/panel/*" element={<Placeholder title="Panel del negocio" />} />
-        <Route path="/alta/:businessId" element={<Placeholder title="Alta de cliente" />} />
-        <Route path="/escaner/:businessId" element={<Placeholder title="Escáner" />} />
-        <Route path="/admin/*" element={<Placeholder title="Super admin" />} />
-        <Route path="*" element={<Placeholder title="No encontrado" />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/panel/*" element={<RequireAuth><Panel /></RequireAuth>} />
+          <Route path="/c/:code" element={<Enroll />} />
+          <Route path="/escaner/:businessId" element={<Placeholder title="Escáner" />} />
+          <Route path="/admin/*" element={<Placeholder title="Super admin" />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }

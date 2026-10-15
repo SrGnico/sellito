@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" width="240" height="180" role="img" aria-label="Suscripción vencida">
+  <rect x="56" y="46" width="140" height="98" rx="16" fill="#12372A"/>
+  <rect x="50" y="40" width="140" height="98" rx="16" fill="#FF9EC4" stroke="#12372A" stroke-width="4"/>
+  <path d="M104 86 V76 Q104 62 120 62 Q136 62 136 76 V86" fill="none" stroke="#12372A" stroke-width="5" stroke-linecap="round"/>
+  <rect x="98" y="84" width="44" height="36" rx="9" fill="#12372A"/>
+  <circle cx="120" cy="98" r="5" fill="#FF9EC4"/>
+  <path d="M120 100v10" stroke="#FF9EC4" stroke-width="4" stroke-linecap="round"/>
+  <path d="M26 34v14M19 41h14" stroke="#12372A" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="214" cy="62" r="6" fill="#FFF4E0" stroke="#12372A" stroke-width="3"/>
+  <path d="M210 128v10M205 133h10" stroke="#12372A" stroke-width="3" stroke-linecap="round"/>
+</svg>
