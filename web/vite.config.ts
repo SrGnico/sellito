@@ -43,10 +43,29 @@ function scannerManifest(appName: string): Plugin {
   }
 }
 
+// robots.txt y sitemap.xml con VITE_SITE_URL (las direcciones nunca se escriben a mano).
+// La app (panel, escáner, altas) no se indexa: lo marca src/lib/seo.ts con <meta name="robots">.
+function seoFiles(siteUrl: string): Plugin {
+  const site = siteUrl.replace(/\/+$/, '')
+  const robots = `User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /admin\nDisallow: /escaner\nDisallow: /c/\n\nSitemap: ${site}/sitemap.xml\n`
+  const pages = ['/', '/privacidad', '/terminos']
+  const sitemap =
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    pages.map((p) => `  <url><loc>${site}${p}</loc></url>`).join('\n') +
+    `\n</urlset>\n`
+  return {
+    name: 'seo-files',
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots })
+      this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemap })
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   return {
-    plugins: [react(), scannerManifest(env.VITE_APP_NAME || 'Sellito')],
+    plugins: [react(), scannerManifest(env.VITE_APP_NAME || 'Sellito'), seoFiles(env.VITE_SITE_URL || '')],
   }
 })

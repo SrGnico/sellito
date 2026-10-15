@@ -3,6 +3,8 @@ import step1 from '../assets/onboarding-1-disena.svg'
 import step2 from '../assets/onboarding-2-wallet.svg'
 import step3 from '../assets/onboarding-3-escanea.svg'
 import CardPreview from '../components/CardPreview'
+import DemoCard from '../components/DemoCard'
+import DemoVideo from '../components/DemoVideo'
 import { SiteFooter, SiteHeader } from '../components/SiteChrome'
 import { RESPONSIBLE } from '../content/legal'
 import type { CardConfig } from '../lib/cardDesign'
@@ -61,7 +63,7 @@ export default function Landing() {
             </ul>
             <div className="hero-actions">
               <a className="btn btn-lg btn-primary" href={signupUrl}>Crear mi tarjeta</a>
-              <a className="btn btn-lg" href="#como-funciona">Cómo funciona</a>
+              <a className="btn btn-lg" href="#probala">Probala en tu celular</a>
             </div>
             <p className="hero-note">Diseñar tu tarjeta es gratis. Pagás recién cuando empezás a sumar sellos.</p>
           </div>
@@ -111,6 +113,10 @@ export default function Landing() {
             </li>
           </ol>
         </section>
+
+        <DemoVideo />
+
+        <DemoCard />
 
         {/* ---------- La lista es tuya ---------- */}
         <section className="section leads">

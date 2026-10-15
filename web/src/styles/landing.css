@@ -127,3 +127,24 @@
 .hero-card .card-swap .wallet-card { transform: none; }
 .hero-card > .card-swap { transform: rotate(2deg); }
 @media (prefers-reduced-motion: reduce) { .hero-card .card-swap { animation: none; } }
+
+/* Probala vos (tarjeta de ejemplo) */
+.demo { display: grid; gap: 36px; align-items: center; }
+@media (min-width: 900px) { .demo { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); } }
+.demo h2 { text-align: left; }
+.demo-card { display: flex; justify-content: center; }
+.demo-card .wallet-card { width: 320px; max-width: 100%; transform: rotate(-2deg); box-shadow: var(--shadow-lg); }
+.demo-qr { display: flex; align-items: center; gap: 16px; margin-top: 24px; }
+.demo-qr img { padding: 10px; background: #fff; border: var(--border-width) solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); flex-shrink: 0; }
+.demo-qr p { margin: 0; color: var(--text-soft); max-width: 240px; }
+.demo-mobile { display: none; margin-top: 24px; }
+/* En el celular: botón directo (escanear un QR en tu propia pantalla no sirve). */
+@media (max-width: 760px), (pointer: coarse) {
+  .demo-mobile { display: inline-flex; }
+  .demo-qr { display: none; }
+}
+
+/* Video */
+.video-section { text-align: center; }
+.video-frame { margin: 32px auto 0; max-width: 900px; border: var(--border-width) solid var(--border); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-lg); background: var(--green); }
+.video-frame video { display: block; width: 100%; height: auto; }

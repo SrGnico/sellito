@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { STUDIO } from '../content/brand'
 import { RESPONSIBLE } from '../content/legal'
 import { APP_NAME, APP_URL, SITE_URL } from '../lib/urls'
 import Mascot from './Mascot'
@@ -37,7 +38,8 @@ export function SiteFooter() {
         <Link to="/terminos">Términos</Link>
       </nav>
       <p className="site-footer-legal">
-        © {YEAR} {APP_NAME} · {RESPONSIBLE.name} · CUIT {RESPONSIBLE.cuit}
+        © {YEAR} {APP_NAME} · {RESPONSIBLE.name} · CUIT {RESPONSIBLE.cuit} · Diseñado y desarrollado por{' '}
+        <a href={STUDIO.url} target="_blank" rel="noopener">{STUDIO.name}</a>
       </p>
     </footer>
   )

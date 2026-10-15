@@ -20,6 +20,7 @@ export type BusinessDoc = {
   askFields?: { name: boolean; phone: boolean; email: boolean };
   googleClassId?: string;
   enrollCode?: string;
+  demo?: boolean; // tarjeta de ejemplo de la landing (Sellito), no es un negocio real
   scannerPinHash?: string;
   scannerPinVersion?: number;
   subscription?: Subscription;

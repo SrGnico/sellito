@@ -10,6 +10,8 @@ import { authErrorMessage, useAuth } from '../lib/auth'
 import { auth } from '../lib/firebase'
 import Mascot from '../components/Mascot'
 import Spinner from '../components/Spinner'
+import { STUDIO } from '../content/brand'
+import { APP_NAME, SITE_URL } from '../lib/urls'
 
 type Mode = 'login' | 'signup'
 
@@ -138,6 +140,10 @@ export default function Login() {
         >
           {isLogin ? 'Creá una' : 'Iniciá sesión'}
         </button>
+      </p>
+      <p className="help" style={{ marginTop: 32, textAlign: 'center' }}>
+        <a href={SITE_URL}>{APP_NAME}</a> · Diseñado y desarrollado por{' '}
+        <a href={STUDIO.url} target="_blank" rel="noopener">{STUDIO.name}</a>
       </p>
     </main>
   )

@@ -143,7 +143,7 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
       const barcodeValue = await reserveCardCode(db(), tx, businessId, cardRef.id);
       const data: CardDoc = {
         customer,
-        stamps: 0,
+        stamps: b.demo ? 1 : 0, // la tarjeta de ejemplo de la landing arranca con un sello de regalo
         rewardsAvailable: 0,
         rewardsRedeemed: 0,
         barcodeValue,
@@ -166,7 +166,7 @@ export const createCard = onCall({ secrets: [walletKey], memory: "512MiB" }, asy
     // Apple: el .pkpass se arma al bajarlo (applePass/download), con el token de esta tarjeta.
     if (platform === "apple") return { pkpassUrl: appleDownloadUrl(businessId, cardRef.id, card.appleAuthToken!) };
 
-    const heroUrl = await new StampImages(businessId, b).urlFor(0);
+    const heroUrl = await new StampImages(businessId, b).urlFor(card.stamps);
     const objectId = await insertLoyaltyObject(businessId, cardRef.id, b, card, heroUrl);
     await cardRef.update({ googleObjectId: objectId });
 

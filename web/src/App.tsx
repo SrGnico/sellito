@@ -1,4 +1,5 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import AuthProvider from './components/AuthProvider'
 import RequireAuth from './components/RequireAuth'
 import Admin from './pages/Admin'
@@ -10,12 +11,14 @@ import NotFound from './pages/NotFound'
 import Panel from './pages/Panel'
 import Scanner from './pages/Scanner'
 import ScannerLauncher from './pages/ScannerLauncher'
+import { updateRobots } from './lib/seo'
 import { isSiteHost } from './lib/urls'
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <RobotsTag />
         <Routes>
           {/* misellito.com.ar muestra la landing; app.misellito.com.ar (y localhost) van al panel. */}
           <Route path="/" element={isSiteHost() ? <Landing /> : <Navigate to="/panel" replace />} />
@@ -33,4 +36,11 @@ export default function App() {
       </BrowserRouter>
     </AuthProvider>
   )
+}
+
+// Marca cada página como indexable o no según dónde estamos (ver lib/seo.ts).
+function RobotsTag() {
+  const { pathname } = useLocation()
+  useEffect(() => updateRobots(pathname), [pathname])
+  return null
 }
