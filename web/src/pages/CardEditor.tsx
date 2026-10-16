@@ -1,3 +1,4 @@
+import BirthdayIcon from '../components/BirthdayIcon'
 import { DEFAULT_BIRTHDAY } from '../lib/birthday'
 import BirthdaySettings from '../components/BirthdaySettings'
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore'
@@ -303,7 +304,7 @@ export default function CardEditor({ business, readOnly = false }: { business: B
           </section>
 
           <section className="card">
-            <h4>Regalo de cumpleaños 🎂</h4>
+            <h4 className="h-with-icon"><BirthdayIcon size={28} /> Regalo de cumpleaños</h4>
             <BirthdaySettings
               value={draft.birthday ?? DEFAULT_BIRTHDAY}
               onChange={(birthday) => update({ birthday })}

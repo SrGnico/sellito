@@ -31,7 +31,7 @@ export const FILTERS: { id: CustomerFilter; label: string }[] = [
   { id: 'reward', label: 'Con premio disponible' },
   { id: 'inactive', label: `Inactivos hace más de ${INACTIVE_DAYS} días` },
   { id: 'new', label: 'Nuevos esta semana' },
-  { id: 'birthday', label: 'Cumplen este mes 🎂' },
+  { id: 'birthday', label: 'Cumplen este mes' },
 ]
 
 // Mes actual en Argentina ("MM"), para el filtro de cumpleaños (igual que functions/src/birthday/rules.ts).

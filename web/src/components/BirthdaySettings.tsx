@@ -85,7 +85,7 @@ export default function BirthdaySettings({ value, onChange, askBirthday, onAskBi
             </div>
           )}
           <p className="help" style={{ margin: 0 }}>
-            El aviso le llega solo a quien aceptó recibir novedades. En el escáner vas a ver “🎂 Está de cumple” y entregás el regalo
+            El aviso le llega solo a quien aceptó recibir novedades. En el escáner vas a ver “¡Está de cumple!” y entregás el regalo
             con un toque (una vez por año, sin tocar sus sellos).
           </p>
           {!askBirthday && (

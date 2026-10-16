@@ -1,3 +1,4 @@
+import BirthdayIcon from '../components/BirthdayIcon'
 import { APP_URL } from '../lib/urls'
 import QrScanner from 'qr-scanner'
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
@@ -455,7 +456,7 @@ function ScannerView({
             <div className="scanner-center" role="status" style={{ flexDirection: 'column' }}>
               {view.action === 'birthday' ? (
                 <>
-                  <div className="scanner-big stamp-in" aria-hidden="true">🎂</div>
+                  <div className="stamp-in"><BirthdayIcon size={120} /></div>
                   <h2>¡Regalo de cumple entregado!</h2>
                   <p style={{ margin: 0 }}>{view.card.name ? `${view.card.name}: ` : ''}{view.card.birthday?.gift}. Sus sellos siguen igual.</p>
                 </>
@@ -605,7 +606,7 @@ function CardResult({
       <h3>{card.name ?? 'Cliente'}</h3>
       {bday && (
         <div className="alert alert-info birthday-alert" role="status">
-          <span aria-hidden="true" style={{ fontSize: 28 }}>🎂</span>
+          <BirthdayIcon size={40} />
           <div style={{ flex: 1 }}>
             <span className="alert-title">¡Está de cumple!</span>
             <span className="alert-text">

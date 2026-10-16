@@ -280,7 +280,7 @@ export default function Enroll() {
                 <p className="help help-error" id={`enroll-${f.key}-error`}>{f.error}</p>
               ) : (
                 f.key === 'birthday' && (
-                  <p className="help">{info.birthdayPerk ? `🎂 ${info.birthdayPerk}` : `Para que ${info.name} te salude en tu día.`}</p>
+                  <p className="help">{info.birthdayPerk ?? `Para que ${info.name} te salude en tu día.`}</p>
                 )
               )}
             </div>

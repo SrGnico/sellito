@@ -85,7 +85,7 @@ export default function Notices({ business }: { business: Business }) {
         un producto nuevo. Sin WhatsApp ni mails.
       </p>
       <p className="help" style={{ marginTop: 0 }}>
-        🎂 Los saludos de cumpleaños salen solos y no cuentan para el límite de un aviso por día. Se configuran en{' '}
+        Los saludos de cumpleaños salen solos y no cuentan para el límite de un aviso por día. Se configuran en{' '}
         <Link to="/panel/tarjeta">Tarjeta → Regalo de cumpleaños</Link>.
       </p>
 

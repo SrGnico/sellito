@@ -1,3 +1,4 @@
+import BirthdayIcon from '../components/BirthdayIcon'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import step1 from '../assets/onboarding-1-disena.svg'
 import step2 from '../assets/onboarding-2-wallet.svg'
@@ -248,7 +249,7 @@ export default function Landing() {
               <p>Clientes nuevos, sellos del mes y premios canjeados, de un vistazo.</p>
             </article>
             <article className="card feature-wide">
-              <span className="feature-emoji" aria-hidden="true">🎂</span>
+              <span className="feature-emoji"><BirthdayIcon size={52} /></span>
               <div>
                 <h3>Saluda sola en los cumpleaños</h3>
                 <p>

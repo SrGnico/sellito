@@ -314,10 +314,14 @@
 .your-card { margin-inline: auto !important; }
 /* Función destacada a lo ancho (saludo de cumpleaños) */
 .features .feature-wide { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 18px; background: var(--pink-tint); }
-.feature-emoji { font-size: 44px; line-height: 1; flex-shrink: 0; }
+.feature-emoji {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 84px; height: 84px; border-radius: 50%;
+  background: var(--surface); border: var(--border-width) solid var(--border); box-shadow: var(--shadow-sm);
+}
 .features .feature-wide > div { display: flex; flex-direction: column; gap: 8px; }
 /* En el celular: la torta arriba y el texto a todo el ancho. */
 @media (max-width: 600px) {
   .features .feature-wide { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .feature-emoji { font-size: 36px; }
+  .feature-emoji { width: 68px; height: 68px; }
+  .feature-emoji svg { width: 44px; height: 44px; }
 }
