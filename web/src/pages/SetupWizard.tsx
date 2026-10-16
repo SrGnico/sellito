@@ -203,20 +203,7 @@ export default function SetupWizard({ business }: { business: Business }) {
             <section className="card">
               <h2>Diseño de la tarjeta</h2>
               <p className="help" style={{ marginTop: 0 }}>El sello que se marca en cada visita y una imagen de fondo, si querés.</p>
-              <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
-                <legend className="label">Ícono del sello</legend>
-                <div className="icon-grid">
-                  <IconOption icon={CHECK_ICON} checked={!draft.stampIconId && !draft.stampIconUrl}
-                    onSelect={() => update({ stampIconId: undefined, stampIconUrl: undefined })} />
-                  {STAMP_ICONS.map((icon) => (
-                    <IconOption key={icon.id} icon={icon} checked={draft.stampIconId === icon.id && !draft.stampIconUrl}
-                      onSelect={() => update({ stampIconId: icon.id, stampIconUrl: undefined })} />
-                  ))}
-                </div>
-              </fieldset>
-              <ImageField id="wz-stamp-icon" label="O subí tu propio ícono" help="Cuadrado, PNG con fondo transparente."
-                businessId={business.id} kind="stamp" value={draft.stampIconUrl}
-                onChange={(stampIconUrl) => update({ stampIconUrl, stampIconId: stampIconUrl ? undefined : draft.stampIconId })} />
+              <StampIconPicker businessId={business.id} config={draft} onChange={update} />
               <ImageField id="wz-banner" label="Imagen de fondo (opcional)" help="Horizontal, ideal 1032 × 336 px. Va detrás de los sellos."
                 businessId={business.id} kind="banner" value={draft.bannerUrl} onChange={(bannerUrl) => update({ bannerUrl })} />
             </section>
@@ -366,6 +353,59 @@ function StablePreview({ config, filled, platform }: { config: CardConfig; fille
         </div>
       ))}
     </div>
+  )
+}
+
+// Íconos del sello: se ven unos pocos y el resto se despliega. La imagen propia queda guardada aparte
+// (customStampUrl): elegir un ícono no la borra, y se puede volver a ella con un toque.
+const VISIBLE_ICONS = 6
+
+function StampIconPicker({ businessId, config, onChange }: { businessId: string; config: CardConfig; onChange: (p: Partial<CardConfig>) => void }) {
+  const custom = config.customStampUrl
+  const usingCustom = Boolean(config.stampIconUrl)
+  const first = STAMP_ICONS.slice(0, VISIBLE_ICONS)
+  const rest = STAMP_ICONS.slice(VISIBLE_ICONS)
+  // Si el ícono elegido está entre los de abajo, arranca desplegado para que se vea.
+  const [open, setOpen] = useState(() => !usingCustom && rest.some((i) => i.id === config.stampIconId))
+  const preset = (icon: StampIcon) => (
+    <IconOption key={icon.id} icon={icon} checked={!usingCustom && config.stampIconId === icon.id}
+      onSelect={() => onChange({ stampIconId: icon.id, stampIconUrl: undefined })} />
+  )
+
+  return (
+    <>
+      <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+        <legend className="label">Ícono del sello</legend>
+        <div className="icon-grid">
+          {custom && (
+            <label className="icon-option">
+              <input className="sr-only" type="radio" name="stamp-icon" checked={usingCustom}
+                onChange={() => onChange({ stampIconUrl: custom, stampIconId: undefined })} />
+              <img src={custom} alt="" width={28} height={28} style={{ borderRadius: '50%', objectFit: 'cover' }} />
+              Tu imagen
+            </label>
+          )}
+          <IconOption icon={CHECK_ICON} checked={!usingCustom && !config.stampIconId}
+            onSelect={() => onChange({ stampIconId: undefined, stampIconUrl: undefined })} />
+          {first.map(preset)}
+        </div>
+        <div id="more-icons" className={open ? 'icon-more open' : 'icon-more'} inert={!open}>
+          <div>
+            <div className="icon-grid">{rest.map(preset)}</div>
+          </div>
+        </div>
+        <button className="btn btn-ghost btn-sm icon-more-toggle" type="button" aria-expanded={open} aria-controls="more-icons"
+          onClick={() => setOpen((o) => !o)}>
+          {open ? 'Ver menos' : `Ver ${rest.length} íconos más`}
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+      </fieldset>
+      <ImageField id="wz-stamp-icon" label={custom ? 'Tu imagen como sello' : 'O subí tu propio ícono'}
+        help="Cuadrado, PNG con fondo transparente. Queda guardada aunque elijas otro ícono." businessId={businessId} kind="stamp" value={custom}
+        onChange={(url) => onChange(url ? { customStampUrl: url, stampIconUrl: url, stampIconId: undefined } : { customStampUrl: undefined, stampIconUrl: undefined })} />
+    </>
   )
 }
 

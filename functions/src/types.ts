@@ -12,7 +12,8 @@ export type BusinessDoc = {
     bgColor?: string;
     textColor?: string;
     stampIconId?: string;
-    stampIconUrl?: string;
+    stampIconUrl?: string; // imagen propia en uso como sello
+    customStampUrl?: string; // imagen propia subida: se conserva aunque elija un ícono de la lista
   };
   // itemSingular/itemPlural: lo que se cuenta ("café" / "cafés"), para "Te faltan 3 cafés".
   // conditions: reglas del negocio para sumar sellos ("un sello por compra mayor a $5.000"), opcional.

@@ -59,7 +59,7 @@ test('alta de un negocio nuevo con el asistente', async ({ page, isMobile }) => 
   test.skip(isMobile && !process.env.E2E_SHOTS, 'Una vez alcanza')
   const shot = (name: string) =>
     process.env.E2E_SHOTS ? page.screenshot({ path: `${process.env.E2E_SHOTS}/${test.info().project.name}-${name}.png`, fullPage: true }) : undefined
-  const email = `e2e+${Date.now()}@misellito.com.ar`
+  const email = `e2e+${Date.now()}-${test.info().project.name}@misellito.com.ar`
 
   await page.goto('/login')
   await page.getByRole('button', { name: 'Creá una' }).click()
@@ -97,13 +97,23 @@ test('alta de un negocio nuevo con el asistente', async ({ page, isMobile }) => 
 
   // 2. Diseño: ícono del sello.
   await expect(page.getByRole('heading', { name: 'Diseño de la tarjeta' })).toBeVisible()
+  // Imagen propia como sello; elegir un ícono no la borra.
+  await page.locator('input[type=file]').first().setInputFiles(LOGO)
+  await expect(page.getByText('Tu imagen', { exact: true })).toBeVisible()
   await page.getByText('Estrella').click()
+  await expect(page.getByText('Tu imagen', { exact: true })).toBeVisible()
+  // Desplegable con el resto de los íconos.
+  await expect(page.locator('#more-icons')).toHaveAttribute('inert')
+  await page.getByRole('button', { name: /íconos más/ }).click()
+  await page.getByText('Mate', { exact: true }).click()
   await shot('2-diseno')
   await page.getByRole('button', { name: 'Siguiente' }).click()
 
   // 2. Premio: con la sugerencia de descuento y una condición.
   await expect(page.getByRole('heading', { name: 'El premio' })).toBeVisible()
   await page.getByRole('button', { name: '20% de descuento' }).click()
+  // El último sello dice el premio, no "GRATIS".
+  await expect(page.locator('.stamp-grid text').filter({ hasText: '20%' }).first()).toBeAttached()
   await page.getByLabel('Condiciones (opcional)').fill('Un sello por compra mayor a $5.000')
   await page.getByRole('button', { name: 'Siguiente' }).click()
 

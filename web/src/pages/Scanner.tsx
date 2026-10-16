@@ -613,6 +613,7 @@ function CardResult({
           textColor={autoTextColor(bg)}
           stampIconId={business.design.stampIconId}
           stampIconUrl={business.design.stampIconUrl}
+          rewardText={business.rewardText}
         />
       </div>
       <p style={{ margin: 0, fontWeight: 500 }}>

@@ -5,7 +5,7 @@ import { getStorage } from "firebase-admin/storage";
 import { logger } from "firebase-functions";
 import { APP_NAME } from "../config";
 import type { BusinessDoc } from "../types";
-import { CHECK_ICON, STAMP_ICONS } from "./stampIcons";
+import { CHECK_ICON, rewardBadge, STAMP_ICONS } from "./stampIcons";
 
 // Imagen de sellos de la tarjeta: heroImage de Google Wallet (1032×336) y strip de Apple Wallet
 // (1125×432 en @3x). MISMA disposición que web/src/components/StampGrid.tsx: si cambia una, cambiar la otra.
@@ -42,6 +42,7 @@ type StampDesign = {
   iconId?: string;
   iconUrl?: string;
   bannerUrl?: string;
+  badge: string; // texto del último sello (rewardBadge)
 };
 
 export function designOf(b: BusinessDoc): StampDesign {
@@ -53,6 +54,7 @@ export function designOf(b: BusinessDoc): StampDesign {
     iconId: b.design?.stampIconId,
     iconUrl: b.design?.stampIconUrl,
     bannerUrl: b.design?.bannerUrl,
+    badge: rewardBadge(b.rule?.rewardText),
   };
 }
 
@@ -158,7 +160,7 @@ export function buildSvg(d: StampDesign, filled: number, banner: string | null, 
     if (isLast) {
       parts.push(
         `<text x="${cx}" y="${cy + r * 0.14}" text-anchor="middle" fill="${isFilled ? d.bg : d.fg}" ` +
-          `font-family="Fredoka" font-weight="600" font-size="${r * 0.4}">GRATIS</text>`,
+          `font-family="Fredoka" font-weight="600" font-size="${r * (d.badge.length <= 3 ? 0.55 : 0.4)}">${esc(d.badge)}</text>`,
       );
     } else if (isFilled && icon) {
       parts.push(

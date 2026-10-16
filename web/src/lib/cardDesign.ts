@@ -10,6 +10,7 @@ export type CardConfig = {
   bgColor: string
   stampIconId?: string
   stampIconUrl?: string
+  customStampUrl?: string
   stampsRequired: number
   rewardText: string
   itemSingular: string
@@ -40,6 +41,7 @@ export function cardConfigFrom(b: Business): CardConfig {
     bgColor: b.design?.bgColor ?? DEFAULT_CARD.bgColor,
     stampIconId: b.design?.stampIconId,
     stampIconUrl: b.design?.stampIconUrl,
+    customStampUrl: b.design?.customStampUrl ?? b.design?.stampIconUrl,
     stampsRequired: b.rule?.stampsRequired ?? DEFAULT_CARD.stampsRequired,
     rewardText: b.rule?.rewardText ?? DEFAULT_CARD.rewardText,
     itemSingular: b.rule?.itemSingular ?? '',
@@ -77,6 +79,7 @@ export function businessFieldsFrom(c: CardConfig) {
       bgColor: c.bgColor,
       stampIconId: c.stampIconId,
       stampIconUrl: c.stampIconUrl,
+      customStampUrl: c.customStampUrl,
     }),
     rule: {
       stampsRequired: Math.round(c.stampsRequired),

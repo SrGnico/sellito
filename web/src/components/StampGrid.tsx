@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import { CHECK_ICON, stampIconById } from '../lib/stampIcons'
+import { CHECK_ICON, rewardBadge, stampIconById } from '../lib/stampIcons'
 import { APP_NAME } from '../lib/urls'
 import StampIconSvg from './StampIconSvg'
 
@@ -19,9 +19,11 @@ type Props = {
   stampIconId?: string
   stampIconUrl?: string
   bannerUrl?: string
+  rewardText?: string // define el texto del último sello (rewardBadge)
 }
 
-export default function StampGrid({ total, filled, bgColor, textColor, stampIconId, stampIconUrl, bannerUrl }: Props) {
+export default function StampGrid({ total, filled, bgColor, textColor, stampIconId, stampIconUrl, bannerUrl, rewardText }: Props) {
+  const badge = rewardBadge(rewardText)
   // useId puede traer caracteres que no sirven dentro de url(#…).
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const rows = total <= 8 ? 1 : 2
@@ -88,9 +90,9 @@ export default function StampGrid({ total, filled, bgColor, textColor, stampIcon
                 fill={isFilled ? bgColor : textColor}
                 fontFamily="Fredoka, system-ui, sans-serif"
                 fontWeight={600}
-                fontSize={r * 0.4}
+                fontSize={r * (badge.length <= 3 ? 0.55 : 0.4)}
               >
-                GRATIS
+                {badge}
               </text>
             ) : (
               isFilled &&

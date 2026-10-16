@@ -37,7 +37,8 @@ export type Business = {
     bgColor?: string
     textColor?: string // ya no se usa: el color del texto es automático (autoTextColor)
     stampIconId?: string
-    stampIconUrl?: string
+    stampIconUrl?: string // imagen propia en uso como sello
+    customStampUrl?: string // imagen propia subida: se conserva aunque elija un ícono de la lista
   }
   // itemSingular/itemPlural: lo que se cuenta ("café" / "cafés"), para "Te faltan 3 cafés".
   rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string; conditions?: string }

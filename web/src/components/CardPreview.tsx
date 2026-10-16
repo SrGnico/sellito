@@ -40,6 +40,7 @@ export default function CardPreview({ config, filled, platform = 'android' }: Pr
       stampIconId={config.stampIconId}
       stampIconUrl={config.stampIconUrl}
       bannerUrl={config.bannerUrl}
+      rewardText={config.rewardText}
     />
   )
   const code = (

@@ -61,3 +61,15 @@ export const STAMP_ICONS: StampIcon[] = [
 export function stampIconById(id: string | undefined): StampIcon | undefined {
   return STAMP_ICONS.find((i) => i.id === id)
 }
+
+// Texto del último sello según el premio: "20%", "2x1", "GRATIS", "REGALO" o, si no se deduce, "PREMIO".
+export function rewardBadge(rewardText: string | undefined): string {
+  const t = (rewardText ?? '').toLowerCase()
+  const pct = t.match(/(\d{1,3})\s*%/)
+  if (pct) return `${pct[1]}%`
+  const combo = t.match(/(\d)\s*x\s*(\d)/)
+  if (combo) return `${combo[1]}x${combo[2]}`
+  if (/gratis|sin cargo|de regalo|free/.test(t)) return 'GRATIS'
+  if (/regalo/.test(t)) return 'REGALO'
+  return 'PREMIO'
+}
