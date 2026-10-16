@@ -1,3 +1,4 @@
+import { clientFacts, type ClientFacts } from "./insights";
 import { birthdayStatus, todayAR } from "../birthday/rules";
 import { createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
@@ -162,11 +163,12 @@ type CardSummary = {
   total: number;
   minutesSinceLastStamp: number | null;
   birthday: { gift: string | null; redeemed: boolean } | null; // está de cumple (según la config del negocio)
-};
+} & ClientFacts; // avisos sobre el cliente (primera visita, volvió, fiel…), ver ./insights.ts
 
 function summary(cardId: string, card: CardDoc, b: BusinessDoc): CardSummary {
   const total = b.rule!.stampsRequired;
   return {
+    ...clientFacts(card, total),
     birthday: birthdayStatus(b, card),
     cardId,
     name: card.customer?.name ?? null,

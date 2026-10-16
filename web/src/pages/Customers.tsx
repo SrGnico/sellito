@@ -1,3 +1,4 @@
+import { customerInsights, visitSummary } from '../lib/insights'
 import { formatBirthday } from '../lib/birthday'
 import {
   collection,
@@ -363,6 +364,7 @@ const EVENT_LABELS: Record<StampEvent['type'], string> = { add: '+1 sello', rede
 function CustomerDetail({ business, card, onClose }: { business: Business; card: Card; onClose: () => void }) {
   const total = business.rule?.stampsRequired ?? 0
   const [events, setEvents] = useState<StampEvent[] | 'loading' | 'error'>('loading')
+  const [facts] = useState(() => ({ insights: customerInsights(card, total, business.birthday), summary: visitSummary(card, total) }))
   const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -388,6 +390,14 @@ function CustomerDetail({ business, card, onClose }: { business: Business; card:
     <div className="scrim" onClick={onClose}>
       <div className="dialog customer-detail" role="dialog" aria-modal="true" aria-labelledby="detail-title" onClick={(e) => e.stopPropagation()}>
         <h3 id="detail-title">{card.customer.name || 'Cliente'}</h3>
+        <p className="help client-facts">{facts.summary}</p>
+        {facts.insights.length > 0 && (
+          <ul className="client-insights">
+            {facts.insights.map((i) => (
+              <li key={i.kind} className={`insight-${i.kind}`}>{i.text}</li>
+            ))}
+          </ul>
+        )}
         <dl className="detail-list">
           {card.customer.phone && (<><dt>Teléfono</dt><dd>{card.customer.phone}</dd></>)}
           {card.customer.email && (<><dt>Mail</dt><dd style={{ overflowWrap: 'anywhere' }}>{card.customer.email}</dd></>)}

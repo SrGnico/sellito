@@ -18,6 +18,11 @@ export type ScannedCard = {
   total: number
   minutesSinceLastStamp: number | null
   birthday: { gift: string | null; redeemed: boolean } | null // está de cumple (functions/src/birthday/rules.ts)
+  // Avisos sobre el cliente (functions/src/scanner/insights.ts)
+  insights: { kind: 'first' | 'back' | 'loyal' | 'almost' | 'anniversary'; text: string }[]
+  since: number | null
+  visits: number
+  lastVisitDays: number | null
 }
 
 export const scannerLogin = callable<{ businessId: string; pin: string }, { token: string; business: ScannerBusiness }>('scannerLogin')

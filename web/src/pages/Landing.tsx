@@ -241,7 +241,7 @@ export default function Landing() {
             </article>
             <article className="card">
               <h3>Escáner para el local</h3>
-              <p>Con la cámara del celular, con un lector de QR o tipeando el código en la compu de la caja. Se entra con un PIN.</p>
+              <p>Con la cámara, un lector de QR o tipeando el código. Y te avisa lo importante de cada cliente: si es su primera vez, si hacía mucho que no venía o si es de los fieles.</p>
             </article>
             <article className="card card-pink">
               <h3>Estadísticas simples</h3>

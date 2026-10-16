@@ -604,22 +604,7 @@ function CardResult({
   return (
     <>
       <h3>{card.name ?? 'Cliente'}</h3>
-      {bday && (
-        <div className="alert alert-info birthday-alert" role="status">
-          <BirthdayIcon size={40} />
-          <div style={{ flex: 1 }}>
-            <span className="alert-title">¡Está de cumple!</span>
-            <span className="alert-text">
-              {!bday.gift ? 'Saludalo: es su cumpleaños.' : bday.redeemed ? 'Ya recibió su regalo de cumpleaños este año.' : `Tiene de regalo: ${bday.gift}.`}
-            </span>
-            {bday.gift && !bday.redeemed && (
-              <button className="btn btn-sm" type="button" onClick={onBirthday} disabled={busy} style={{ marginTop: 8 }}>
-                Entregar regalo de cumple
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      <ClientFactsLine card={card} />
       <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '2px solid var(--border)' }}>
         <StampGrid
           total={card.total}
@@ -657,11 +642,46 @@ function CardResult({
           {busy ? 'Sumando…' : cooldown !== undefined ? 'Sumar igual' : '+1 sello'}
         </button>
       )}
+      {bday && (
+        <div className="alert alert-info birthday-alert" role="status">
+          <BirthdayIcon size={40} />
+          <div style={{ flex: 1 }}>
+            <span className="alert-title">¡Está de cumple!</span>
+            <span className="alert-text">
+              {!bday.gift ? 'Saludalo: es su cumpleaños.' : bday.redeemed ? 'Ya recibió su regalo de cumpleaños este año.' : `Tiene de regalo: ${bday.gift}.`}
+            </span>
+            {bday.gift && !bday.redeemed && (
+              <button className="btn btn-sm" type="button" onClick={onBirthday} disabled={busy} style={{ marginTop: 8 }}>
+                Entregar regalo de cumple
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+      {card.insights?.length > 0 && (
+        <ul className="client-insights">
+          {card.insights.map((i) => (
+            <li key={i.kind} className={`insight-${i.kind}`}>{i.text}</li>
+          ))}
+        </ul>
+      )}
       <button className="btn btn-ghost" type="button" onClick={onCancel} disabled={busy}>
         Cancelar
       </button>
     </>
   )
+}
+
+// "Cliente desde marzo 2026 · ~24 visitas · última hace 3 días"
+function ClientFactsLine({ card }: { card: ScannedCard }) {
+  if (card.since === undefined) return null
+  const parts: string[] = []
+  if (card.since) parts.push(`Cliente desde ${new Date(card.since).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}`)
+  if (card.visits > 0) parts.push(`${card.visits} ${card.visits === 1 ? 'visita' : 'visitas'}`)
+  if (card.visits > 0 && card.lastVisitDays !== null) {
+    parts.push(card.lastVisitDays === 0 ? 'última hoy' : card.lastVisitDays === 1 ? 'última ayer' : `última hace ${card.lastVisitDays} días`)
+  }
+  return parts.length ? <p className="help client-facts">{parts.join(' · ')}</p> : null
 }
 
 function ManualEntry({ onSubmit, onCancel }: { onSubmit: (code: string) => void; onCancel: () => void }) {
