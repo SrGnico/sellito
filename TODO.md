@@ -128,7 +128,8 @@
 - [x] Borrador (`draft`): diseña y ve la vista previa (`/panel/vista-previa`, iPhone y Android); QR, escáner, clientes y Wallet recién al activar. `draftAt` / `activatedAt` para medir la activación (métrica en /admin)
 - [x] Al activar (webhook): se crean el código del QR y la clase de Google Wallet (`enableBusiness` en payments/state.ts)
 - [x] Recordatorio a las 48 h en borrador (`draftReminder`, de 9 a 21 h); se apaga con `DRAFT_REMINDER_ENABLED=false`
-- [ ] Desplegar reglas, índices y functions (borrar `startTrial` cuando lo pida el deploy) y correr `functions/scripts/migrate-draft.mjs --apply`
+- [x] Desplegado (16/10/2026): reglas, índices, functions (`startTrial` borrada) y web. Migración: no hizo falta (solo existía la tarjeta de ejemplo)
+- [ ] Cargar el token real de Meta: `firebase functions:secrets:set META_CAPI_TOKEN` (hoy "pendiente") y desplegar functions
 - [ ] Probar en modo de prueba de MP: borrador → vista previa → pagar → QR y escáner habilitados
 - [x] Altas de clientes pausadas con el negocio bloqueado
 - [x] Tarea diaria `dailySubscriptionCheck` (09:00 AR): bloquea gracia/prueba vencidas, archiva, manda mails
