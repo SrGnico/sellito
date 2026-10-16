@@ -35,7 +35,7 @@ export default function BirthdaySettings({ value, onChange, askBirthday, onAskBi
       </div>
       {!value.enabled && (
         <p className="help" style={{ margin: 0 }}>
-          Le pedimos el cumpleaños al sumarse (opcional) y la tarjeta lo saluda sola. Si querés, con un regalo: es un motivo más para
+          Le pedimos el cumpleaños al sumarse (opcional) y ese día le llega un saludo tuyo al celular. Si querés, con un regalo: es un motivo más para
           que vuelva.
         </p>
       )}

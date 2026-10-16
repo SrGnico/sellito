@@ -251,10 +251,10 @@ export default function Landing() {
             <article className="card feature-wide">
               <span className="feature-emoji"><BirthdayIcon size={52} /></span>
               <div>
-                <h3>Saluda sola en los cumpleaños</h3>
+                <h3>Regalos de cumpleaños</h3>
                 <p>
-                  El día del cumple de cada cliente, la tarjeta le manda un saludo al celular. Si querés, con un regalo: el mismo premio,
-                  otro, o un beneficio por todo su mes. En el local, el escáner te avisa que está de cumple.
+                  Tus clientes reciben un saludo tuyo en el celular el día de su cumple, sin que tengas que acordarte. Si querés, sumale
+                  un regalo para ese día o para todo su mes. Y cuando vienen al local, el escáner te avisa que están de cumple.
                 </p>
               </div>
             </article>
@@ -303,7 +303,7 @@ export default function Landing() {
               ['¿Funciona en iPhone y en Android?', 'Sí. En iPhone la tarjeta va a Apple Wallet y en Android a Google Wallet.'],
               ['¿Sirve para mi rubro?', 'Si tenés clientes que vuelven, sí: cafeterías, peluquerías, gimnasios, kioscos, veterinarias o lo que sea. Vos elegís qué se cuenta y qué se regala.'],
               ['¿La tarjeta aparece sola cuando el cliente pasa por el local?', 'Puede aparecer en la pantalla de bloqueo cuando está cerca, si cargás tus locales. Depende del celular y de sus permisos, así que no aparece siempre.'],
-              ['¿Puedo saludarlos en su cumpleaños?', 'Sí. Si pedís el cumpleaños al sumarse (es opcional para el cliente), la tarjeta lo saluda sola ese día con una notificación. Vos elegís si hay regalo (el mismo premio, otro o solo el saludo) y si vale el día o todo el mes. En el escáner ves “está de cumple” y lo entregás con un toque.'],
+              ['¿Puedo saludarlos en su cumpleaños?', 'Sí. Si pedís el cumpleaños al sumarse (es opcional para el cliente), ese día le llega a su celular un saludo de tu parte, sin que tengas que hacer nada. Vos elegís si hay regalo (el mismo premio, otro o solo el saludo) y si vale el día o todo el mes. En el escáner ves que está de cumple y se lo entregás con un toque.'],
               ['¿Puedo mandarles promociones?', 'Sí. Desde el panel escribís un aviso y les llega como notificación en el celular, en la tarjeta. Solo a quienes aceptaron recibir novedades, y como máximo uno por día para que no se vuelva molesto.'],
               ['¿Puedo poner condiciones o regalar un descuento?', 'Sí. El premio lo escribís vos (un café, un 20% de descuento, lo que quieras) y podés aclarar condiciones, como “un sello por compra mayor a $5.000”. Los sellos los sumás vos, así que siempre decidís cuándo corresponde.'],
               ['¿Puedo cancelar?', 'Sí, cuando quieras desde tu cuenta de Mercado Pago. Seguís usando el servicio hasta el final del período pagado.'],
