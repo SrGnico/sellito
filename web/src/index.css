@@ -27,10 +27,10 @@ main.main-wide { max-width: 1040px; }
   .editor-preview { position: sticky; top: 24px; order: 2; }
 }
 
-.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
 .icon-option {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  min-height: 72px; padding: 8px 4px; font-size: 13px; cursor: pointer;
+  min-height: 72px; padding: 8px 4px; font-size: 12px; line-height: 1.2; text-align: center; overflow-wrap: anywhere; cursor: pointer;
   background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-md);
 }
 .icon-option:has(input:checked) { background: var(--pink); box-shadow: var(--shadow-sm); font-weight: 500; }

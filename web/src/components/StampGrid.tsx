@@ -59,6 +59,8 @@ export default function StampGrid({ total, filled, bgColor, textColor, stampIcon
         const isFilled = i < filled
         const isLast = i === total - 1
         const iconSize = r * 1.15
+        // Imagen propia: ocupa casi todo el sello (queda un aro fino). Igual que functions/src/images/stamps.ts.
+        const imageSize = r * 1.84
 
         const isNew = isFilled && animateFrom !== null && i >= animateFrom
 
@@ -95,14 +97,14 @@ export default function StampGrid({ total, filled, bgColor, textColor, stampIcon
               (stampIconUrl ? (
                 <>
                   <clipPath id={`${uid}-${i}`}>
-                    <circle cx={cx} cy={cy} r={iconSize / 2} />
+                    <circle cx={cx} cy={cy} r={imageSize / 2} />
                   </clipPath>
                   <image
                     href={stampIconUrl}
-                    x={cx - iconSize / 2}
-                    y={cy - iconSize / 2}
-                    width={iconSize}
-                    height={iconSize}
+                    x={cx - imageSize / 2}
+                    y={cy - imageSize / 2}
+                    width={imageSize}
+                    height={imageSize}
                     clipPath={`url(#${uid}-${i})`}
                     preserveAspectRatio="xMidYMid meet"
                   />

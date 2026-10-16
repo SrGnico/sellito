@@ -58,8 +58,8 @@ export function designOf(b: BusinessDoc): StampDesign {
 
 // Huella del diseño: si cambia algo, cambian las URLs y Google no muestra una imagen vieja de su caché.
 export function fingerprint(d: StampDesign): string {
-  // v4: firma "Creada con {APP_NAME}" centrada abajo, mascota en contorno.
-  return createHash("sha1").update(JSON.stringify({ v: 4, brand: APP_NAME.value(), ...d })).digest("hex").slice(0, 12);
+  // v5: la imagen propia del sello ocupa casi todo el círculo (antes dejaba un aro muy grueso).
+  return createHash("sha1").update(JSON.stringify({ v: 5, brand: APP_NAME.value(), ...d })).digest("hex").slice(0, 12);
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
@@ -125,6 +125,8 @@ export function buildSvg(d: StampDesign, filled: number, banner: string | null, 
   const r = Math.min(Math.min(cellW, cellH) * 0.4, 62 * (W / GOOGLE_HERO.w));
   const presetIcon = STAMP_ICONS.find((i) => i.id === d.iconId) ?? CHECK_ICON;
   const iconSize = r * 1.15;
+  // Imagen propia: ocupa casi todo el sello (queda un aro fino). Igual que web/src/components/StampGrid.tsx.
+  const imageSize = r * 1.84;
   const parts: string[] = [`<rect width="${W}" height="${H}" fill="${d.bg}"/>`];
 
   if (banner) {
@@ -160,8 +162,8 @@ export function buildSvg(d: StampDesign, filled: number, banner: string | null, 
       );
     } else if (isFilled && icon) {
       parts.push(
-        `<clipPath id="c${i}"><circle cx="${cx}" cy="${cy}" r="${iconSize / 2}"/></clipPath>` +
-          `<image href="${icon}" x="${cx - iconSize / 2}" y="${cy - iconSize / 2}" width="${iconSize}" height="${iconSize}" ` +
+        `<clipPath id="c${i}"><circle cx="${cx}" cy="${cy}" r="${imageSize / 2}"/></clipPath>` +
+          `<image href="${icon}" x="${cx - imageSize / 2}" y="${cy - imageSize / 2}" width="${imageSize}" height="${imageSize}" ` +
           `clip-path="url(#c${i})" preserveAspectRatio="xMidYMid meet"/>`,
       );
     } else if (isFilled) {
