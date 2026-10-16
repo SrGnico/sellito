@@ -65,7 +65,7 @@ export function birthdayStatus(b: BusinessDoc, card: CardDoc, now = new Date()) 
 // Texto del aviso al celular.
 export function birthdayMessage(b: BusinessDoc, card: CardDoc): { title: string; body: string } {
   const first = card.customer?.name?.split(/\s+/)[0];
-  const title = first ? `¡Feliz cumple, ${first}! 🎂` : "¡Feliz cumple! 🎂";
+  const title = first ? `¡Feliz cumple, ${first}!` : "¡Feliz cumple!";
   const gift = birthdayGift(b);
   const when = b.birthday?.when === "month" ? "durante todo tu mes" : "hoy";
   const body = gift

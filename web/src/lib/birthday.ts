@@ -23,7 +23,7 @@ export function birthdayPreview(c: BirthdayConfig | undefined, business: string,
   const gift = birthdayGift(c, rewardText)
   const when = c?.when === 'month' ? 'durante todo tu mes' : 'hoy'
   return {
-    title: '¡Feliz cumple, Martina! 🎂',
+    title: '¡Feliz cumple, Martina!',
     body: gift
       ? `En ${business || 'tu negocio'} te regalamos ${gift} ${when}. Mostrá tu tarjeta para usarlo.`
       : `Todo el equipo de ${business || 'tu negocio'} te desea un muy feliz cumpleaños.`,

@@ -300,7 +300,7 @@ export default function Landing() {
               ['¿Funciona en iPhone y en Android?', 'Sí. En iPhone la tarjeta va a Apple Wallet y en Android a Google Wallet.'],
               ['¿Sirve para mi rubro?', 'Si tenés clientes que vuelven, sí: cafeterías, peluquerías, gimnasios, kioscos, veterinarias o lo que sea. Vos elegís qué se cuenta y qué se regala.'],
               ['¿La tarjeta aparece sola cuando el cliente pasa por el local?', 'Puede aparecer en la pantalla de bloqueo cuando está cerca, si cargás tus locales. Depende del celular y de sus permisos, así que no aparece siempre.'],
-              ['¿Puedo saludarlos en su cumpleaños?', 'Sí. Ese día le llega un saludo tuyo al celular, solo. Si querés, sumás un regalo, y el escáner te avisa cuando viene.'],
+              ['¿Qué datos de mis clientes puedo guardar?', 'Los que vos elijas: nombre, teléfono, mail y fecha de nacimiento. Con la fecha de nacimiento, el día de su cumple le llega un saludo tuyo al celular, y si querés, con un regalo.'],
               ['¿Puedo mandarles promociones?', 'Sí. Desde el panel escribís un aviso y les llega como notificación en el celular, en la tarjeta. Solo a quienes aceptaron recibir novedades, y como máximo uno por día para que no se vuelva molesto.'],
               ['¿Puedo poner condiciones o regalar un descuento?', 'Sí. El premio lo escribís vos (un café, un 20% de descuento, lo que quieras) y podés aclarar condiciones, como “un sello por compra mayor a $5.000”. Los sellos los sumás vos, así que siempre decidís cuándo corresponde.'],
               ['¿Puedo cancelar?', 'Sí, cuando quieras desde tu cuenta de Mercado Pago. Seguís usando el servicio hasta el final del período pagado.'],

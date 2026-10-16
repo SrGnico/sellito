@@ -1,5 +1,5 @@
 import { getFirestore } from "firebase-admin/firestore";
-import { HttpsError } from "firebase-functions/v2/https";
+import { HttpsError, onRequest } from "firebase-functions/v2/https";
 
 // Planes y precios: documento `config/plans` en Firestore (se edita desde la consola).
 // El precio se copia a la suscripción al suscribirse, así que cambiarlo solo afecta a las nuevas.
@@ -36,3 +36,19 @@ export async function loadPlan(planId: string): Promise<Plan> {
   }
   return plan;
 }
+
+// GET API_URL/plan: el plan mensual para la landing y el panel. Público y cacheado en el CDN
+// (más rápido que leer Firestore desde el navegador).
+export const plan = onRequest({ cors: true }, async (req, res) => {
+  if (req.method !== "GET") {
+    res.status(405).end();
+    return;
+  }
+  const p = (await loadPlans()).plans?.[DEFAULT_PLAN];
+  res.set("Cache-Control", "public, max-age=300, s-maxage=600");
+  if (!p?.active) {
+    res.status(404).json({ error: "not-found" });
+    return;
+  }
+  res.json({ name: p.name, amount: p.amount, currency: p.currency, frequency: p.frequency, frequencyType: p.frequencyType, active: true });
+});

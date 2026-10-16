@@ -187,6 +187,13 @@
           }
         },
         {
+          "source": "/plan",
+          "function": {
+            "functionId": "plan",
+            "region": "southamerica-east1"
+          }
+        },
+        {
           "source": "/track",
           "function": {
             "functionId": "track",
