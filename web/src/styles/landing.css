@@ -314,3 +314,4 @@
 .your-card { margin-inline: auto !important; }
 /* Función destacada a lo ancho (regalos de cumpleaños) */
 .features .feature-wide { grid-column: 1 / -1; background: var(--pink-tint); }
+.sample-tag.bday { background: var(--pink-soft); }
