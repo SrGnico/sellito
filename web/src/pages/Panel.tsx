@@ -14,6 +14,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import EnrollPoster from '../components/EnrollPoster'
 import EnrollQr from '../components/EnrollQr'
+import QrPrintedButton from '../components/QrPrinted'
 import { useAuth } from '../lib/auth'
 import { auth, db } from '../lib/firebase'
 import type { Business } from '../lib/types'
@@ -242,6 +243,15 @@ function QrPage({ business }: { business: Business }) {
       <p className="section-intro">Imprimilo y ponelo en el mostrador. Cada cliente lo escanea una vez y la tarjeta queda en su celular.</p>
       <EnrollQr business={business} />
       <EnrollPoster business={business} />
+      {business.qrPrintedAt ? (
+        <p className="help" style={{ margin: 0 }}>✓ Marcaste que ya lo imprimiste. Si lo cambiás de lugar o se gasta, imprimilo de nuevo: el código no cambia.</p>
+      ) : (
+        <section className="card" style={{ gap: 12 }}>
+          <h4>¿Ya está a la vista?</h4>
+          <p className="help" style={{ margin: 0 }}>Imprimilo y ponelo en el mostrador o en la caja, donde tus clientes lo vean al pagar.</p>
+          <div><QrPrintedButton business={business} /></div>
+        </section>
+      )}
     </div>
   )
 }

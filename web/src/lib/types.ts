@@ -49,6 +49,7 @@ export type Business = {
   proximityEnabled?: boolean // mostrar la tarjeta cerca de los locales (functions/src/wallet/proximity.ts)
   enrollCode?: string
   scannerPinVersion?: number // > 0 si el negocio ya eligió PIN (el hash lo escriben solo las Functions)
+  qrPrintedAt?: Timestamp // el dueño marcó "Ya lo imprimí" (primeros pasos)
   subscription?: Subscription
   cardsVersion?: number
   createdAt?: Timestamp

@@ -23,7 +23,7 @@ service cloud.firestore {
 
     // Campos que el dueño puede escribir desde el panel.
     function ownerEditableFields() {
-      return ['name', 'slug', 'design', 'rule', 'askFields', 'birthday', 'locations', 'proximityEnabled', 'createdAt', 'updatedAt'];
+      return ['name', 'slug', 'design', 'rule', 'askFields', 'birthday', 'locations', 'proximityEnabled', 'qrPrintedAt', 'createdAt', 'updatedAt'];
     }
 
     function validBusinessData(data) {
@@ -32,7 +32,8 @@ service cloud.firestore {
         && (!('proximityEnabled' in data) || data.proximityEnabled is bool)
         && (!('rule' in data) || (data.rule.stampsRequired is int
               && data.rule.stampsRequired >= 2 && data.rule.stampsRequired <= 20))
-        && (!('birthday' in data) || validBirthday(data.birthday));
+        && (!('birthday' in data) || validBirthday(data.birthday))
+        && (!('qrPrintedAt' in data) || data.qrPrintedAt is timestamp);
     }
 
     // Origen de campaña (web/src/lib/attribution.ts): solo al crear el negocio; después no se edita

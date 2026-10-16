@@ -1,8 +1,9 @@
 import { collection, doc, getDoc, limit, onSnapshot, orderBy, query, type Timestamp } from 'firebase/firestore'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import BusinessStats from '../components/BusinessStats'
 import CardPreview from '../components/CardPreview'
+import QrPrintedButton from '../components/QrPrinted'
 import { cardConfigFrom, enrollMissing } from '../lib/cardDesign'
 import { db } from '../lib/firebase'
 import { accessLevel, isDraft, isReadOnly, type AccessLevel } from '../lib/subscription'
@@ -86,7 +87,7 @@ function StatusLine({ business, level }: { business: Business; level: AccessLeve
 
 // ---------- Primeros pasos ----------
 
-type Step = { id: string; title: string; detail: string; done: boolean; to?: string; action?: string; optional?: boolean }
+type Step = { id: string; title: string; detail: string; done: boolean; to?: string; action?: string; optional?: boolean; extra?: ReactNode }
 
 function SetupChecklist({ business, level }: { business: Business; level: AccessLevel }) {
   const [hasCards, setHasCards] = useState<boolean | null>(null)
@@ -111,7 +112,15 @@ function SetupChecklist({ business, level }: { business: Business; level: Access
       action: 'Ver y activar',
     },
     { id: 'pin', title: 'Creá el PIN del escáner', detail: 'Para sumar sellos desde el celular del local.', done: (business.scannerPinVersion ?? 0) > 0, to: 'escaner', action: 'Crear PIN' },
-    { id: 'qr', title: 'Poné el QR en el mostrador', detail: 'Tus clientes lo escanean y guardan la tarjeta.', done: hasCards === true, to: 'qr', action: 'Ver QR' },
+    {
+      id: 'qr',
+      title: 'Imprimí el QR y ponelo en el mostrador',
+      detail: 'Tus clientes lo escanean y guardan la tarjeta. Cuando ya esté a la vista, marcalo.',
+      done: hasCards === true || Boolean(business.qrPrintedAt),
+      to: 'qr',
+      action: 'Ver QR',
+      extra: isDraft(business) ? undefined : <QrPrintedButton business={business} small />, // en borrador todavía no hay QR
+    },
     {
       id: 'locations',
       title: 'Cargá tus locales',
@@ -158,10 +167,15 @@ function SetupChecklist({ business, level }: { business: Business; level: Access
               <span className="setup-detail">{s.detail}</span>
             </div>
             <span className="sr-only">{s.done ? 'Hecho' : 'Pendiente'}</span>
-            {!s.done && s.to && (
-              <Link className="btn btn-sm" to={s.to}>
-                {s.action}
-              </Link>
+            {!s.done && (s.to || s.extra) && (
+              <div className="setup-actions">
+                {s.to && (
+                  <Link className="btn btn-sm" to={s.to}>
+                    {s.action}
+                  </Link>
+                )}
+                {s.extra}
+              </div>
             )}
           </li>
         ))}

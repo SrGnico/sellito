@@ -195,3 +195,10 @@
 .preview-card .wallet-card { width: 100%; max-width: none; transform: none; box-shadow: 0 10px 30px rgba(0, 0, 0, .35); border-width: 0; font-size: 13px; }
 .preview-activate { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 .preview-activate .btn { max-width: 100%; white-space: normal; }
+
+/* Primeros pasos: botones de cada paso (Ver QR + Ya lo imprimí). */
+.setup-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 520px) {
+  .setup-list li { flex-wrap: wrap; }
+  .setup-actions { width: 100%; padding-left: 38px; justify-content: flex-start; }
+}

@@ -30,6 +30,7 @@ export type BusinessDoc = {
   demo?: boolean; // tarjeta de ejemplo de la landing (Sellito), no es un negocio real
   scannerPinHash?: string;
   scannerPinVersion?: number;
+  qrPrintedAt?: Timestamp; // el dueño marcó "Ya lo imprimí" (primeros pasos del panel)
   subscription?: Subscription;
   cardsVersion?: number; // CARDS_VERSION cuando todas las tarjetas tienen los campos de búsqueda
 };
