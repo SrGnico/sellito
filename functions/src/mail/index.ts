@@ -38,6 +38,7 @@ function content(t: MailTemplate, v: Vars): Mail {
           `Ya creaste ${v.businessName}. En unos minutos tenés tu tarjeta de sellos lista:`,
           "1. Diseñala: logo, color y el premio que quieras regalar.\n2. Creá el PIN del escáner.\n3. Imprimí el QR y ponelo en el mostrador.",
           "Tus clientes escanean el QR y guardan la tarjeta en el celular, sin descargar nada. Y la lista de clientes que se va armando es tuya.",
+          "Un extra: podés prender el saludo de cumpleaños. La tarjeta saluda sola a cada cliente en su día, con un regalo si querés. 🎂",
         ],
         cta: "Armar mi tarjeta",
       };

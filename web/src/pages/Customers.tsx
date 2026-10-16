@@ -1,3 +1,4 @@
+import { formatBirthday } from '../lib/birthday'
 import {
   collection,
   getDocs,
@@ -67,7 +68,7 @@ type ListState =
   | { key: string; status: 'error' }
   | { key: string; status: 'ready'; cards: Card[]; hasMore: boolean; last: QueryDocumentSnapshot | null }
 
-const SORT_LABELS: Record<SortKey, string> = { createdAt: 'Alta', lastActivityAt: 'Último sello', stamps: 'Sellos' }
+const SORT_LABELS: Record<SortKey, string> = { createdAt: 'Alta', lastActivityAt: 'Último sello', stamps: 'Sellos', birthdayMD: 'Cumpleaños' }
 
 function CustomerList({ business }: { business: Business }) {
   const ask = business.askFields ?? { name: true, phone: true, email: false }
@@ -178,7 +179,7 @@ function CustomerList({ business }: { business: Business }) {
       </div>
 
       <div className="filter-chips" role="group" aria-label="Filtros">
-        {FILTERS.map((f) => (
+        {FILTERS.filter((f) => f.id !== 'birthday' || ask.birthday).map((f) => (
           <button key={f.id} type="button" className="chip" aria-pressed={!searching && filter === f.id} onClick={() => changeFilter(f.id)}>
             {f.label}
           </button>
@@ -219,6 +220,7 @@ function CustomerList({ business }: { business: Business }) {
                   {ask.name && <th>Nombre</th>}
                   {ask.phone && <th>Teléfono</th>}
                   {ask.email && <th>Mail</th>}
+                  {ask.birthday && <th>Cumpleaños</th>}
                   {sortHeader('stamps')}
                   <th>Premios canjeados</th>
                   {sortHeader('createdAt')}
@@ -238,6 +240,7 @@ function CustomerList({ business }: { business: Business }) {
                     )}
                     {ask.phone && <td>{c.customer.phone ?? '—'}</td>}
                     {ask.email && <td className="cell-ellipsis">{c.customer.email ?? '—'}</td>}
+                    {ask.birthday && <td>{formatBirthday(c.customer.birthday) || '—'}</td>}
                     <td>
                       {Math.min(c.stamps, total)}/{total}
                       {c.rewardsAvailable > 0 && <span className="badge badge-ok badge-sm">Premio</span>}
@@ -388,6 +391,7 @@ function CustomerDetail({ business, card, onClose }: { business: Business; card:
         <dl className="detail-list">
           {card.customer.phone && (<><dt>Teléfono</dt><dd>{card.customer.phone}</dd></>)}
           {card.customer.email && (<><dt>Mail</dt><dd style={{ overflowWrap: 'anywhere' }}>{card.customer.email}</dd></>)}
+          {card.customer.birthday && (<><dt>Cumpleaños</dt><dd>{formatBirthday(card.customer.birthday)}</dd></>)}
           <dt>Sellos</dt>
           <dd>{Math.min(card.stamps, total)} de {total}{card.rewardsAvailable > 0 && ' · premio disponible'}</dd>
           <dt>Premios canjeados</dt>

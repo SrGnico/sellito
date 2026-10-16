@@ -84,7 +84,7 @@ export const EXAMPLES: Example[] = [
     itemSingular: 'pizza',
     itemPlural: 'pizzas',
     filled: 5,
-    notice: 'Estás cerca de Don Tano: te faltan 3 pizzas\u00A0🍕',
+    notice: '¡Feliz cumple, Martina! Hoy tenés una grande de regalo\u00A0🎂',
   },
   {
     ...base,

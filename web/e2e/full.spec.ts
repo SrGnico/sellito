@@ -66,6 +66,10 @@ test('alta de un negocio nuevo con el asistente', async ({ page, isMobile }) => 
   // 3. Datos.
   await expect(page.getByRole('heading', { name: 'Datos de tus clientes' })).toBeVisible()
   await page.getByLabel('Mail').check()
+  // Regalo de cumpleaños: prenderlo también pide el cumpleaños al cliente.
+  await page.getByRole('switch', { name: 'Saludar a mis clientes en su cumpleaños' }).click()
+  await expect(page.getByRole('checkbox', { name: 'Cumpleaños' })).toBeChecked()
+  await page.getByRole('radio', { name: 'Todo el mes de su cumpleaños' }).check()
   await page.getByRole('button', { name: 'Siguiente' }).click()
 
   await shot('3-datos')
@@ -100,6 +104,8 @@ test('alta de un negocio nuevo con el asistente', async ({ page, isMobile }) => 
     await page.goto(`/c/${created.enrollCode}`)
     await expect(page.getByRole('heading', { name: 'Sumate a la tarjeta de Prueba E2E' })).toBeVisible()
     await expect(page.getByText('Un sello por compra mayor a $5.000')).toBeVisible()
+    await expect(page.getByLabel(/Tu cumpleaños/)).toBeVisible()
+    await expect(page.getByText(/durante todo el mes de tu cumple/)).toBeVisible()
   }
 })
 

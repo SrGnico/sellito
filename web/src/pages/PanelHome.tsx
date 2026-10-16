@@ -119,6 +119,15 @@ function SetupChecklist({ business, level }: { business: Business; level: Access
       action: 'Cargar',
       optional: true,
     },
+    {
+      id: 'birthday',
+      title: 'Saludá en los cumpleaños',
+      detail: 'La tarjeta saluda sola a cada cliente en su día, con un regalo si querés.',
+      done: Boolean(business.birthday?.enabled),
+      to: 'tarjeta',
+      action: 'Configurar',
+      optional: true,
+    },
   ]
   const required = steps.filter((s) => !s.optional)
   const doneCount = required.filter((s) => s.done).length

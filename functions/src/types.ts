@@ -20,7 +20,8 @@ export type BusinessDoc = {
   // Locales (máx. 10) y si la tarjeta los usa para aparecer cerca (wallet/proximity.ts).
   locations?: { label?: string; address?: string; lat: number; lng: number }[];
   proximityEnabled?: boolean;
-  askFields?: { name: boolean; phone: boolean; email: boolean };
+  askFields?: { name: boolean; phone: boolean; email: boolean; birthday?: boolean };
+  birthday?: BirthdayConfig; // regalo y saludo de cumpleaños (birthday/index.ts)
   googleClassId?: string;
   enrollCode?: string;
   demo?: boolean; // tarjeta de ejemplo de la landing (Sellito), no es un negocio real
@@ -28,6 +29,16 @@ export type BusinessDoc = {
   scannerPinVersion?: number;
   subscription?: Subscription;
   cardsVersion?: number; // CARDS_VERSION cuando todas las tarjetas tienen los campos de búsqueda
+};
+
+// Regalo de cumpleaños: vale el día del cumple o todo ese mes; regala el mismo premio de la tarjeta,
+// otro (rewardText) o nada (solo saludo); notify: aviso al celular ese día (o el 1° del mes).
+export type BirthdayConfig = {
+  enabled: boolean;
+  when: "day" | "month";
+  reward: "same" | "custom" | "none";
+  rewardText?: string;
+  notify: boolean;
 };
 
 // Solo la escriben las Functions (Mercado Pago, tarea diaria). Ver payments/access.ts.
@@ -56,7 +67,7 @@ export type Subscription = {
   updatedAt?: Timestamp;
 };
 
-export type Customer = { name?: string; phone?: string; email?: string };
+export type Customer = { name?: string; phone?: string; email?: string; birthday?: string }; // birthday: AAAA-MM-DD
 
 export type CardDoc = {
   customer: Customer;
@@ -78,6 +89,10 @@ export type CardDoc = {
   lastActivityAt?: Timestamp; // último sello o canje; al crearla, la fecha de alta (filtro "inactivos")
   searchTokens?: string[]; // prefijos de nombre, teléfono y mail para buscar (cards/search.ts)
   consent?: { marketing: boolean; at: Timestamp; version: string }; // aceptación de novedades del negocio
+  birthdayMD?: string; // "MM-DD" del cumpleaños (para buscar a quién saludar)
+  birthdayM?: string; // "MM"
+  birthdayRedeemedYear?: number; // año en que ya recibió el regalo de cumpleaños
+  birthdayNotifiedYear?: number; // año en que ya se le mandó el saludo
   createdAt: Timestamp;
 };
 

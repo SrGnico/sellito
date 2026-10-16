@@ -84,6 +84,10 @@ export default function Notices({ business }: { business: Business }) {
         Mandá una novedad y le llega como notificación al celular a quienes tienen tu tarjeta: una promo, un día de doble sello,
         un producto nuevo. Sin WhatsApp ni mails.
       </p>
+      <p className="help" style={{ marginTop: 0 }}>
+        🎂 Los saludos de cumpleaños salen solos y no cuentan para el límite de un aviso por día. Se configuran en{' '}
+        <Link to="/panel/tarjeta">Tarjeta → Regalo de cumpleaños</Link>.
+      </p>
 
       <div className="alert alert-info" role="status">
         <div>

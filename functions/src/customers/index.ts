@@ -1,3 +1,4 @@
+import { todayAR } from "../birthday/rules";
 import { getFirestore, Timestamp, type Query } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
@@ -80,7 +81,7 @@ const fmtDate = (t: Timestamp | undefined) =>
 export const exportCustomers = onCall({ enforceAppCheck: true, timeoutSeconds: 120, memory: "512MiB" }, async (req) => {
   const { businessId, filter = "all", search = "" } = req.data ?? {};
   const b = await ownedBusiness(req.auth?.uid, businessId);
-  if (!["all", "reward", "inactive", "new"].includes(filter) || typeof search !== "string" || search.length > 100) {
+  if (!["all", "reward", "inactive", "new", "birthday"].includes(filter) || typeof search !== "string" || search.length > 100) {
     throw new HttpsError("invalid-argument", "Filtro inválido.");
   }
   if (b.cardsVersion !== CARDS_VERSION) await upgradeBusinessCards(businessId);
@@ -96,6 +97,8 @@ export const exportCustomers = onCall({ enforceAppCheck: true, timeoutSeconds: 1
     q = q.where("lastActivityAt", "<", Timestamp.fromMillis(Date.now() - INACTIVE_DAYS * 86400000));
   } else if (filter === "new") {
     q = q.where("createdAt", ">=", Timestamp.fromMillis(Date.now() - NEW_DAYS * 86400000));
+  } else if (filter === "birthday") {
+    q = q.where("birthdayM", "==", todayAR().m);
   }
 
   const snap = await q.get();
@@ -109,6 +112,9 @@ export const exportCustomers = onCall({ enforceAppCheck: true, timeoutSeconds: 1
   if (ask.name) columns.push(["Nombre", (c) => c.customer?.name ?? ""]);
   if (ask.phone) columns.push(["Teléfono", (c) => c.customer?.phone ?? ""]);
   if (ask.email) columns.push(["Mail", (c) => c.customer?.email ?? ""]);
+  if (ask.birthday || cards.some((c) => c.customer?.birthday)) {
+    columns.push(["Cumpleaños", (c) => (c.customer?.birthday ? c.customer.birthday.split("-").reverse().join("/") : "")]);
+  }
   columns.push(
     ["Sellos", (c) => c.stamps],
     ["Premios canjeados", (c) => c.rewardsRedeemed ?? 0],

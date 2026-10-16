@@ -26,3 +26,4 @@ export const health = onRequest((_req, res) => {
 export { deliverMail, welcomeMail } from "./mail";
 export { cleanupStorage } from "./cleanup";
 export { track } from "./analytics";
+export { birthdayGreetings } from "./birthday";

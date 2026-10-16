@@ -1,3 +1,4 @@
+import { birthdayPerk } from "../birthday/rules";
 import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import http2 from "node:http2";
@@ -122,6 +123,7 @@ export async function buildPkpass(businessId: string, cardId: string, b: Busines
       backFields: [
         { key: "premio", label: "Premio", value: `Al juntar ${total} sellos: ${b.rule!.rewardText}` },
         ...(b.rule!.conditions ? [{ key: "condiciones", label: "Condiciones", value: b.rule!.conditions }] : []),
+        ...(birthdayPerk(b) ? [{ key: "cumple", label: "En tu cumpleaños", value: birthdayPerk(b)! }] : []),
         { key: "codigo", label: "Código de la tarjeta", value: code },
         { key: "como", label: "Cómo funciona", value: `Mostrá esta tarjeta en ${b.name} cada vez que comprás y te suman un sello.` },
         { key: "app", label: "Tarjeta hecha con", value: `${APP_NAME.value()} · ${SITE_URL.value()}` },

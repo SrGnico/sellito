@@ -17,13 +17,14 @@ export type ScannedCard = {
   stamps: number
   total: number
   minutesSinceLastStamp: number | null
+  birthday: { gift: string | null; redeemed: boolean } | null // está de cumple (functions/src/birthday/rules.ts)
 }
 
 export const scannerLogin = callable<{ businessId: string; pin: string }, { token: string; business: ScannerBusiness }>('scannerLogin')
 export const scannerSession = callable<{ businessId: string; token: string }, { business: ScannerBusiness }>('scannerSession')
 export const scannerLookup = callable<{ businessId: string; token: string; code: string }, { cards: ScannedCard[] }>('scannerLookup')
 export const scannerStamp = callable<
-  { businessId: string; token: string; cardId: string; action: 'add' | 'redeem'; force?: boolean },
+  { businessId: string; token: string; cardId: string; action: 'add' | 'redeem' | 'birthday'; force?: boolean },
   { card: ScannedCard }
 >('scannerStamp')
 export const setScannerPin = callable<{ businessId: string; pin: string }, { ok: boolean }>('setScannerPin')

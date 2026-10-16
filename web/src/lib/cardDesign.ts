@@ -1,4 +1,5 @@
-import type { Business, BusinessLocation } from './types'
+import { DEFAULT_BIRTHDAY } from './birthday'
+import type { BirthdayConfig, Business, BusinessLocation } from './types'
 
 // Todo lo que define cómo se ve la tarjeta, con los valores por defecto ya aplicados.
 export type CardConfig = {
@@ -14,7 +15,8 @@ export type CardConfig = {
   itemSingular: string
   itemPlural: string
   conditions: string
-  askFields: { name: boolean; phone: boolean; email: boolean }
+  askFields: { name: boolean; phone: boolean; email: boolean; birthday?: boolean }
+  birthday?: BirthdayConfig
   locations: BusinessLocation[]
   proximityEnabled: boolean
 }
@@ -44,6 +46,7 @@ export function cardConfigFrom(b: Business): CardConfig {
     itemPlural: b.rule?.itemPlural ?? '',
     conditions: b.rule?.conditions ?? '',
     askFields: b.askFields ?? DEFAULT_CARD.askFields,
+    birthday: b.birthday ?? DEFAULT_BIRTHDAY,
     locations: b.locations ?? [],
     proximityEnabled: b.proximityEnabled ?? false,
   }
@@ -81,6 +84,9 @@ export function businessFieldsFrom(c: CardConfig) {
       ...compact({ itemSingular: c.itemSingular.trim(), itemPlural: c.itemPlural.trim(), conditions: c.conditions.trim() }),
     },
     askFields: c.askFields,
+    ...(c.birthday
+      ? { birthday: compact({ ...c.birthday, rewardText: c.birthday.reward === 'custom' ? c.birthday.rewardText?.trim() : undefined }) as BirthdayConfig }
+      : {}),
     locations: c.locations.map((l) => ({ label: l.label.trim(), lat: l.lat, lng: l.lng, ...compact({ address: l.address }) })),
     proximityEnabled: c.proximityEnabled,
   }

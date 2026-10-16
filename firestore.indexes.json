@@ -1,33 +1,215 @@
 {
   "indexes": [
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "lastActivityAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "lastActivityAt", "order": "ASCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "stamps", "order": "DESCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "stamps", "order": "ASCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "rewardsAvailable", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "rewardsAvailable", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "rewardsAvailable", "order": "ASCENDING" }, { "fieldPath": "lastActivityAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "rewardsAvailable", "order": "ASCENDING" }, { "fieldPath": "lastActivityAt", "order": "ASCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "rewardsAvailable", "order": "ASCENDING" }, { "fieldPath": "stamps", "order": "DESCENDING" } ] },
-    { "collectionGroup": "cards", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "rewardsAvailable", "order": "ASCENDING" }, { "fieldPath": "stamps", "order": "ASCENDING" } ] },
-    { "collectionGroup": "stamps", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "cardId", "order": "ASCENDING" }, { "fieldPath": "at", "order": "DESCENDING" } ] },
-    { "collectionGroup": "stamps", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "at", "order": "ASCENDING" } ] }
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "searchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "searchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "searchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "lastActivityAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "searchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "lastActivityAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "searchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "stamps",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "searchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "stamps",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "rewardsAvailable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "rewardsAvailable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "rewardsAvailable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastActivityAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "rewardsAvailable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastActivityAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "rewardsAvailable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "stamps",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "rewardsAvailable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "stamps",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "stamps",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "cardId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "stamps",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "type",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "birthdayM",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "birthdayMD",
+          "order": "ASCENDING"
+        }
+      ]
+    }
   ],
   "fieldOverrides": []
 }

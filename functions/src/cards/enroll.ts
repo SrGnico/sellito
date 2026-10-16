@@ -10,6 +10,7 @@ import { cardCodeSuffix, reserveCardCode } from "./codes";
 import { identityKeys, searchTokens } from "./search";
 import { clientIp, DAY, HOUR, rateLimit } from "../security/rateLimit";
 import { appleDownloadUrl, newAppleAuthToken } from "../wallet/apple";
+import { birthdayFields, birthdayPerk, parseBirthday } from "../birthday/rules";
 
 const db = () => getFirestore();
 
@@ -75,6 +76,7 @@ function enrollInfoOf(b: BusinessDoc) {
     design: b.design ?? {},
     rule: b.rule,
     askFields: b.askFields ?? { name: true, phone: true, email: false },
+    birthdayPerk: birthdayPerk(b), // "Te regalamos … el día de tu cumple" (o null)
   };
 }
 
@@ -133,6 +135,12 @@ function cleanCustomer(input: unknown, ask: NonNullable<BusinessDoc["askFields"]
     }
     customer.email = email;
   }
+  // Cumpleaños: opcional para el cliente aunque el negocio lo pida (vacío = no lo cargó).
+  if (ask.birthday && raw.birthday) {
+    const birthday = parseBirthday(raw.birthday);
+    if (!birthday) throw new HttpsError("invalid-argument", "birthday");
+    customer.birthday = birthday;
+  }
   return customer;
 }
 
@@ -167,6 +175,11 @@ export const createCard = onCall({ enforceAppCheck: true, secrets: [walletKey], 
     // ¿Ya tiene tarjeta en este negocio (mismo teléfono o mail)? Se la devolvemos con sus sellos.
     const existing = await findExistingCard(businessId, keys);
     if (existing) {
+      // Si antes no había cargado el cumpleaños y ahora sí, se completa.
+      const prev = existing.data() as CardDoc;
+      if (customer.birthday && !prev.customer?.birthday) {
+        await existing.ref.update({ "customer.birthday": customer.birthday, ...birthdayFields(customer.birthday) });
+      }
       const link = await reissueCard(businessId, b, existing.id, existing.data() as CardDoc, platform);
       return { ...link, existing: true, stamps: (existing.data() as CardDoc).stamps };
     }
@@ -185,6 +198,7 @@ export const createCard = onCall({ enforceAppCheck: true, secrets: [walletKey], 
         ...(platform === "apple" ? { appleAuthToken: newAppleAuthToken(), appleUpdatedAt: Date.now() } : {}),
         searchTokens: searchTokens(customer),
         ...keys,
+        ...birthdayFields(customer.birthday),
         consent,
         createdAt: Timestamp.now(),
       };

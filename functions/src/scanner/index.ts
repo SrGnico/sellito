@@ -1,3 +1,4 @@
+import { birthdayStatus, todayAR } from "../birthday/rules";
 import { createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
@@ -154,10 +155,19 @@ export const scannerSession = onCall({ enforceAppCheck: true }, async (req) => {
 
 // ---------- Buscar la tarjeta ----------
 
-type CardSummary = { cardId: string; name: string | null; stamps: number; total: number; minutesSinceLastStamp: number | null };
+type CardSummary = {
+  cardId: string;
+  name: string | null;
+  stamps: number;
+  total: number;
+  minutesSinceLastStamp: number | null;
+  birthday: { gift: string | null; redeemed: boolean } | null; // está de cumple (según la config del negocio)
+};
 
-function summary(cardId: string, card: CardDoc, total: number): CardSummary {
+function summary(cardId: string, card: CardDoc, b: BusinessDoc): CardSummary {
+  const total = b.rule!.stampsRequired;
   return {
+    birthday: birthdayStatus(b, card),
     cardId,
     name: card.customer?.name ?? null,
     stamps: Math.min(card.stamps, total),
@@ -170,7 +180,6 @@ function summary(cardId: string, card: CardDoc, total: number): CardSummary {
 // Con los últimos 4 puede haber más de una tarjeta: el escáner muestra los nombres para elegir.
 export const scannerLookup = onCall({ enforceAppCheck: true }, async (req) => {
   const { businessId, b } = await requireSession(req.data?.token, req.data?.businessId);
-  const total = b.rule!.stampsRequired;
   const code = normalizeCardCode(String(req.data?.code ?? ""));
 
   if (code.length === CARD_CODE_LENGTH) {
@@ -178,11 +187,11 @@ export const scannerLookup = onCall({ enforceAppCheck: true }, async (req) => {
     if (!link.exists) return { cards: [] };
     const cardId = link.get("cardId") as string;
     const card = await db().doc(`businesses/${businessId}/cards/${cardId}`).get();
-    return { cards: card.exists ? [summary(cardId, card.data() as CardDoc, total)] : [] };
+    return { cards: card.exists ? [summary(cardId, card.data() as CardDoc, b)] : [] };
   }
   if (code.length === CARD_CODE_SUFFIX_LENGTH) {
     const snap = await db().collection(`businesses/${businessId}/cards`).where("codeSuffix", "==", code).limit(10).get();
-    return { cards: snap.docs.map((d) => summary(d.id, d.data() as CardDoc, total)) };
+    return { cards: snap.docs.map((d) => summary(d.id, d.data() as CardDoc, b)) };
   }
   throw new HttpsError("invalid-argument", "code");
 });
@@ -192,7 +201,7 @@ export const scannerLookup = onCall({ enforceAppCheck: true }, async (req) => {
 export const scannerStamp = onCall({ enforceAppCheck: true, secrets: [walletKey, ...appleSecrets], memory: "512MiB" }, async (req) => {
   const { businessId, sessionId, b } = await requireSession(req.data?.token, req.data?.businessId);
   const { cardId, action, force } = req.data ?? {};
-  if (!validId(cardId) || (action !== "add" && action !== "redeem")) throw new HttpsError("invalid-argument", "Datos inválidos.");
+  if (!validId(cardId) || (action !== "add" && action !== "redeem" && action !== "birthday")) throw new HttpsError("invalid-argument", "Datos inválidos.");
   const total = b.rule!.stampsRequired;
   const cardRef = db().doc(`businesses/${businessId}/cards/${cardId}`);
   let notify: NotifyKind | undefined;
@@ -213,6 +222,12 @@ export const scannerStamp = onCall({ enforceAppCheck: true, secrets: [walletKey,
       }
       next = { stamps: stamps + 1, lastStampAt: FieldValue.serverTimestamp(), lastActivityAt: FieldValue.serverTimestamp() };
       if (stamps + 1 >= total) next.rewardsAvailable = 1;
+    } else if (action === "birthday") {
+      // Regalo de cumpleaños: uno por año, aparte de los sellos (no los toca).
+      const status = birthdayStatus(b, c);
+      if (!status?.gift) throw new HttpsError("failed-precondition", "no-birthday");
+      if (status.redeemed) throw new HttpsError("failed-precondition", "birthday-redeemed");
+      next = { birthdayRedeemedYear: todayAR().year, lastActivityAt: FieldValue.serverTimestamp() };
     } else {
       if (stamps < total) throw new HttpsError("failed-precondition", "no-reward");
       next = { stamps: 0, rewardsAvailable: 0, rewardsRedeemed: FieldValue.increment(1), lastActivityAt: FieldValue.serverTimestamp() };
@@ -233,16 +248,19 @@ export const scannerStamp = onCall({ enforceAppCheck: true, secrets: [walletKey,
       forced: action === "add" && force === true,
       at: FieldValue.serverTimestamp(),
       by: `scanner:${sessionId.slice(0, 12)}`,
-      stampsAfter: next.stamps,
+      stampsAfter: next.stamps ?? stamps,
     });
-    return { ...c, stamps: next.stamps as number };
+    return { ...c, ...(action === "birthday" ? { birthdayRedeemedYear: todayAR().year } : {}), stamps: (next.stamps as number) ?? stamps };
   });
 
   // El Wallet se actualiza después de guardar: si Google falla, el sello ya quedó registrado.
-  try {
-    await pushCardToWallet(businessId, cardId, b, card, new StampImages(businessId, b), notify);
-  } catch (err) {
-    logger.error("scannerStamp: no se pudo actualizar el Wallet", { businessId, cardId, err });
+  // El regalo de cumpleaños no cambia nada de la tarjeta.
+  if (action !== "birthday") {
+    try {
+      await pushCardToWallet(businessId, cardId, b, card, new StampImages(businessId, b), notify);
+    } catch (err) {
+      logger.error("scannerStamp: no se pudo actualizar el Wallet", { businessId, cardId, err });
+    }
   }
-  return { card: summary(cardId, { ...card, lastStampAt: action === "add" ? Timestamp.now() : card.lastStampAt }, total) };
+  return { card: summary(cardId, { ...card, lastStampAt: action === "add" ? Timestamp.now() : card.lastStampAt }, b) };
 });

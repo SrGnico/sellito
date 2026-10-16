@@ -22,9 +22,13 @@ type EnrollInfo =
       design: NonNullable<Business['design']>
       rule: NonNullable<Business['rule']>
       askFields: NonNullable<Business['askFields']>
+      birthdayPerk?: string | null
     }
 
-type Field = 'name' | 'phone' | 'email'
+type Field = 'name' | 'phone' | 'email' | 'birthday'
+
+// Tope del campo de cumpleaños (no se puede elegir una fecha futura).
+const TODAY = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' })
 
 // Datos públicos de la tarjeta: GET cacheable en el CDN, sin esperar a App Check.
 async function getEnrollInfo(code: string): Promise<EnrollInfo | 'not-found'> {
@@ -54,10 +58,11 @@ function isIOS() {
 const isMobile = () => isIOS() || /Android|Mobi/i.test(navigator.userAgent)
 const guessDesktopPlatform = () => (/Mac/i.test(navigator.userAgent) ? 'iphone' : 'android')
 
-const FIELDS: { key: Field; label: string; type: string; autoComplete: string; error: string }[] = [
+const FIELDS: { key: Field; label: string; type: string; autoComplete: string; error: string; optional?: boolean }[] = [
   { key: 'name', label: 'Tu nombre', type: 'text', autoComplete: 'name', error: 'Escribí tu nombre.' },
   { key: 'phone', label: 'Tu teléfono', type: 'tel', autoComplete: 'tel', error: 'Ingresá un teléfono válido, por ejemplo 11 2345 6789.' },
   { key: 'email', label: 'Tu mail', type: 'email', autoComplete: 'email', error: 'Ingresá un mail válido.' },
+  { key: 'birthday', label: 'Tu cumpleaños', type: 'date', autoComplete: 'bday', error: 'Revisá la fecha de tu cumpleaños.', optional: true },
 ]
 
 export default function Enroll() {
@@ -158,7 +163,7 @@ export default function Enroll() {
     e.preventDefault()
     setError(null)
     setFieldError(null)
-    const empty = fields.find((f) => !values[f.key]?.trim())
+    const empty = fields.find((f) => !f.optional && !values[f.key]?.trim())
     if (empty) {
       setFieldError(empty.key)
       document.getElementById(`enroll-${empty.key}`)?.focus()
@@ -256,18 +261,28 @@ export default function Enroll() {
           )}
           {fields.map((f) => (
             <div key={f.key}>
-              <label className="label" htmlFor={`enroll-${f.key}`}>{f.label}</label>
+              <label className="label" htmlFor={`enroll-${f.key}`}>
+                {f.label}
+                {f.optional && <span className="help" style={{ display: 'inline', marginLeft: 6 }}>(opcional)</span>}
+              </label>
               <input
                 id={`enroll-${f.key}`}
                 className="input"
                 type={f.type}
+                {...(f.type === 'date' ? { min: '1900-01-01', max: TODAY } : {})}
                 autoComplete={f.autoComplete}
                 value={values[f.key] ?? ''}
                 onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
                 aria-invalid={fieldError === f.key ? true : undefined}
                 aria-describedby={fieldError === f.key ? `enroll-${f.key}-error` : undefined}
               />
-              {fieldError === f.key && <p className="help help-error" id={`enroll-${f.key}-error`}>{f.error}</p>}
+              {fieldError === f.key ? (
+                <p className="help help-error" id={`enroll-${f.key}-error`}>{f.error}</p>
+              ) : (
+                f.key === 'birthday' && (
+                  <p className="help">{info.birthdayPerk ? `🎂 ${info.birthdayPerk}` : `Para que ${info.name} te salude en tu día.`}</p>
+                )
+              )}
             </div>
           ))}
           {fields.length > 0 && (

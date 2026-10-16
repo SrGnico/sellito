@@ -214,7 +214,7 @@ type View =
   | { kind: 'searching' }
   | { kind: 'choose'; cards: ScannedCard[] }
   | { kind: 'card'; card: ScannedCard; cooldown?: number }
-  | { kind: 'done'; card: ScannedCard; action: 'add' | 'redeem' }
+  | { kind: 'done'; card: ScannedCard; action: 'add' | 'redeem' | 'birthday' }
   | { kind: 'error'; message: string }
 
 const VALID_SCAN = /^[2-9A-HJ-NP-Z]{12}$/
@@ -281,7 +281,7 @@ function ScannerView({
     }
   }, [cameraOn, lookup])
 
-  async function act(card: ScannedCard, action: 'add' | 'redeem', force = false) {
+  async function act(card: ScannedCard, action: 'add' | 'redeem' | 'birthday', force = false) {
     setBusy(true)
     try {
       const r = await scannerStamp({ businessId, token, cardId: card.cardId, action, force })
@@ -292,6 +292,7 @@ function ScannerView({
       if (onSessionError(err)) return
       if (e.reason === 'cooldown') setView({ kind: 'card', card, cooldown: e.value ?? 0 })
       else if (e.reason === 'reward-ready') setView({ kind: 'card', card: { ...card, stamps: card.total } })
+      else if (e.reason === 'birthday-redeemed' && card.birthday) setView({ kind: 'card', card: { ...card, birthday: { ...card.birthday, redeemed: true } } })
       else setView({ kind: 'error', message: 'No pudimos guardar el sello. Revisá tu conexión e intentá de nuevo.' })
     } finally {
       setBusy(false)
@@ -438,13 +439,27 @@ function ScannerView({
                 })
                 if (ok) act(view.card, 'redeem')
               }}
+              onBirthday={async () => {
+                const ok = await confirmar({
+                  title: '¿Entregar el regalo de cumpleaños?',
+                  text: `Entregale ${view.card.birthday?.gift ?? 'su regalo'}. Es uno por año y no cambia sus sellos.`,
+                  confirmLabel: 'Entregar',
+                })
+                if (ok) act(view.card, 'birthday')
+              }}
               onCancel={toIdle}
             />
           )}
 
           {view.kind === 'done' && (
             <div className="scanner-center" role="status" style={{ flexDirection: 'column' }}>
-              {view.action === 'redeem' ? (
+              {view.action === 'birthday' ? (
+                <>
+                  <div className="scanner-big stamp-in" aria-hidden="true">🎂</div>
+                  <h2>¡Regalo de cumple entregado!</h2>
+                  <p style={{ margin: 0 }}>{view.card.name ? `${view.card.name}: ` : ''}{view.card.birthday?.gift}. Sus sellos siguen igual.</p>
+                </>
+              ) : view.action === 'redeem' ? (
                 <>
                   <img src={reward} alt="" width={200} height={150} className="stamp-in" />
                   <h2>¡Premio entregado!</h2>
@@ -570,6 +585,7 @@ function CardResult({
   busy,
   onAdd,
   onRedeem,
+  onBirthday,
   onCancel,
 }: {
   card: ScannedCard
@@ -579,12 +595,30 @@ function CardResult({
   busy: boolean
   onAdd: (force: boolean) => void
   onRedeem: () => void
+  onBirthday: () => void
   onCancel: () => void
 }) {
   const ready = card.stamps >= card.total
+  const bday = card.birthday
   return (
     <>
       <h3>{card.name ?? 'Cliente'}</h3>
+      {bday && (
+        <div className="alert alert-info birthday-alert" role="status">
+          <span aria-hidden="true" style={{ fontSize: 28 }}>🎂</span>
+          <div style={{ flex: 1 }}>
+            <span className="alert-title">¡Está de cumple!</span>
+            <span className="alert-text">
+              {!bday.gift ? 'Saludalo: es su cumpleaños.' : bday.redeemed ? 'Ya recibió su regalo de cumpleaños este año.' : `Tiene de regalo: ${bday.gift}.`}
+            </span>
+            {bday.gift && !bday.redeemed && (
+              <button className="btn btn-sm" type="button" onClick={onBirthday} disabled={busy} style={{ marginTop: 8 }}>
+                Entregar regalo de cumple
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '2px solid var(--border)' }}>
         <StampGrid
           total={card.total}

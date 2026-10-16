@@ -22,8 +22,8 @@ export const CARDS_VERSION = 3 // functions/src/cards/search.ts
 const MAX_TOKEN = 15
 const DAY_MS = 86400000
 
-export type CustomerFilter = 'all' | 'reward' | 'inactive' | 'new'
-export type SortKey = 'createdAt' | 'lastActivityAt' | 'stamps'
+export type CustomerFilter = 'all' | 'reward' | 'inactive' | 'new' | 'birthday'
+export type SortKey = 'createdAt' | 'lastActivityAt' | 'stamps' | 'birthdayMD'
 export type Sort = { key: SortKey; dir: 'asc' | 'desc' }
 
 export const FILTERS: { id: CustomerFilter; label: string }[] = [
@@ -31,7 +31,11 @@ export const FILTERS: { id: CustomerFilter; label: string }[] = [
   { id: 'reward', label: 'Con premio disponible' },
   { id: 'inactive', label: `Inactivos hace más de ${INACTIVE_DAYS} días` },
   { id: 'new', label: 'Nuevos esta semana' },
+  { id: 'birthday', label: 'Cumplen este mes 🎂' },
 ]
+
+// Mes actual en Argentina ("MM"), para el filtro de cumpleaños (igual que functions/src/birthday/rules.ts).
+export const currentMonth = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).slice(5, 7)
 
 export const normalizeText = (s: string) =>
   s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
@@ -57,6 +61,7 @@ export function fixedSort(filter: CustomerFilter, searching: boolean): Sort | nu
   if (searching) return null
   if (filter === 'inactive') return { key: 'lastActivityAt', dir: 'asc' }
   if (filter === 'new') return { key: 'createdAt', dir: 'desc' }
+  if (filter === 'birthday') return { key: 'birthdayMD', dir: 'asc' }
   return null
 }
 
@@ -74,6 +79,7 @@ export async function fetchCustomers(
   else if (opts.filter === 'reward') c.push(where('rewardsAvailable', '==', 1))
   else if (opts.filter === 'inactive') c.push(where('lastActivityAt', '<', Timestamp.fromMillis(Date.now() - INACTIVE_DAYS * DAY_MS)))
   else if (opts.filter === 'new') c.push(where('createdAt', '>=', Timestamp.fromMillis(Date.now() - NEW_DAYS * DAY_MS)))
+  else if (opts.filter === 'birthday') c.push(where('birthdayM', '==', currentMonth()))
   c.push(orderBy(sort.key, sort.dir))
   if (opts.after) c.push(startAfter(opts.after))
   c.push(limit(PAGE_SIZE + 1)) // uno de más para saber si hay otra página

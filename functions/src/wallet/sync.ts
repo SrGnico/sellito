@@ -46,6 +46,7 @@ export const syncGoogleClass = onDocumentUpdated(
         b.rule?.itemSingular,
         b.rule?.itemPlural,
         b.rule?.conditions,
+        JSON.stringify(b.birthday ?? null),
       ]);
 
     const classChanged = classFields(before) !== classFields(after);

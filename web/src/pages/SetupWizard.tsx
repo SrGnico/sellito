@@ -1,3 +1,5 @@
+import { DEFAULT_BIRTHDAY } from '../lib/birthday'
+import BirthdaySettings from '../components/BirthdaySettings'
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -151,13 +153,22 @@ export default function SetupWizard({ business }: { business: Business }) {
                 <p className="help" style={{ marginTop: 0 }}>
                   Se los pedimos cuando guardan la tarjeta. La lista es tuya: la ves en Clientes y la podés descargar cuando quieras.
                 </p>
-                {([['name', 'Nombre'], ['phone', 'Teléfono'], ['email', 'Mail']] as const).map(([key, label]) => (
+                {([['name', 'Nombre'], ['phone', 'Teléfono'], ['email', 'Mail'], ['birthday', 'Cumpleaños']] as const).map(([key, label]) => (
                   <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, minHeight: 32 }}>
-                    <input className="checkbox" type="checkbox" checked={draft.askFields[key]}
+                    <input className="checkbox" type="checkbox" checked={draft.askFields[key] ?? false}
                       onChange={(e) => update({ askFields: { ...draft.askFields, [key]: e.target.checked } })} />
                     {label}
                   </label>
                 ))}
+                <h4 style={{ marginTop: 8 }}>Regalo de cumpleaños 🎂</h4>
+                <BirthdaySettings
+                  value={draft.birthday ?? DEFAULT_BIRTHDAY}
+                  onChange={(birthday) => update({ birthday })}
+                  askBirthday={draft.askFields.birthday ?? false}
+                  onAskBirthday={(ask) => update({ askFields: { ...draft.askFields, birthday: ask } })}
+                  businessName={draft.name}
+                  rewardText={draft.rewardText}
+                />
               </section>
             )}
           </fieldset>

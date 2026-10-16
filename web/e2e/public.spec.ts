@@ -32,13 +32,15 @@ test('la política explica nombre, teléfono y mail', async ({ page }) => {
   for (const word of ['nombre', 'teléfono', 'mail']) expect(text).toContain(word)
 })
 
-test('tarjeta de prueba: pide nombre y mail', async ({ page }) => {
+test('tarjeta de prueba: pide nombre, mail y cumpleaños (con regalo)', async ({ page }) => {
   await page.goto('/c/prueba')
   await expect(page.getByRole('heading', { name: /Sumate a la tarjeta/ })).toBeVisible()
   const otra = page.getByRole('button', { name: 'Es para otra persona' })
   if (await otra.isVisible()) await otra.click()
   await expect(page.getByLabel('Tu nombre')).toBeVisible()
   await expect(page.getByLabel('Tu mail')).toBeVisible()
+  await expect(page.getByLabel(/Tu cumpleaños/)).toBeVisible()
+  await expect(page.getByText(/abrazo doble de cumple/)).toBeVisible()
 })
 
 test('tarjeta de prueba: en computadora ofrece iPhone y Android; en iPhone, Apple Wallet', async ({ page, isMobile }) => {

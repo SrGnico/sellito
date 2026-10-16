@@ -28,6 +28,10 @@ const CUSTOMER_FAQ: [string, string][] = [
     `Pedíselo al local, que es el responsable de su lista de clientes, o escribinos a ${RESPONSIBLE.email} con el nombre del local y el teléfono o mail que usaste. Te respondemos y los borramos.`,
   ],
   [
+    '¿Para qué me piden el cumpleaños?',
+    'Es opcional. Si lo cargás, el local puede saludarte ese día y, si tiene un regalo de cumpleaños, el escáner le avisa que te corresponde. No se usa para otra cosa.',
+  ],
+  [
     'No quiero recibir más avisos de un local',
     'Podés pedírselo al local o escribirnos. También podés desactivar las notificaciones de esa tarjeta desde la configuración de la tarjeta en tu Wallet.',
   ],

@@ -1,3 +1,5 @@
+import { DEFAULT_BIRTHDAY } from '../lib/birthday'
+import BirthdaySettings from '../components/BirthdaySettings'
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
@@ -301,6 +303,18 @@ export default function CardEditor({ business, readOnly = false }: { business: B
           </section>
 
           <section className="card">
+            <h4>Regalo de cumpleaños 🎂</h4>
+            <BirthdaySettings
+              value={draft.birthday ?? DEFAULT_BIRTHDAY}
+              onChange={(birthday) => update({ birthday })}
+              askBirthday={draft.askFields.birthday ?? false}
+              onAskBirthday={(ask) => update({ askFields: { ...draft.askFields, birthday: ask } })}
+              businessName={draft.name}
+              rewardText={draft.rewardText}
+            />
+          </section>
+
+          <section className="card">
             <h4>Locales y cercanía</h4>
             <p className="help" style={{ marginTop: 0 }}>
               Cargá hasta {MAX_LOCATIONS} locales. Si activás la cercanía, la tarjeta puede aparecer en la pantalla de bloqueo
@@ -352,13 +366,14 @@ export default function CardEditor({ business, readOnly = false }: { business: B
                 ['name', 'Nombre'],
                 ['phone', 'Teléfono'],
                 ['email', 'Mail'],
+                ['birthday', 'Cumpleaños'],
               ] as const
             ).map(([key, label]) => (
               <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, minHeight: 32 }}>
                 <input
                   className="checkbox"
                   type="checkbox"
-                  checked={draft.askFields[key]}
+                  checked={draft.askFields[key] ?? false}
                   onChange={(e) => update({ askFields: { ...draft.askFields, [key]: e.target.checked } })}
                 />
                 {label}

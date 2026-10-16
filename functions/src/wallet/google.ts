@@ -1,3 +1,4 @@
+import { birthdayPerk } from "../birthday/rules";
 import { createSign } from "node:crypto";
 import { defineSecret, defineString } from "firebase-functions/params";
 import { GoogleAuth } from "google-auth-library";
@@ -100,6 +101,7 @@ function loyaltyObjectFields(b: BusinessDoc, card: Pick<CardDoc, "stamps" | "bar
       { id: "progreso", header: "Tu progreso", body: proximityText(b, stamps) },
       { id: "premio", header: "Premio", body: `Al juntar ${required} sellos: ${b.rule!.rewardText}` },
       ...(b.rule!.conditions ? [{ id: "condiciones", header: "Condiciones", body: b.rule!.conditions }] : []),
+      ...(birthdayPerk(b) ? [{ id: "cumple", header: "En tu cumpleaños", body: birthdayPerk(b)! }] : []),
     ],
     linksModuleData: { uris: [{ id: "marca", uri: SITE_URL.value(), description: `Tarjeta hecha con ${APP_NAME.value()}` }] },
   };

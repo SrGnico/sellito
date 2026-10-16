@@ -49,7 +49,7 @@ export function privacySections(appName: string): LegalSection[] {
     {
       title: 'Datos de los clientes de cada negocio',
       paragraphs: [
-        'Cuando alguien guarda la tarjeta de un negocio, guardamos solo los datos que ese negocio decidió pedir (nombre, teléfono y/o mail), la cantidad de sellos, los canjes y el historial de sellos, y si aceptó recibir novedades del negocio.',
+        'Cuando alguien guarda la tarjeta de un negocio, guardamos solo los datos que ese negocio decidió pedir (nombre, teléfono, mail y/o fecha de cumpleaños, que siempre es opcional), la cantidad de sellos, los canjes y el historial de sellos, y si aceptó recibir novedades del negocio.',
         `Sobre estos datos, cada negocio es el responsable de su base de clientes y ${appName} actúa como encargado del tratamiento: los guardamos y procesamos solo para prestar el servicio a ese negocio. No los vendemos, no los compartimos con otros negocios y no los usamos para publicidad propia.`,
         'Para mantener la tarjeta actualizada en el celular, Apple y Google nos envían un identificador técnico del dispositivo y del pase. No accedemos a la ubicación del celular: si el negocio activa la cercanía, es el propio celular el que decide mostrar la tarjeta cerca del local.',
       ],
@@ -60,6 +60,7 @@ export function privacySections(appName: string): LegalSection[] {
       list: [
         'Prestar el servicio: crear y actualizar las tarjetas, sumar sellos, canjear premios y mostrar estadísticas al negocio.',
         'Hacer llegar a la tarjeta los avisos y novedades que publique el negocio, solo a quienes aceptaron recibirlos.',
+        'Si el negocio lo activa y el cliente cargó su cumpleaños: mandarle un saludo ese día (solo si aceptó recibir novedades) y avisarle al negocio, cuando escanea la tarjeta, que tiene un regalo de cumpleaños.',
         'Cobrar la suscripción y avisar sobre pagos, vencimientos y cambios importantes del servicio.',
         'Seguridad: prevenir abusos (por ejemplo, altas masivas de tarjetas) y resolver problemas técnicos.',
         'Medir el uso del sitio de forma agregada (por ejemplo, cuántas visitas tuvo la página por día), sin cookies y sin guardar datos que identifiquen a nadie.',

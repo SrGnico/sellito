@@ -36,6 +36,8 @@
 - [x] Página `/soporte`
 - [x] Política sin datos personales a la vista (se informan a pedido)
 - [x] Alta instantánea: `GET API_URL/enrollInfo/{código}` cacheado en el CDN (sin esperar a App Check); App Check se pide en segundo plano para crear la tarjeta
+- [x] Cumpleaños: dato opcional (día, mes y año), regalo configurable (mismo premio / otro / solo saludo; el día o todo el mes), saludo automático (`birthdayGreetings`, 10 h), aviso y canje en el escáner (uno por año, sin tocar sellos), filtro "Cumplen este mes", columna en el Excel, detalles de la tarjeta, landing, FAQ, soporte, privacidad, bienvenida
+- [ ] Probar en un celular real el saludo de cumpleaños (cargar una tarjeta con el cumple de hoy)
 - [x] Avisos al administrador por mail (ADMIN_EMAIL): negocio nuevo, suscripción nueva, cobro fallido, cancelación, pausa
 - [x] Analítica propia sin cookies (`track` → `analytics/{día}`), embudo en /admin
 - [x] Landing ("Y el tuyo": nombre y color en vivo, cada letra un sello, llegan cargados al panel): celular con aviso, 5 negocios de ejemplo con logo/banner, rubros clickeables, confianza (badges oficiales), precio por día, botón fijo en celular, lista de clientes de muestra, video sin barra

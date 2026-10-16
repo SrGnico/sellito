@@ -35,7 +35,8 @@ export type Business = {
   }
   // itemSingular/itemPlural: lo que se cuenta ("café" / "cafés"), para "Te faltan 3 cafés".
   rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string; conditions?: string }
-  askFields?: { name: boolean; phone: boolean; email: boolean }
+  askFields?: { name: boolean; phone: boolean; email: boolean; birthday?: boolean }
+  birthday?: BirthdayConfig // regalo y saludo de cumpleaños (lib/birthday.ts)
   locations?: BusinessLocation[]
   proximityEnabled?: boolean // mostrar la tarjeta cerca de los locales (functions/src/wallet/proximity.ts)
   enrollCode?: string
@@ -47,9 +48,18 @@ export type Business = {
 }
 
 // businesses/{id}/cards/{cardId}: la escriben solo las Functions; el dueño la lee.
+// Mismo modelo que functions/src/types.ts (BirthdayConfig).
+export type BirthdayConfig = {
+  enabled: boolean
+  when: 'day' | 'month'
+  reward: 'same' | 'custom' | 'none'
+  rewardText?: string
+  notify: boolean
+}
+
 export type Card = {
   id: string
-  customer: { name?: string; phone?: string; email?: string }
+  customer: { name?: string; phone?: string; email?: string; birthday?: string } // birthday: AAAA-MM-DD
   stamps: number
   rewardsAvailable: number
   rewardsRedeemed: number

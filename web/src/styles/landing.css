@@ -312,3 +312,6 @@
   .leads-list li::before { top: 50%; transform: translateY(-50%); }
 }
 .your-card { margin-inline: auto !important; }
+/* Función destacada a lo ancho (saludo de cumpleaños) */
+.features .feature-wide { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 18px; background: var(--pink-tint); }
+.feature-emoji { font-size: 44px; line-height: 1; flex-shrink: 0; }
