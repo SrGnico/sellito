@@ -259,7 +259,8 @@ export default function SetupWizard({ business }: { business: Business }) {
             <section className="card">
               <h2>Datos de tus clientes</h2>
               <p className="help" style={{ marginTop: 0 }}>
-                Se los pedimos cuando guardan la tarjeta. La lista es tuya: la ves en Clientes y la podés descargar cuando quieras.
+                Se los pedimos cuando guardan la tarjeta: lo que marques es obligatorio para sumarse. La lista es tuya: la ves en Clientes y la
+                podés descargar cuando quieras.
               </p>
               {([['name', 'Nombre'], ['phone', 'Teléfono'], ['email', 'Mail'], ['birthday', 'Cumpleaños']] as const).map(([key, label]) => (
                 <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, minHeight: 32 }}>

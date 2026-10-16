@@ -62,7 +62,7 @@ const FIELDS: { key: Field; label: string; type: string; autoComplete: string; e
   { key: 'name', label: 'Tu nombre', type: 'text', autoComplete: 'name', error: 'Escribí tu nombre.' },
   { key: 'phone', label: 'Tu teléfono', type: 'tel', autoComplete: 'tel', error: 'Ingresá un teléfono válido, por ejemplo 11 2345 6789.' },
   { key: 'email', label: 'Tu mail', type: 'email', autoComplete: 'email', error: 'Ingresá un mail válido.' },
-  { key: 'birthday', label: 'Tu cumpleaños', type: 'date', autoComplete: 'bday', error: 'Revisá la fecha de tu cumpleaños.', optional: true },
+  { key: 'birthday', label: 'Tu cumpleaños', type: 'date', autoComplete: 'bday', error: 'Cargá la fecha de tu cumpleaños.' },
 ]
 
 export default function Enroll() {

@@ -142,8 +142,8 @@ function cleanCustomer(input: unknown, ask: NonNullable<BusinessDoc["askFields"]
     }
     customer.email = email;
   }
-  // Cumpleaños: opcional para el cliente aunque el negocio lo pida (vacío = no lo cargó).
-  if (ask.birthday && raw.birthday) {
+  // Cumpleaños: como los demás datos, si el negocio lo pide es obligatorio (es su condición para la tarjeta).
+  if (ask.birthday) {
     const birthday = parseBirthday(raw.birthday);
     if (!birthday) throw new HttpsError("invalid-argument", "birthday");
     customer.birthday = birthday;

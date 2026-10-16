@@ -49,7 +49,7 @@ export function privacySections(appName: string): LegalSection[] {
     {
       title: 'Datos de los clientes de cada negocio',
       paragraphs: [
-        'Cuando alguien guarda la tarjeta de un negocio, guardamos solo los datos que ese negocio decidió pedir (nombre, teléfono, mail y/o fecha de cumpleaños, que siempre es opcional), la cantidad de sellos, los canjes y el historial de sellos, y si aceptó recibir novedades del negocio.',
+        'Cuando alguien guarda la tarjeta de un negocio, guardamos solo los datos que ese negocio decidió pedir (nombre, teléfono, mail y/o fecha de cumpleaños; el negocio elige cuáles son necesarios para sumarse a su tarjeta), la cantidad de sellos, los canjes y el historial de sellos, y si aceptó recibir novedades del negocio.',
         `Sobre estos datos, cada negocio es el responsable de su base de clientes y ${appName} actúa como encargado del tratamiento: los guardamos y procesamos solo para prestar el servicio a ese negocio. No los vendemos, no los compartimos con otros negocios y no los usamos para publicidad propia.`,
         'Para mantener la tarjeta actualizada en el celular, Apple y Google nos envían un identificador técnico del dispositivo y del pase. No accedemos a la ubicación del celular: si el negocio activa la cercanía, es el propio celular el que decide mostrar la tarjeta cerca del local.',
       ],
