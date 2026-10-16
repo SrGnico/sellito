@@ -30,7 +30,7 @@ const MORE_BUSINESSES = 'panaderías, gimnasios, lavaderos, veterinarias, librer
 // Lista de clientes de muestra (inventada) para la sección "Tu lista de clientes".
 const SAMPLE_CUSTOMERS = [
   { name: 'Martina G.', stamps: '7 de 8', last: 'hoy', tag: 'Casi premio' },
-  { name: 'Lucas R.', stamps: '3 de 8', last: 'hace 2 días', tag: '' },
+  { name: 'Lucas R.', stamps: '3 de 8', last: 'hace 2 días', tag: 'Cumple este mes' },
   { name: 'Sofía P.', stamps: '8 de 8', last: 'ayer', tag: 'Premio listo' },
   { name: 'Diego F.', stamps: '1 de 8', last: 'hace 34 días', tag: 'No vuelve' },
 ]
@@ -167,7 +167,7 @@ export default function Landing() {
                 <div key={c.name} className="sample-row">
                   <span className="sample-avatar">{c.name.charAt(0)}</span>
                   <span className="sample-name">{c.name}<small>{c.last}</small></span>
-                  {c.tag && <span className={`sample-tag${c.tag === 'No vuelve' ? ' warn' : ''}`}>{c.tag}</span>}
+                  {c.tag && <span className={`sample-tag${c.tag === 'No vuelve' ? ' warn' : c.tag === 'Cumple este mes' ? ' bday' : ''}`}>{c.tag}</span>}
                   <span className="sample-stamps">{c.stamps}</span>
                 </div>
               ))}

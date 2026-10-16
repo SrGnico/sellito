@@ -325,3 +325,4 @@
   .feature-emoji { width: 68px; height: 68px; }
   .feature-emoji svg { width: 44px; height: 44px; }
 }
+.sample-tag.bday { background: var(--pink-soft); }
