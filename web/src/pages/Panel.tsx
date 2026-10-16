@@ -2,11 +2,12 @@ import { pixelEvent } from '../lib/metaPixel'
 import { readAttribution } from '../lib/attribution'
 import { signOut } from 'firebase/auth'
 import {
-  addDoc,
   collection,
+  doc,
   onSnapshot,
   query,
   serverTimestamp,
+  setDoc,
   where,
 } from 'firebase/firestore'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
@@ -16,7 +17,6 @@ import EnrollQr from '../components/EnrollQr'
 import { useAuth } from '../lib/auth'
 import { auth, db } from '../lib/firebase'
 import type { Business } from '../lib/types'
-import CardEditor from './CardEditor'
 import Customers from './Customers'
 import Notices from './Notices'
 import PanelHome from './PanelHome'
@@ -32,6 +32,7 @@ import Onboarding from '../components/Onboarding'
 import ScannerSettings from '../components/ScannerSettings'
 import Spinner from '../components/Spinner'
 import { clearSignupPrefill, readSignupPrefill } from '../lib/prefill'
+import { toast } from '../lib/feedback'
 import { track } from '../lib/track'
 import { APP_NAME } from '../lib/urls'
 
@@ -47,7 +48,7 @@ export default function Panel() {
   useSubscribeEvent(state.status === 'ready' ? state.businesses[0] : undefined)
   // En el asistente el aviso de suscripción distrae (y dice que la tarjeta ya está lista).
   const { pathname } = useLocation()
-  const inWizard = pathname.startsWith('/panel/configurar')
+  const inWizard = pathname.startsWith('/panel/configurar') || pathname.startsWith('/panel/tarjeta')
   const inPreview = pathname.startsWith('/panel/vista-previa') // ya tiene su propio botón de activar
 
   useEffect(() => {
@@ -66,17 +67,7 @@ export default function Panel() {
 
   return (
     <>
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          padding: '12px 16px',
-          borderBottom: '2px solid var(--border)',
-          background: 'var(--surface)',
-        }}
-      >
+      <header className="panel-header">
         <Link to="/panel" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
           <Mascot size={32} />
           <h4>{APP_NAME}</h4>
@@ -142,16 +133,7 @@ export default function Panel() {
                 </DraftGate>
               }
             />
-            <Route
-              path="tarjeta"
-              element={
-                <CardEditor
-                  key={state.businesses[0].id}
-                  business={state.businesses[0]}
-                  readOnly={isReadOnly(accessLevel(state.businesses[0].subscription))}
-                />
-              }
-            />
+            <Route path="tarjeta" element={<SetupWizard key={state.businesses[0].id} business={state.businesses[0]} />} />
             <Route
               path="clientes"
               element={<DraftGate business={state.businesses[0]}><Customers key={state.businesses[0].id} business={state.businesses[0]} /></DraftGate>}
@@ -188,7 +170,8 @@ function CreateBusiness({ uid }: { uid: string }) {
       // El slug lo asigna una Function más adelante (SELLITO_SPEC.md §12).
       // De qué campaña llegó (utm/fbclid guardados por la landing): se guarda una sola vez, al crearlo.
       const attribution = readAttribution()
-      const ref = await addDoc(collection(db, 'businesses'), {
+      const ref = doc(collection(db, 'businesses'))
+      const write = setDoc(ref, {
         ownerUid: uid,
         name: trimmed,
         ...(prefill.color ? { design: { bgColor: prefill.color } } : {}),
@@ -196,13 +179,17 @@ function CreateBusiness({ uid }: { uid: string }) {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       })
+      // Directo al asistente: el negocio ya aparece en el panel (copia local) antes de que el servidor
+      // confirme; si se esperara, el inicio del panel se ve un instante y después salta.
+      navigate('/panel/configurar')
+      await write
       clearSignupPrefill()
       track('business_created')
       pixelEvent('CompleteRegistration', {}, `registration_${ref.id}`)
-      navigate('/panel/configurar')
     } catch {
-      setError('No pudimos crear el negocio. Intentá de nuevo.')
-      setBusy(false)
+      // Si el servidor lo rechaza, la copia local se descarta y vuelve a aparecer este formulario.
+      toast('No pudimos crear el negocio. Intentá de nuevo.', 'err')
+      navigate('/panel')
     }
   }
 

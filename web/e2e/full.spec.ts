@@ -31,6 +31,15 @@ async function businessIdOf(token: string): Promise<string | undefined> {
   return rows.find((r) => r.document)?.document?.name.split('/').pop()
 }
 
+// El negocio se crea sin esperar al servidor (Panel.tsx): reintenta hasta que aparece.
+async function waitBusinessId(token: string): Promise<string | undefined> {
+  for (let i = 0; i < 10; i++) {
+    const id = await businessIdOf(token)
+    if (id) return id
+    await new Promise((r) => setTimeout(r, 500))
+  }
+}
+
 async function idToken(page: Page): Promise<string | undefined> {
   return page.evaluate(
     () =>
@@ -64,44 +73,68 @@ test('alta de un negocio nuevo con el asistente', async ({ page, isMobile }) => 
   await page.getByRole('button', { name: 'Crear mi negocio' }).click()
   await expect(page).toHaveURL(/\/panel\/configurar/)
   created.idToken = await idToken(page)
+  if (created.idToken) created.businessId = await waitBusinessId(created.idToken)
 
   await shot('0-inicio')
-  // 1. Logo y color: sin logo no avanza.
+  // Sin pasar por el inicio del panel (antes titilaba).
+  await expect(page.getByRole('heading', { name: 'Tu marca' })).toBeVisible()
+  // 1. Marca: sin logo no avanza.
   await page.getByRole('button', { name: 'Siguiente' }).click()
   await expect(page.getByRole('alert')).toContainText('Subí tu logo')
-  await page.locator('input[type=file]').setInputFiles(LOGO)
+  await page.locator('input[type=file]').first().setInputFiles(LOGO)
   await expect(page.getByRole('button', { name: 'Cambiar' })).toBeVisible()
   await page.getByTitle('#7BD389').click()
+  // Código exacto de la marca (sin # también vale).
+  await page.getByLabel('Código del color').fill('1d7a5f')
+  await expect(page.getByLabel('Código del color')).not.toHaveAttribute('aria-invalid', 'true')
+  // Cambiar de celular no mueve la página: la vista previa mide lo mismo.
+  const box = page.locator('.preview-stack')
+  const before = await box.boundingBox()
+  await page.getByRole('button', { name: 'iPhone' }).click()
+  expect((await box.boundingBox())?.height).toBe(before?.height)
+  await shot('1-marca')
   await page.getByRole('button', { name: 'Siguiente' }).click()
 
-  await shot('1-marca')
+  // 2. Diseño: ícono del sello.
+  await expect(page.getByRole('heading', { name: 'Diseño de la tarjeta' })).toBeVisible()
+  await page.getByText('Estrella').click()
+  await shot('2-diseno')
+  await page.getByRole('button', { name: 'Siguiente' }).click()
+
   // 2. Premio: con la sugerencia de descuento y una condición.
   await expect(page.getByRole('heading', { name: 'El premio' })).toBeVisible()
   await page.getByRole('button', { name: '20% de descuento' }).click()
   await page.getByLabel('Condiciones (opcional)').fill('Un sello por compra mayor a $5.000')
   await page.getByRole('button', { name: 'Siguiente' }).click()
 
-  await shot('2-premio')
-  // 3. Datos.
+  await shot('3-premio')
+  // 4. Datos.
   await expect(page.getByRole('heading', { name: 'Datos de tus clientes' })).toBeVisible()
   await page.getByLabel('Mail').check()
   // Regalo de cumpleaños: prenderlo también pide el cumpleaños al cliente.
   await page.getByRole('switch', { name: 'Saludar a mis clientes en su cumpleaños' }).click()
   await expect(page.getByRole('checkbox', { name: 'Cumpleaños' })).toBeChecked()
   await page.getByRole('radio', { name: 'Todo el mes de su cumpleaños' }).check()
+  await shot('4-datos')
   await page.getByRole('button', { name: 'Siguiente' }).click()
 
-  await shot('3-datos')
-  // 4. En borrador el asistente termina en la vista previa: iPhone y Android, botón de activar.
+  // 5. Locales (opcional). En borrador el asistente termina en la vista previa.
+  await expect(page.getByRole('heading', { name: 'Locales y cercanía' })).toBeVisible()
+  await shot('5-locales')
   await page.getByRole('button', { name: 'Ver cómo queda' }).click()
   await expect(page).toHaveURL(/\/panel\/vista-previa/)
   await expect(page.getByText('iPhone · Apple Wallet')).toBeVisible()
   await expect(page.getByText('Android · Google Wallet')).toBeVisible()
   await expect(page.getByRole('button', { name: /^Activar mi tarjeta/ })).toBeVisible()
   await expect(page.getByText('Pagás solo cuando activás. Podés cancelar cuando quieras.')).toBeVisible()
-  if (created.idToken) created.businessId = await businessIdOf(created.idToken)
 
-  await shot('4-vista-previa')
+  await shot('6-vista-previa')
+  // "Cambiar algo del diseño" abre el mismo editor, con los pasos para saltar directo.
+  await page.getByRole('link', { name: 'Quiero cambiar algo del diseño' }).click()
+  await expect(page).toHaveURL(/\/panel\/tarjeta/)
+  await page.getByRole('button', { name: 'Premio' }).click()
+  await expect(page.getByRole('heading', { name: 'El premio' })).toBeVisible()
+  await shot('7-editar')
   // QR, escáner y clientes llevan a la vista previa hasta activar.
   for (const path of ['qr', 'escaner', 'clientes']) {
     await page.goto(`/panel/${path}`)
@@ -114,7 +147,7 @@ test('alta de un negocio nuevo con el asistente', async ({ page, isMobile }) => 
   await expect(page.getByText(/20% de descuento/).first()).toBeVisible()
   await expect(page.getByText('Falta activar')).toBeVisible()
 
-  await shot('5-panel')
+  await shot('8-panel')
 })
 
 test.afterAll(async () => {

@@ -117,7 +117,7 @@ function SetupChecklist({ business, level }: { business: Business; level: Access
       title: 'Cargá tus locales',
       detail: 'La tarjeta puede aparecer cuando el cliente está cerca.',
       done: Boolean(business.proximityEnabled && business.locations?.length),
-      to: 'tarjeta',
+      to: 'tarjeta?paso=locales',
       action: 'Cargar',
       optional: true,
     },
@@ -126,7 +126,7 @@ function SetupChecklist({ business, level }: { business: Business; level: Access
       title: 'Activá los regalos de cumpleaños',
       detail: 'Cada cliente recibe un saludo tuyo en su día, con un regalo si querés.',
       done: Boolean(business.birthday?.enabled),
-      to: 'tarjeta',
+      to: 'tarjeta?paso=clientes',
       action: 'Configurar',
       optional: true,
     },
@@ -189,7 +189,7 @@ function QuickLinks({ business }: { business: Business }) {
     { to: 'escaner', title: 'Escáner', detail: (business.scannerPinVersion ?? 0) > 0 ? 'Abrilo en el celular del local' : 'Creá el PIN' },
     { to: 'clientes', title: 'Clientes', detail: 'Quiénes tienen tu tarjeta' },
     { to: 'avisos', title: 'Avisos', detail: 'Mandales una novedad al celular' },
-    { to: 'tarjeta', title: 'Locales y cercanía', detail: business.proximityEnabled ? `${business.locations?.length ?? 0} cargados` : 'Apagado' },
+    { to: 'tarjeta?paso=locales', title: 'Locales y cercanía', detail: business.proximityEnabled ? `${business.locations?.length ?? 0} cargados` : 'Apagado' },
   ]
   return (
     <nav className="quick-links" aria-label="Accesos rápidos">

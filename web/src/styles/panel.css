@@ -1,5 +1,11 @@
 /* Panel del negocio: navegación, suscripción y clientes. */
-.panel-nav { display: flex; gap: 4px; padding: 8px 16px; overflow-x: auto; background: var(--cream); border-bottom: var(--border-width) solid var(--border); }
+/* Encabezado y menú alineados con el contenido (main.main-wide: 1040 px centrado, 16 px de margen). */
+.panel-header, .panel-nav { padding-inline: max(16px, calc((100% - 1040px) / 2 + 16px)); }
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px;
+  border-bottom: var(--border-width) solid var(--border); background: var(--surface);
+}
+.panel-nav { display: flex; gap: 4px; padding-block: 8px; overflow-x: auto; background: var(--cream); border-bottom: var(--border-width) solid var(--border); }
 .panel-nav a {
   display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: var(--radius-full);
   font-weight: 500; font-size: var(--text-sm); text-decoration: none; white-space: nowrap; border: var(--border-width) solid transparent;
@@ -104,6 +110,14 @@
 .wizard-steps li.active { background: var(--pink); color: var(--text); }
 .wizard-steps li.active span { background: var(--surface); }
 .wizard-steps li.done span { background: var(--green); color: var(--cream); }
+/* Con la tarjeta armada, cada paso es un botón para ir directo. */
+.wizard-steps li:has(> button) { padding: 0; }
+.wizard-steps li > button {
+  display: flex; align-items: center; gap: 6px; padding: 6px 12px 6px 6px; border: 0; border-radius: var(--radius-full);
+  background: none; font: inherit; color: inherit; cursor: pointer;
+}
+.wizard-steps li > button:hover { color: var(--text); }
+.wizard-steps li > button:focus-visible { outline: 3px solid var(--focus, var(--green)); outline-offset: 2px; }
 @media (max-width: 560px) { .wizard-steps li:not(.active) { font-size: 0; padding: 4px; gap: 0; } }
 .wizard .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .wizard-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; margin-top: 24px; }
@@ -113,6 +127,24 @@
 .swatch:has(input:focus-visible) { outline: 3px solid var(--focus, var(--green)); outline-offset: 3px; }
 .swatch-custom { overflow: hidden; background: conic-gradient(#FF9EC4, #FFD166, #7BD389, #8EC5FF, #C9A7FF, #FF9EC4); }
 .swatch-custom input { opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+/* Color exacto de la marca: muestra, código y cuentagotas. */
+.color-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.color-row > div { flex: 1 1 140px; }
+.color-chip { width: 48px; height: 48px; flex-shrink: 0; border-radius: var(--radius-md); border: var(--border-width) solid var(--border); }
+
+/* Vista previa del editor: las dos versiones superpuestas, la caja mide lo de la más alta (no salta). */
+.preview-toggle { display: flex; justify-content: center; margin-bottom: 12px; }
+.preview-stack { display: grid; }
+.preview-stack > div {
+  grid-area: 1 / 1; display: flex; justify-content: center; align-items: flex-start;
+  opacity: 0; transform: scale(.98); transition: opacity 220ms var(--ease, ease), transform 220ms var(--ease, ease); pointer-events: none;
+}
+.preview-stack > div.on { opacity: 1; transform: none; pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { .preview-stack > div { transition: none; } }
+
+/* Barra de abajo del editor: siempre a mano, con Atrás y Siguiente. */
+.wizard-bar { margin-top: 24px; }
+
 /* En el celular, primero el formulario (con el botón cerca) y después la vista previa. */
 @media (max-width: 899px) { .wizard .editor-preview { order: 2; } }
 

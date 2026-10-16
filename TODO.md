@@ -126,6 +126,7 @@
 - [x] Estados: `draft` (borrador, nivel `none`), `trial` (ya no se asigna), `active`, `past_due` + gracia (`graceUntil`, 7 días), `canceled` (bloqueado), `archived` (60 días bloqueado). Constantes en `functions/src/payments/access.ts`
 - [x] Bloqueo: escáner sin sellos ni canje (pantalla "Suscripción vencida"), panel en modo lectura (reglas de Firestore + Functions), Wallet en pausa y resincronización al reactivar
 - [x] Borrador (`draft`): diseña y ve la vista previa (`/panel/vista-previa`, iPhone y Android); QR, escáner, clientes y Wallet recién al activar. `draftAt` / `activatedAt` para medir la activación (métrica en /admin)
+- [x] Un solo editor de la tarjeta, por pasos (Marca, Diseño, Premio, Clientes, Locales): `/panel/configurar` y `/panel/tarjeta`; con la tarjeta armada se salta entre pasos. Color por código y cuentagotas. Se borró CardEditor
 - [x] Al activar (webhook): se crean el código del QR y la clase de Google Wallet (`enableBusiness` en payments/state.ts)
 - [x] Recordatorio a las 48 h en borrador (`draftReminder`, de 9 a 21 h); se apaga con `DRAFT_REMINDER_ENABLED=false`
 - [x] Desplegado (16/10/2026): reglas, índices, functions (`startTrial` borrada) y web. Migración: no hizo falta (solo existía la tarjeta de ejemplo)
