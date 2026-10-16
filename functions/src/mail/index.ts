@@ -19,10 +19,10 @@ const ADMIN_EMAIL = defineString("ADMIN_EMAIL", { default: "" });
 // Los documentos de `mail` se borran solos a los 180 días (política TTL sobre expiresAt).
 const KEEP_DAYS = 180;
 
-export type MailTemplate = "welcome" | "activated" | "pastDue" | "graceEnding" | "blocked" | "archiveWarning" | "archived";
+export type MailTemplate = "welcome" | "draftReminder" | "activated" | "pastDue" | "graceEnding" | "blocked" | "archiveWarning" | "archived";
 
 type Vars = { businessName: string; days?: number; date?: Date };
-type Mail = { subject: string; paragraphs: string[]; cta: string };
+type Mail = { subject: string; paragraphs: string[]; cta: string; path?: string }; // path: dentro del panel
 
 const fmtDate = (d: Date) =>
   d.toLocaleDateString("es-AR", { day: "numeric", month: "long", timeZone: "America/Argentina/Buenos_Aires" });
@@ -36,17 +36,27 @@ function content(t: MailTemplate, v: Vars): Mail {
         subject: `¡Te damos la bienvenida a ${app}!`,
         paragraphs: [
           `Ya creaste ${v.businessName}. En unos minutos tenés tu tarjeta de sellos lista:`,
-          "1. Diseñala: logo, color y el premio que quieras regalar.\n2. Creá el PIN del escáner.\n3. Imprimí el QR y ponelo en el mostrador.",
+          "1. Diseñala: logo, color y el premio que quieras regalar.\n2. Mirá cómo queda en el celular, en iPhone y en Android.\n3. Activala y poné el QR en el mostrador.",
           "Tus clientes escanean el QR y guardan la tarjeta en el celular, sin descargar nada. Y la lista de clientes que se va armando es tuya.",
           "Un extra: activá los regalos de cumpleaños. Cada cliente recibe un saludo tuyo en el celular el día de su cumple, con un regalo si querés, sin que tengas que acordarte.",
         ],
         cta: "Armar mi tarjeta",
       };
+    case "draftReminder":
+      return {
+        subject: `Tu tarjeta de ${app} está lista para activar`,
+        paragraphs: [
+          `La tarjeta de ${v.businessName} ya está armada. Solo falta activarla para que tus clientes la guarden en el celular.`,
+          "Al activarla se habilitan el QR para el mostrador y el escáner para sumar sellos. Podés cancelar cuando quieras.",
+        ],
+        cta: "Ver y activar mi tarjeta",
+        path: "/vista-previa",
+      };
     case "activated":
       return {
-        subject: `Tu suscripción de ${app} está activa`,
+        subject: `Tu tarjeta de ${app} está activa`,
         paragraphs: [
-          `¡Listo! La suscripción de ${v.businessName} quedó activa y el escáner del local ya puede sumar sellos.`,
+          `¡Listo! La tarjeta de ${v.businessName} quedó activa: ya podés imprimir el QR para el mostrador y sumar sellos con el escáner.`,
           "El cobro se renueva solo cada mes con Mercado Pago. Si alguna vez falla, te avisamos por acá y tenés unos días para resolverlo sin que se corte nada.",
         ],
         cta: "Ir al panel",
@@ -104,8 +114,8 @@ const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").rep
 
 // HTML simple con tablas y estilos en línea (lo que leen bien Gmail, Outlook y Apple Mail).
 export function render(t: MailTemplate, v: Vars): { subject: string; text: string; html: string } {
-  const { subject, paragraphs, cta } = content(t, v);
-  const panel = `${APP_URL.value()}/panel`;
+  const { subject, paragraphs, cta, path = "" } = content(t, v);
+  const panel = `${APP_URL.value()}/panel${path}`;
   const app = APP_NAME.value();
   const site = SITE_URL.value();
   const text = ["Hola,", ...paragraphs, `${cta}: ${panel}`, `— ${app}`].join("\n\n");

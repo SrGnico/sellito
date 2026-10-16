@@ -5,7 +5,7 @@ import BusinessStats from '../components/BusinessStats'
 import CardPreview from '../components/CardPreview'
 import { cardConfigFrom, enrollMissing } from '../lib/cardDesign'
 import { db } from '../lib/firebase'
-import { accessLevel, isReadOnly, type AccessLevel } from '../lib/subscription'
+import { accessLevel, isDraft, isReadOnly, type AccessLevel } from '../lib/subscription'
 import type { Business } from '../lib/types'
 
 // Inicio del panel: un resumen del negocio. Lo detallado vive en cada sección (Tarjeta, QR, Escáner, Clientes).
@@ -25,7 +25,7 @@ export default function PanelHome({ business }: { business: Business }) {
       {!designed && !isReadOnly(level) && (
         <section className="card card-pink setup" aria-labelledby="wizard-cta">
           <h4 id="wizard-cta">Armá tu tarjeta en 3 minutos</h4>
-          <p style={{ margin: 0 }}>Te guiamos paso a paso: logo y color, premio, datos de tus clientes, escáner y QR.</p>
+          <p style={{ margin: 0 }}>Te guiamos paso a paso: logo y color, premio y datos de tus clientes.</p>
           <Link className="btn btn-primary" to="configurar" style={{ alignSelf: 'flex-start' }}>Empezar</Link>
         </section>
       )}
@@ -71,7 +71,7 @@ function StatusLine({ business, level }: { business: Business; level: AccessLeve
         ? { cls: 'badge-warn', text: 'Pago pendiente' }
         : level === 'blocked' || level === 'archived'
           ? { cls: 'badge-err', text: 'Suscripción vencida' }
-          : { cls: 'badge-info', text: 'Sin suscripción' }
+          : { cls: 'badge-info', text: isDraft(business) ? 'Falta activar' : 'Sin suscripción' }
   const proximity = business.proximityEnabled && (business.locations?.length ?? 0) > 0
   return (
     <div className="status-line">
@@ -104,9 +104,11 @@ function SetupChecklist({ business, level }: { business: Business; level: Access
     { id: 'design', title: 'Diseñá tu tarjeta', detail: 'Logo, color y premio.', done: enrollMissing(business).length === 0, to: 'configurar', action: 'Diseñar' },
     {
       id: 'subscription',
-      title: 'Activá tu suscripción',
-      detail: 'Con el botón del aviso de arriba. Sin suscripción el escáner no funciona.',
+      title: 'Activá tu tarjeta',
+      detail: 'Mirala en el celular y activala. Así se habilitan el QR, el escáner y tu lista de clientes.',
       done: level === 'full' || level === 'grace',
+      to: isDraft(business) ? 'vista-previa' : undefined,
+      action: 'Ver y activar',
     },
     { id: 'pin', title: 'Creá el PIN del escáner', detail: 'Para sumar sellos desde el celular del local.', done: (business.scannerPinVersion ?? 0) > 0, to: 'escaner', action: 'Crear PIN' },
     { id: 'qr', title: 'Poné el QR en el mostrador', detail: 'Tus clientes lo escanean y guardan la tarjeta.', done: hasCards === true, to: 'qr', action: 'Ver QR' },
@@ -171,6 +173,17 @@ function SetupChecklist({ business, level }: { business: Business; level: Access
 // ---------- Accesos rápidos ----------
 
 function QuickLinks({ business }: { business: Business }) {
+  // En borrador QR, escáner y clientes llevan a la vista previa (Panel.tsx); se muestra eso directo.
+  if (isDraft(business)) {
+    return (
+      <nav className="quick-links" aria-label="Accesos rápidos">
+        <Link to="vista-previa" className="quick-link">
+          <strong>Vista previa</strong>
+          <span>Mirá tu tarjeta en el celular y activala</span>
+        </Link>
+      </nav>
+    )
+  }
   const links = [
     { to: 'qr', title: 'QR del local', detail: 'Descargalo o imprimilo' },
     { to: 'escaner', title: 'Escáner', detail: (business.scannerPinVersion ?? 0) > 0 ? 'Abrilo en el celular del local' : 'Creá el PIN' },

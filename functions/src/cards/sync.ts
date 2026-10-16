@@ -75,9 +75,8 @@ async function ownedBusiness(uid: string | undefined, businessId: unknown, super
   const snap = await db().doc(`businesses/${businessId}`).get();
   if (!snap.exists || (snap.get("ownerUid") !== uid && !superadmin)) throw new HttpsError("permission-denied", "Este negocio no es tuyo.");
   const b = snap.data() as BusinessDoc;
-  // Con la suscripción vencida las actualizaciones del Wallet quedan en pausa hasta reactivar.
-  const level = accessLevel(b.subscription);
-  if (level !== "none" && !canOperate(level)) throw new HttpsError("failed-precondition", "subscription");
+  // En borrador no hay tarjetas emitidas; vencida, las actualizaciones del Wallet quedan en pausa hasta reactivar.
+  if (!b.demo && !canOperate(accessLevel(b.subscription))) throw new HttpsError("failed-precondition", "subscription");
   return b;
 }
 

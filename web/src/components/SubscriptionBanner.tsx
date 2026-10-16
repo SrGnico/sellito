@@ -1,11 +1,8 @@
-import { track } from '../lib/track'
-import { useState, type FormEvent } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { useAuth } from '../lib/auth'
-import { scannerError } from '../lib/scanner'
-import { accessLevel, createSubscription, formatDay, formatMoney, useMonthlyPlan } from '../lib/subscription'
+import { useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { accessLevel, formatDay, formatMoney, isDraft, useMonthlyPlan } from '../lib/subscription'
 import type { Business } from '../lib/types'
-import Spinner from './Spinner'
+import { usePayDialog } from './PayDialog'
 
 // Estado de la suscripción arriba del panel: activar, prueba, gracia (cobro fallido) o vencida.
 export default function SubscriptionBanner({ business }: { business: Business }) {
@@ -13,92 +10,15 @@ export default function SubscriptionBanner({ business }: { business: Business })
   const level = accessLevel(sub)
   const plan = useMonthlyPlan()
   const [params] = useSearchParams()
-  const [busy, setBusy] = useState(false)
   const [now] = useState(() => Date.now())
-  const [error, setError] = useState<string | null>(null)
-  const [asking, setAsking] = useState(false)
-  const { user } = useAuth()
-  const [payerEmail, setPayerEmail] = useState(sub?.payerEmail ?? user?.email ?? '')
   const returning = params.get('suscripcion') === 'ok' // volvió del checkout de Mercado Pago
 
-  // Primero se confirma el mail de la cuenta de Mercado Pago que va a pagar.
-  const pay = () => {
-    setError(null)
-    setAsking(true)
-  }
-
-  async function confirmPay(e: FormEvent) {
-    e.preventDefault()
-    const email = payerEmail.trim()
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError('Ingresá un mail válido.')
-    setBusy(true)
-    setError(null)
-    try {
-      track('subscribe_click')
-      const r = await createSubscription({ businessId: business.id, payerEmail: email })
-      window.location.assign(r.data.url)
-    } catch (err) {
-      const reason = scannerError(err).reason
-      setError(
-        reason === 'payer-test-mismatch'
-          ? 'Mercado Pago no acepta ese mail con las credenciales actuales: en modo de prueba tiene que ser el de un comprador de prueba, y en producción el de una cuenta real.'
-          : reason === 'payer-email'
-            ? 'Ingresá un mail válido.'
-            : 'No pudimos abrir el pago. Intentá de nuevo en un rato.',
-      )
-      setBusy(false)
-    }
-  }
-
   const price = plan ? `${formatMoney(plan.amount, plan.currency)} por mes` : null
+  const { open: pay, dialog } = usePayDialog(business, price)
   const button = (label: string, primary = true) => (
     <button className={primary ? 'btn btn-sm btn-primary' : 'btn btn-sm'} type="button" onClick={pay}>
       {label}
     </button>
-  )
-  const dialog = asking && (
-    <div className="scrim" onClick={() => !busy && setAsking(false)}>
-      <form
-        className="dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="pay-title"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.key === 'Escape' && !busy && setAsking(false)}
-        onSubmit={confirmPay}
-        noValidate
-      >
-        <h3 id="pay-title">¿Con qué cuenta de Mercado Pago vas a pagar?</h3>
-        <p style={{ margin: 0, color: 'var(--text-soft)' }}>
-          Mercado Pago pide el mail de la cuenta que paga. Si es el mismo con el que entrás acá, dejalo como está.
-          {price && ` La suscripción es de ${price}.`}
-        </p>
-        <div>
-          <label className="label" htmlFor="payer-email">Mail de tu cuenta de Mercado Pago</label>
-          <input
-            id="payer-email"
-            className="input"
-            type="email"
-            autoComplete="email"
-            value={payerEmail}
-            onChange={(e) => setPayerEmail(e.target.value)}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? 'payer-error' : undefined}
-            autoFocus
-          />
-          {error && <p className="help help-error" id="payer-error" role="alert">{error}</p>}
-        </div>
-        <div className="dialog-actions">
-          <button className="btn" type="button" onClick={() => setAsking(false)} disabled={busy}>
-            Cancelar
-          </button>
-          <button className="btn btn-primary" type="submit" disabled={busy} aria-busy={busy}>
-            {busy && <Spinner small />}
-            {busy ? 'Abriendo Mercado Pago…' : 'Ir a Mercado Pago'}
-          </button>
-        </div>
-      </form>
-    </div>
   )
 
   if (level === 'full' && sub?.status === 'active' && !sub.cancelAtPeriodEnd) return null
@@ -175,18 +95,17 @@ export default function SubscriptionBanner({ business }: { business: Business })
     )
   }
 
-  // Sin suscripción: puede diseñar, pero el escáner necesita la suscripción activa.
-  if (!business.rule) return null
+  // Borrador: puede diseñar; QR, escáner y clientes se habilitan al activar desde la vista previa.
+  if (!isDraft(business) || !business.rule) return null
   return (
     <div className="alert alert-info sub-banner" role="status">
       <div>
-        <span className="alert-title">Activá tu suscripción para usar el escáner</span>
+        <span className="alert-title">Tu tarjeta está lista para activar</span>
         <span className="alert-text">
-          Tu tarjeta y tu QR ya están listos. Con la suscripción, el local suma sellos desde el celular.{price && ` ${price}.`}
+          Mirá cómo queda en el celular. Al activarla se habilitan el QR, el escáner y tu lista de clientes.
         </span>
-        {dialog}
       </div>
-      {button('Suscribirme')}
+      <Link className="btn btn-sm btn-primary" to="/panel/vista-previa">Ver y activar</Link>
     </div>
   )
 }

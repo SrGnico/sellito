@@ -11,7 +11,7 @@ import ScannerSettings from '../components/ScannerSettings'
 import Spinner from '../components/Spinner'
 import { businessFieldsFrom, cardConfigFrom, MAX_STAMPS, MIN_STAMPS, type CardConfig } from '../lib/cardDesign'
 import { db } from '../lib/firebase'
-import { accessLevel, canOperate, isReadOnly } from '../lib/subscription'
+import { accessLevel, canOperate, isDraft, isReadOnly } from '../lib/subscription'
 import { track } from '../lib/track'
 import type { Business } from '../lib/types'
 
@@ -19,6 +19,8 @@ import type { Business } from '../lib/types'
 // Los pasos 1 a 3 guardan al avanzar (si cierra a la mitad, no pierde nada). Todo se puede cambiar
 // después en Panel → Tarjeta.
 const STEPS = ['Logo y color', 'Premio', 'Datos', 'Escáner', 'QR'] as const
+// En borrador no hay escáner ni QR: después de Datos sigue la vista previa con el botón de activar.
+const DRAFT_STEPS = STEPS.slice(0, 3)
 
 const COLORS = ['#FF9EC4', '#FFD166', '#7BD389', '#8EC5FF', '#C9A7FF', '#FF8A65', '#12372A', '#2B2B2B']
 const REWARDS = ['un café gratis', '20% de descuento', '2x1 en tu próxima compra', 'un postre de regalo']
@@ -31,6 +33,8 @@ export default function SetupWizard({ business }: { business: Business }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const readOnly = isReadOnly(accessLevel(business.subscription))
+  const [draftMode] = useState(() => isDraft(business)) // fijo durante el asistente aunque active a la mitad
+  const steps = draftMode ? DRAFT_STEPS : STEPS
   const update = (patch: Partial<CardConfig>) => {
     setDraft((d) => ({ ...d, ...patch }))
     setError(null)
@@ -59,9 +63,9 @@ export default function SetupWizard({ business }: { business: Business }) {
       }
       setSaving(false)
     }
-    if (step === STEPS.length - 1) {
+    if (step === steps.length - 1) {
       track('wizard_done')
-      return navigate('/panel')
+      return navigate(draftMode ? '/panel/vista-previa' : '/panel')
     }
     setStep(step + 1)
     window.scrollTo({ top: 0 })
@@ -71,10 +75,10 @@ export default function SetupWizard({ business }: { business: Business }) {
     <div className="wizard">
       <div className="wizard-top">
         <Link to="/panel">← Panel</Link>
-        <span className="help" style={{ margin: 0 }}>Paso {step + 1} de {STEPS.length}</span>
+        <span className="help" style={{ margin: 0 }}>Paso {step + 1} de {steps.length}</span>
       </div>
       <ol className="wizard-steps" aria-label="Pasos">
-        {STEPS.map((s, i) => (
+        {steps.map((s, i) => (
           <li key={s} className={i === step ? 'active' : i < step ? 'done' : undefined} aria-current={i === step ? 'step' : undefined}>
             <span aria-hidden="true">{i < step ? '✓' : i + 1}</span>
             {s}
@@ -222,7 +226,7 @@ export default function SetupWizard({ business }: { business: Business }) {
         <button className="btn btn-primary" type={step <= 2 ? 'submit' : 'button'} form={step <= 2 ? 'wizard-form' : undefined}
           onClick={step <= 2 ? undefined : () => void next()} disabled={saving || readOnly} aria-busy={saving}>
           {saving && <Spinner small />}
-          {saving ? 'Guardando…' : step === STEPS.length - 1 ? 'Ir al panel' : 'Siguiente'}
+          {saving ? 'Guardando…' : step === steps.length - 1 ? (draftMode ? 'Ver cómo queda' : 'Ir al panel') : 'Siguiente'}
         </button>
       </div>
     </div>

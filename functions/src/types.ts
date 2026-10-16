@@ -22,6 +22,8 @@ export type BusinessDoc = {
   proximityEnabled?: boolean;
   askFields?: { name: boolean; phone: boolean; email: boolean; birthday?: boolean };
   birthday?: BirthdayConfig; // regalo y saludo de cumpleaños (birthday/index.ts)
+  // De qué campaña llegó (lo guarda la web al crear el negocio; web/src/lib/attribution.ts).
+  attribution?: Partial<Record<"utm_source" | "utm_medium" | "utm_campaign" | "utm_content" | "fbclid" | "fbc" | "fbp" | "landing" | "ua", string>> & { at?: Timestamp };
   googleClassId?: string;
   enrollCode?: string;
   demo?: boolean; // tarjeta de ejemplo de la landing (Sellito), no es un negocio real
@@ -42,7 +44,8 @@ export type BirthdayConfig = {
 };
 
 // Solo la escriben las Functions (Mercado Pago, tarea diaria). Ver payments/access.ts.
-export type SubscriptionStatus = "trial" | "active" | "past_due" | "canceled" | "archived";
+// draft: se registró y arma su tarjeta, todavía no pagó. trial ya no se usa en altas nuevas (queda por si vuelve).
+export type SubscriptionStatus = "draft" | "trial" | "active" | "past_due" | "canceled" | "archived";
 
 export type Subscription = {
   status?: SubscriptionStatus;
@@ -62,8 +65,10 @@ export type Subscription = {
   graceUntil?: Timestamp;
   blockedAt?: Timestamp;
   archivedAt?: Timestamp;
+  draftAt?: Timestamp; // cuándo se registró (pasó a borrador)
+  activatedAt?: Timestamp; // primera vez que pagó; no cambia al reactivar (para medir cuántos activan)
   // Mails ya enviados en el ciclo actual (se limpian al volver a estar al día).
-  notices?: Partial<Record<"pastDue" | "graceEnding" | "blocked" | "archiveWarning" | "archived", Timestamp>>;
+  notices?: Partial<Record<"draftReminder" | "pastDue" | "graceEnding" | "blocked" | "archiveWarning" | "archived", Timestamp>>;
   updatedAt?: Timestamp;
 };
 

@@ -1,7 +1,9 @@
 import type { Timestamp } from 'firebase/firestore'
+import type { Attribution } from './attribution'
 
 // Ver SELLITO_SPEC.md §6. Los campos que escriben solo las Functions son opcionales acá.
-export type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'canceled' | 'archived'
+// draft: se registró y arma su tarjeta, todavía no pagó. trial ya no se asigna (queda por si vuelve).
+export type SubscriptionStatus = 'draft' | 'trial' | 'active' | 'past_due' | 'canceled' | 'archived'
 
 // Solo la escriben las Functions (functions/src/types.ts tiene todos los campos).
 export type Subscription = {
@@ -9,6 +11,7 @@ export type Subscription = {
   plan?: string
   amount?: number
   currency?: string
+  mpPreapprovalId?: string // suscripción vigente en Mercado Pago
   pendingPreapprovalId?: string
   payerEmail?: string // mail de la cuenta de Mercado Pago que paga
   currentPeriodEnd?: Timestamp
@@ -16,6 +19,9 @@ export type Subscription = {
   trialEndsAt?: Timestamp
   graceUntil?: Timestamp
   blockedAt?: Timestamp
+  draftAt?: Timestamp
+  activatedAt?: Timestamp // primera vez que pagó
+  updatedAt?: Timestamp
 }
 
 export type Business = {
@@ -37,6 +43,7 @@ export type Business = {
   rule?: { stampsRequired: number; rewardText: string; itemSingular?: string; itemPlural?: string; conditions?: string }
   askFields?: { name: boolean; phone: boolean; email: boolean; birthday?: boolean }
   birthday?: BirthdayConfig // regalo y saludo de cumpleaños (lib/birthday.ts)
+  attribution?: Attribution & { at?: Timestamp } // de qué campaña llegó (lib/attribution.ts)
   locations?: BusinessLocation[]
   proximityEnabled?: boolean // mostrar la tarjeta cerca de los locales (functions/src/wallet/proximity.ts)
   enrollCode?: string

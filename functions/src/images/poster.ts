@@ -4,6 +4,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import QRCode from "qrcode";
 import { APP_NAME, enrollUrl, SITE_URL } from "../config";
+import { isDraft } from "../payments/access";
 import { HOUR, rateLimit } from "../security/rateLimit";
 import { enrollMissing, type BusinessDoc } from "../types";
 import { itemNames } from "../wallet/proximity";
@@ -126,6 +127,7 @@ export const enrollPoster = onCall({ enforceAppCheck: true, memory: "512MiB" }, 
   const snap = await getFirestore().doc(`businesses/${businessId}`).get();
   const b = snap.data() as BusinessDoc | undefined;
   if (!b || b.ownerUid !== uid) throw new HttpsError("permission-denied", "Este negocio no es tuyo.");
+  if (isDraft(b)) throw new HttpsError("failed-precondition", "draft");
   if (enrollMissing(b).length > 0 || !b.enrollCode) throw new HttpsError("failed-precondition", "not-ready");
   await rateLimit(`poster:${uid}`, 30, HOUR);
   return { png: (await renderPoster(b)).toString("base64") };

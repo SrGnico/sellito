@@ -1,3 +1,4 @@
+import { pixelEvent } from '../lib/metaPixel'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import step1 from '../assets/onboarding-1-disena.svg'
 import step2 from '../assets/onboarding-2-wallet.svg'
@@ -49,6 +50,7 @@ export default function Landing() {
   useEffect(() => {
     document.title = `${APP_NAME} · Tarjetas de fidelidad en el celular de tus clientes`
     track('landing_view')
+    pixelEvent('ViewContent', { content_name: 'landing' })
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const t = setInterval(() => setI((n) => (n + 1) % EXAMPLES.length), 3500)
     return () => clearInterval(t)

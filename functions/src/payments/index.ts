@@ -1,3 +1,4 @@
+import { metaCapiToken } from "../meta/capi";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
@@ -5,7 +6,7 @@ import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { APP_NAME, APP_URL } from "../config";
 import type { BusinessDoc } from "../types";
-import { accessLevel, DAY_MS } from "./access";
+import { accessLevel } from "./access";
 import {
   createPreapproval,
   getAuthorizedPayment,
@@ -14,9 +15,10 @@ import {
   mpWebhookSecret,
   validSignature,
 } from "./mercadopago";
-import { DEFAULT_PLAN, loadPlan, loadPlans } from "./plans";
+import { DEFAULT_PLAN, loadPlan } from "./plans";
 import { markActive, markCancelled, markPastDue } from "./state";
 import { HOUR, rateLimit } from "../security/rateLimit";
+import { walletKey } from "../wallet/google";
 
 const db = () => getFirestore();
 
@@ -39,7 +41,7 @@ export const createSubscription = onCall({ enforceAppCheck: true, secrets: [mpAc
   }
 
   await rateLimit(`createSubscription:${uid}`, 10, HOUR);
-  const plan = await loadPlan(planId);
+  const plan = loadPlan(planId);
   // Mercado Pago pide el mail de la cuenta de MP que va a pagar (puede no ser el del panel).
   const given = typeof req.data?.payerEmail === "string" ? req.data.payerEmail.trim().toLowerCase() : "";
   if (given && (given.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(given))) {
@@ -75,7 +77,8 @@ export const createSubscription = onCall({ enforceAppCheck: true, secrets: [mpAc
 
 // Webhook de Mercado Pago (API_URL/mpWebhook, configurado en el panel de MP).
 // Nunca confía en el cuerpo: consulta el estado real a la API.
-export const mpWebhook = onRequest({ secrets: [mpAccessToken, mpWebhookSecret] }, async (req, res) => {
+// walletKey: al activar por primera vez se crea la clase de Google Wallet (payments/state.ts).
+export const mpWebhook = onRequest({ secrets: [mpAccessToken, mpWebhookSecret, walletKey, metaCapiToken] }, async (req, res) => {
   const type = String(req.query.type ?? req.query.topic ?? req.body?.type ?? "");
   const dataId = String(req.query["data.id"] ?? req.body?.data?.id ?? "");
   if (!dataId) {
@@ -122,18 +125,11 @@ async function activateUnlessFailed(businessId: string, preapprovalId: string) {
   await markActive(businessId, await getPreapproval(preapprovalId));
 }
 
-// Prueba gratis: si config/plans tiene trialDays > 0, el negocio nuevo arranca en prueba.
-export const startTrial = onDocumentCreated("businesses/{businessId}", async (event) => {
+// Todo negocio nuevo arranca en borrador: arma la tarjeta y la ve, y paga solo para activarla.
+// (El estado "trial" ya no se asigna; access.ts lo sigue entendiendo por si vuelve la prueba gratis.)
+export const startDraft = onDocumentCreated("businesses/{businessId}", async (event) => {
   const b = event.data?.data() as BusinessDoc | undefined;
-  if (!b || b.subscription) return;
-  const { trialDays = 0 } = await loadPlans();
-  if (!(trialDays > 0)) return;
-  await event.data!.ref.update({
-    subscription: {
-      status: "trial",
-      trialEndsAt: Timestamp.fromMillis(Date.now() + trialDays * DAY_MS),
-      notices: {},
-      updatedAt: Timestamp.now(),
-    },
-  });
+  if (!b || b.subscription || b.demo) return;
+  const now = Timestamp.now();
+  await event.data!.ref.update({ subscription: { status: "draft", draftAt: now, notices: {}, updatedAt: now } });
 });

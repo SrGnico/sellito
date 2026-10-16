@@ -15,6 +15,7 @@ import ScannerLauncher from './pages/ScannerLauncher'
 import { updateRobots } from './lib/seo'
 import { isSiteHost } from './lib/urls'
 import Feedback from './components/Feedback'
+import MetaPixel from './components/MetaPixel'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
       <BrowserRouter>
         <RobotsTag />
         <Feedback />
+        <MetaPixel />
         <Routes>
           {/* misellito.com.ar muestra la landing; app.misellito.com.ar (y localhost) van al panel. */}
           <Route path="/" element={isSiteHost() ? <Landing /> : <Navigate to="/panel" replace />} />

@@ -176,3 +176,13 @@ main.pin-screen { max-width: 400px; padding: calc(env(safe-area-inset-top) + 20p
 .client-insights .insight-back, .client-insights .insight-away { background: var(--warn-bg); border-left-color: var(--warn); }
 .client-insights .insight-loyal, .client-insights .insight-reward { background: var(--ok-bg); border-left-color: var(--ok); }
 .client-insights .insight-almost, .client-insights .insight-anniversary, .client-insights .insight-birthday { background: var(--pink-tint); border-left-color: var(--pink); }
+
+/* Aviso de cookies (Meta Pixel): chico, abajo a la izquierda, sin tapar el botón fijo de la landing. */
+.cookie-notice {
+  position: fixed; left: 16px; bottom: 16px; z-index: var(--z-toast); max-width: 360px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 8px; font-size: var(--text-sm);
+  background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+}
+.cookie-notice p { margin: 0; }
+.cookie-actions { display: flex; gap: 8px; justify-content: flex-end; }
+@media (max-width: 760px) { .cookie-notice { left: 12px; right: 12px; bottom: calc(88px + env(safe-area-inset-bottom)); max-width: none; } }

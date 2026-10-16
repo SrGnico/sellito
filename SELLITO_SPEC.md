@@ -111,7 +111,7 @@ Regla general: todo documento lleva `businessId` para aislar los datos entre neg
 - `askFields`: `{ name: bool, phone: bool, email: bool }`
 - `locations` (array, máx. 10): `{ lat, lng, label }`
 - `scannerPinHash` (string): PIN hasheado, nunca en texto plano
-- `subscription`: `{ status: "trial" | "active" | "past_due" | "canceled", mpPreapprovalId, plan, currentPeriodEnd }`
+- `subscription`: `{ status: "draft" | "active" | "past_due" | "canceled" | "archived" (+ "trial", sin uso), draftAt, activatedAt, mpPreapprovalId, plan, currentPeriodEnd }`
 - `googleClassId`, `appleTemplateRef`
 - `createdAt`, `updatedAt`
 

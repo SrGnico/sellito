@@ -1,7 +1,11 @@
+import { getAuth } from "firebase-admin/auth";
+import { sendSubscribeEvent } from "../meta/capi";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 import { notifyAdmin, sendMail } from "../mail";
-import type { BusinessDoc, Subscription } from "../types";
+import { assignEnrollCode } from "../cards/enroll";
+import { enrollMissing, type BusinessDoc, type Subscription } from "../types";
+import { upsertLoyaltyClass } from "../wallet/google";
 import { DAY_MS, GRACE_DAYS } from "./access";
 import { cancelPreapproval, type Preapproval } from "./mercadopago";
 
@@ -47,6 +51,8 @@ export async function markActive(businessId: string, p: Preapproval): Promise<vo
       mpStatus: p.status,
       currentPeriodEnd: nextPaymentDate(p) ?? s.currentPeriodEnd,
       trialEndsAt: s.trialEndsAt,
+      draftAt: s.draftAt,
+      activatedAt: s.activatedAt ?? Timestamp.now(), // solo la primera vez
     };
     // Cobró la suscripción vieja mientras había un checkout abierto: se conserva para que, si se
     // completa, reemplace a la vieja (y la vieja se cancele) en vez de cobrar las dos.
@@ -58,6 +64,9 @@ export async function markActive(businessId: string, p: Preapproval): Promise<vo
   if (res) logger.info("Suscripción al día", { businessId, preapproval: p.id });
   // Confirmación solo al pasar a activa (primer pago o reactivación), no en cada renovación.
   if (res && res.b.subscription?.status !== "active") {
+    await enableBusiness(businessId);
+    // Meta (API de Conversiones): mismo event_id que el Pixel del panel.
+    await sendSubscribeEvent(businessId, res.b, p.id, await ownerEmailOf(res.b.ownerUid), res.sub.amount, res.sub.currency);
     try {
       await sendMail(res.b.ownerUid, "activated", { businessName: res.b.name });
     } catch (err) {
@@ -76,6 +85,25 @@ export async function markActive(businessId: string, p: Preapproval): Promise<vo
     } catch (err) {
       logger.error("No se pudo cancelar la suscripción anterior en Mercado Pago", { businessId, oldPreapproval, err });
     }
+  }
+}
+
+// Recién al activar se habilita lo que en borrador no existe: el código del QR y la clase de Google Wallet.
+// Idempotente (al reactivar ya están). Si algo falla no se corta la activación: el QR se vuelve a pedir
+// desde el panel y la clase se crea con la primera tarjeta (cards/enroll.ts).
+async function enableBusiness(businessId: string): Promise<void> {
+  try {
+    await assignEnrollCode(businessId);
+  } catch (err) {
+    logger.error("No se pudo crear el código del QR al activar", { businessId, err });
+  }
+  try {
+    const b = (await bizRef(businessId).get()).data() as BusinessDoc | undefined;
+    if (!b || b.googleClassId || enrollMissing(b).length > 0) return; // sin logo o premio, Google no acepta la clase
+    const classId = await upsertLoyaltyClass(businessId, b);
+    await bizRef(businessId).update({ googleClassId: classId });
+  } catch (err) {
+    logger.error("No se pudo crear la clase de Google Wallet al activar", { businessId, err });
   }
 }
 
@@ -171,4 +199,12 @@ export async function notify(
 
 function stripUndefined<T extends object>(o: T): T {
   return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as T;
+}
+
+async function ownerEmailOf(uid: string): Promise<string | null> {
+  try {
+    return (await getAuth().getUser(uid)).email ?? null;
+  } catch {
+    return null;
+  }
 }

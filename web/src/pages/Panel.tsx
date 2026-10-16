@@ -1,3 +1,5 @@
+import { pixelEvent } from '../lib/metaPixel'
+import { readAttribution } from '../lib/attribution'
 import { signOut } from 'firebase/auth'
 import {
   addDoc,
@@ -7,8 +9,8 @@ import {
   serverTimestamp,
   where,
 } from 'firebase/firestore'
-import { useEffect, useState, type FormEvent } from 'react'
-import { Link, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import EnrollPoster from '../components/EnrollPoster'
 import EnrollQr from '../components/EnrollQr'
 import { useAuth } from '../lib/auth'
@@ -18,9 +20,10 @@ import CardEditor from './CardEditor'
 import Customers from './Customers'
 import Notices from './Notices'
 import PanelHome from './PanelHome'
+import Preview from './Preview'
 import SetupWizard from './SetupWizard'
 import SubscriptionBanner from '../components/SubscriptionBanner'
-import { accessLevel, isReadOnly } from '../lib/subscription'
+import { accessLevel, isDraft, isReadOnly } from '../lib/subscription'
 import '../styles/panel.css'
 import EmptyState from '../components/EmptyState'
 import LoadingScreen from '../components/LoadingScreen'
@@ -41,8 +44,11 @@ export default function Panel() {
   const { user } = useAuth()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [onboarded, setOnboarded] = useState(false)
+  useSubscribeEvent(state.status === 'ready' ? state.businesses[0] : undefined)
   // En el asistente el aviso de suscripción distrae (y dice que la tarjeta ya está lista).
-  const inWizard = useLocation().pathname.startsWith('/panel/configurar')
+  const { pathname } = useLocation()
+  const inWizard = pathname.startsWith('/panel/configurar')
+  const inPreview = pathname.startsWith('/panel/vista-previa') // ya tiene su propio botón de activar
 
   useEffect(() => {
     if (!user) return
@@ -95,6 +101,7 @@ export default function Panel() {
       {state.status === 'ready' && state.businesses[0] && (
         <nav className="panel-nav" aria-label="Secciones del panel">
           <NavLink to="/panel" end>Inicio</NavLink>
+          {isDraft(state.businesses[0]) && <NavLink to="/panel/vista-previa">Activar</NavLink>}
           <NavLink to="/panel/clientes">Clientes</NavLink>
           <NavLink to="/panel/avisos">Avisos</NavLink>
           <NavLink to="/panel/tarjeta">Tarjeta</NavLink>
@@ -104,7 +111,7 @@ export default function Panel() {
       )}
 
       <main className="main-wide">
-        {state.status === 'ready' && state.businesses[0] && !inWizard && <SubscriptionBanner business={state.businesses[0]} />}
+        {state.status === 'ready' && state.businesses[0] && !inWizard && !inPreview && <SubscriptionBanner business={state.businesses[0]} />}
         {state.status === 'loading' && <LoadingScreen label="Cargando tu negocio…" />}
 
         {state.status === 'error' && (
@@ -125,10 +132,15 @@ export default function Panel() {
           <Routes>
             <Route index element={<PanelHome business={state.businesses[0]} />} />
             <Route path="configurar" element={<SetupWizard key={state.businesses[0].id} business={state.businesses[0]} />} />
-            <Route path="qr" element={<QrPage business={state.businesses[0]} />} />
+            <Route path="vista-previa" element={<Preview business={state.businesses[0]} />} />
+            <Route path="qr" element={<DraftGate business={state.businesses[0]}><QrPage business={state.businesses[0]} /></DraftGate>} />
             <Route
               path="escaner"
-              element={<ScannerPage business={state.businesses[0]} readOnly={isReadOnly(accessLevel(state.businesses[0].subscription))} />}
+              element={
+                <DraftGate business={state.businesses[0]}>
+                  <ScannerPage business={state.businesses[0]} readOnly={isReadOnly(accessLevel(state.businesses[0].subscription))} />
+                </DraftGate>
+              }
             />
             <Route
               path="tarjeta"
@@ -140,7 +152,10 @@ export default function Panel() {
                 />
               }
             />
-            <Route path="clientes" element={<Customers key={state.businesses[0].id} business={state.businesses[0]} />} />
+            <Route
+              path="clientes"
+              element={<DraftGate business={state.businesses[0]}><Customers key={state.businesses[0].id} business={state.businesses[0]} /></DraftGate>}
+            />
             <Route path="avisos" element={<Notices key={state.businesses[0].id} business={state.businesses[0]} />} />
           </Routes>
         )}
@@ -171,15 +186,19 @@ function CreateBusiness({ uid }: { uid: string }) {
     setError(null)
     try {
       // El slug lo asigna una Function más adelante (SELLITO_SPEC.md §12).
-      await addDoc(collection(db, 'businesses'), {
+      // De qué campaña llegó (utm/fbclid guardados por la landing): se guarda una sola vez, al crearlo.
+      const attribution = readAttribution()
+      const ref = await addDoc(collection(db, 'businesses'), {
         ownerUid: uid,
         name: trimmed,
         ...(prefill.color ? { design: { bgColor: prefill.color } } : {}),
+        attribution: { ...attribution, at: serverTimestamp() },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       })
       clearSignupPrefill()
       track('business_created')
+      pixelEvent('CompleteRegistration', {}, `registration_${ref.id}`)
       navigate('/panel/configurar')
     } catch {
       setError('No pudimos crear el negocio. Intentá de nuevo.')
@@ -223,6 +242,11 @@ function CreateBusiness({ uid }: { uid: string }) {
   )
 }
 
+// QR, escáner y clientes se habilitan al activar: en borrador llevan a la vista previa con el botón de activar.
+function DraftGate({ business, children }: { business: Business; children: ReactNode }) {
+  return isDraft(business) ? <Navigate to="/panel/vista-previa" replace /> : children
+}
+
 // Secciones QR y Escáner: antes estaban apiladas en el inicio.
 function QrPage({ business }: { business: Business }) {
   return (
@@ -247,4 +271,23 @@ function ScannerPage({ business, readOnly }: { business: Business; readOnly: boo
       )}
     </div>
   )
+}
+
+// Meta Pixel: "Subscribe" cuando el panel ve la suscripción recién activada. El event_id es el mismo que
+// manda el servidor por la API de Conversiones (subscribe_<id de Mercado Pago>), así Meta la cuenta una vez.
+function useSubscribeEvent(business: Business | undefined) {
+  const sub = business?.subscription
+  useEffect(() => {
+    if (sub?.status !== 'active' || !sub.mpPreapprovalId) return
+    const at = sub.updatedAt?.toMillis() ?? 0
+    if (Date.now() - at > 86_400_000) return // pasó hace más de un día: ya no es la confirmación del pago
+    const key = `sellito-subscribe:${sub.mpPreapprovalId}`
+    try {
+      if (localStorage.getItem(key)) return
+      localStorage.setItem(key, '1')
+    } catch {
+      // sin almacenamiento: puede repetirse, Meta lo deduplica por event_id
+    }
+    pixelEvent('Subscribe', sub.amount ? { value: sub.amount, currency: sub.currency ?? 'ARS' } : {}, `subscribe_${sub.mpPreapprovalId}`)
+  }, [sub?.status, sub?.mpPreapprovalId, sub?.updatedAt, sub?.amount, sub?.currency])
 }

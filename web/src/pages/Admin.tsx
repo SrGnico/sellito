@@ -25,7 +25,7 @@ type Filter = 'all' | 'full' | 'none' | 'grace' | 'blocked'
 const FILTERS: { id: Filter; label: string }[] = [
   { id: 'all', label: 'Todos' },
   { id: 'full', label: 'Activos' },
-  { id: 'none', label: 'Sin suscripción' },
+  { id: 'none', label: 'Borrador' },
   { id: 'grace', label: 'Pago pendiente' },
   { id: 'blocked', label: 'Vencidos' },
 ]
@@ -92,6 +92,9 @@ function AdminDashboard({ email }: { email: string }) {
       mrr: active.reduce((sum, r) => sum + (r.subscription?.amount ?? 0), 0),
       newMonth: real.filter((r) => (r.createdAt?.toMillis() ?? 0) >= monthAgo).length,
       cards: real.every((r) => r.cards !== null) ? real.reduce((sum, r) => sum + (r.cards ?? 0), 0) : null,
+      // Activación: de los que se registraron en borrador (tienen draftAt), cuántos pagaron alguna vez.
+      drafted: real.filter((r) => r.subscription?.draftAt).length,
+      activated: real.filter((r) => r.subscription?.draftAt && r.subscription.activatedAt).length,
     }
   }, [rows, now])
 
@@ -126,6 +129,11 @@ function AdminDashboard({ email }: { email: string }) {
             <div className="stats-grid">
               <StatCard label="Negocios" value={metrics?.total ?? null} detail={metrics ? `${metrics.newMonth} nuevos en 30 días` : undefined} />
               <StatCard label="Suscripciones activas" value={metrics?.active ?? null} detail="Pagando hoy" />
+              <StatCard
+                label="Activaron"
+                value={metrics?.activated ?? null}
+                detail={metrics?.drafted ? `De ${metrics.drafted} registrados (${Math.round((metrics.activated / metrics.drafted) * 100)}%)` : 'Todavía no hay registros'}
+              />
               <StatCard label="Tarjetas emitidas" value={metrics?.cards ?? null} detail="En todos los negocios" />
               <div className="card card-pink stat-card">
                 <span className="stat-label">Ingreso mensual</span>
@@ -136,6 +144,7 @@ function AdminDashboard({ email }: { email: string }) {
             </div>
 
             <Funnel />
+            {rows && <ByCampaign rows={rows} />}
 
             <div className="customers-toolbar" style={{ marginTop: 24 }}>
               <div style={{ flex: '1 1 240px' }}>
@@ -168,6 +177,7 @@ function AdminDashboard({ email }: { email: string }) {
                       <th scope="col">Tarjetas</th>
                       <th scope="col">Escáner</th>
                       <th scope="col">Alta</th>
+                      <th scope="col">Origen</th>
                       <th scope="col"><span className="sr-only">Acciones</span></th>
                     </tr>
                   </thead>
@@ -180,6 +190,7 @@ function AdminDashboard({ email }: { email: string }) {
                         <td>{r.cards ?? '…'}</td>
                         <td>{(r.scannerPinVersion ?? 0) > 0 ? 'Con PIN' : 'Sin PIN'}</td>
                         <td>{r.createdAt ? r.createdAt.toDate().toLocaleDateString('es-AR') : '—'}</td>
+                        <td className="cell-ellipsis">{originLabel(r.attribution)}</td>
                         <td>
                           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                             {r.enrollCode && (
@@ -221,5 +232,56 @@ function ResyncButton({ businessId }: { businessId: string }) {
     >
       {state === 'idle' ? 'Actualizar tarjetas' : state === 'busy' ? 'Actualizando…' : state}
     </button>
+  )
+}
+
+// "lanzamiento · b_lista" (campaña · anuncio), "instagram" si solo hay fuente, o "Directo".
+function originLabel(a: Business['attribution']): string {
+  if (!a) return 'Directo'
+  const parts = [a.utm_campaign, a.utm_content].filter(Boolean)
+  if (parts.length) return parts.join(' · ')
+  if (a.utm_source) return a.utm_source
+  return a.fbclid ? 'Meta (sin UTM)' : 'Directo'
+}
+
+// Altas y pagos por anuncio (utm_content): para saber qué ángulo de campaña trae clientes que pagan.
+function ByCampaign({ rows }: { rows: Row[] }) {
+  const groups = new Map<string, { signups: number; paying: number }>()
+  for (const r of rows) {
+    if (r.demo) continue
+    const key = originLabel(r.attribution)
+    const g = groups.get(key) ?? { signups: 0, paying: 0 }
+    g.signups++
+    if (r.subscription?.activatedAt || r.subscription?.status === 'active') g.paying++
+    groups.set(key, g)
+  }
+  const list = [...groups.entries()].sort((a, b) => b[1].signups - a[1].signups)
+  if (list.length === 0) return null
+  return (
+    <section className="card" style={{ marginTop: 24, gap: 10 }} aria-labelledby="campaign-title">
+      <h4 id="campaign-title">Por origen</h4>
+      <div className="table-wrap" style={{ marginTop: 0 }}>
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">Campaña · anuncio</th>
+              <th scope="col">Altas</th>
+              <th scope="col">Pagaron</th>
+              <th scope="col">Conversión</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map(([k, g]) => (
+              <tr key={k}>
+                <td>{k}</td>
+                <td>{g.signups}</td>
+                <td>{g.paying}</td>
+                <td>{Math.round((g.paying / g.signups) * 100)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   )
 }

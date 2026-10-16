@@ -1,7 +1,7 @@
 // Datos del responsable y textos legales (política de privacidad y términos).
 // Revisarlos con un abogado o contador antes de lanzar. Fecha de la versión: LEGAL_UPDATED.
 
-export const LEGAL_UPDATED = '15 de octubre de 2026'
+export const LEGAL_UPDATED = '16 de octubre de 2026'
 
 // El titular prefiere no publicar su nombre, CUIT ni domicilio: se informan a quien los pida por mail.
 // Ojo: la Ley 25.326 (art. 6) pide informar la identidad y el domicilio del responsable; esto es un
@@ -63,7 +63,9 @@ export function privacySections(appName: string): LegalSection[] {
         'Si el negocio lo activa y el cliente cargó su cumpleaños: mandarle un saludo ese día (solo si aceptó recibir novedades) y avisarle al negocio, cuando escanea la tarjeta, que tiene un regalo de cumpleaños.',
         'Cobrar la suscripción y avisar sobre pagos, vencimientos y cambios importantes del servicio.',
         'Seguridad: prevenir abusos (por ejemplo, altas masivas de tarjetas) y resolver problemas técnicos.',
-        'Medir el uso del sitio de forma agregada (por ejemplo, cuántas visitas tuvo la página por día), sin cookies y sin guardar datos que identifiquen a nadie.',
+        'Medir el uso del sitio de forma agregada (por ejemplo, cuántas visitas tuvo la página por día), sin guardar datos que identifiquen a nadie.',
+        'Medir nuestras campañas de publicidad: en este sitio y en el panel de los negocios usamos el Pixel de Meta (Facebook e Instagram), que guarda cookies propias (por ejemplo, _fbp) para saber qué anuncio trajo a cada visita. Nunca lo usamos en las páginas donde los clientes de un negocio guardan su tarjeta ni en el escáner del local. Podés desactivarlo con “No, gracias” en el aviso de cookies.',
+        'Cuando un negocio se registra, guardamos de qué campaña llegó (los parámetros del anuncio). Cuando se suscribe, le avisamos a Meta que hubo una suscripción, con el mail de la cuenta cifrado de forma irreversible (hash), para medir el resultado de los anuncios. No enviamos teléfonos ni datos de los clientes de los negocios.',
       ],
     },
     {
@@ -75,6 +77,7 @@ export function privacySections(appName: string): LegalSection[] {
         'Google (Firebase y Google Cloud: base de datos, archivos, funciones y hosting; Google Wallet).',
         'Apple (Apple Wallet y su servicio de notificaciones).',
         'Mercado Pago (cobro de las suscripciones).',
+        'Meta Platforms (Pixel y API de Conversiones, para medir nuestros anuncios; solo datos de quienes visitan este sitio o tienen una cuenta de negocio).',
         'OpenStreetMap (convierte las direcciones de los locales en coordenadas; solo recibe la dirección del local).',
         'El servicio de envío de mails que usemos para los avisos de cuenta.',
       ],
@@ -83,6 +86,7 @@ export function privacySections(appName: string): LegalSection[] {
       title: 'Cuánto tiempo los guardamos',
       paragraphs: [
         'Los datos de una tarjeta se guardan mientras el negocio use el servicio. Si una suscripción queda vencida, la cuenta pasa a solo lectura y, tras un período sin reactivar, se archiva. Podés pedirnos la eliminación en cualquier momento.',
+        'Los datos de campaña de un negocio (de qué anuncio llegó) se guardan mientras exista su cuenta. La cookie con esos datos en tu navegador dura 30 días.',
       ],
     },
     {

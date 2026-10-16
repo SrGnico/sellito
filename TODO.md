@@ -123,15 +123,18 @@
 ### 8. Mercado Pago (código listo, falta configurar y probar)
 - [x] Suscripción (preapproval) desde el panel: `createSubscription` (suscribirse, reactivar, cambiar medio de pago)
 - [x] Webhook `mpWebhook` con firma validada; consulta el estado real a MP
-- [x] Estados: `none` (sin suscripción), `trial`, `active`, `past_due` + gracia (`graceUntil`, 7 días), `canceled` (bloqueado), `archived` (60 días bloqueado). Constantes en `functions/src/payments/access.ts`
+- [x] Estados: `draft` (borrador, nivel `none`), `trial` (ya no se asigna), `active`, `past_due` + gracia (`graceUntil`, 7 días), `canceled` (bloqueado), `archived` (60 días bloqueado). Constantes en `functions/src/payments/access.ts`
 - [x] Bloqueo: escáner sin sellos ni canje (pantalla "Suscripción vencida"), panel en modo lectura (reglas de Firestore + Functions), Wallet en pausa y resincronización al reactivar
-- [x] Sin suscripción: puede diseñar y tener QR, pero el escáner no funciona
+- [x] Borrador (`draft`): diseña y ve la vista previa (`/panel/vista-previa`, iPhone y Android); QR, escáner, clientes y Wallet recién al activar. `draftAt` / `activatedAt` para medir la activación (métrica en /admin)
+- [x] Al activar (webhook): se crean el código del QR y la clase de Google Wallet (`enableBusiness` en payments/state.ts)
+- [x] Recordatorio a las 48 h en borrador (`draftReminder`, de 9 a 21 h); se apaga con `DRAFT_REMINDER_ENABLED=false`
+- [ ] Desplegar reglas, índices y functions (borrar `startTrial` cuando lo pida el deploy) y correr `functions/scripts/migrate-draft.mjs --apply`
+- [ ] Probar en modo de prueba de MP: borrador → vista previa → pagar → QR y escáner habilitados
 - [x] Altas de clientes pausadas con el negocio bloqueado
 - [x] Tarea diaria `dailySubscriptionCheck` (09:00 AR): bloquea gracia/prueba vencidas, archiva, manda mails
 - [x] Mails (colección `mail`): cobro fallido, faltan 2 días, bloqueado, aviso de archivo, archivado
-- [x] Prueba gratis preparada (`trialDays` en `config/plans`, hoy 0) y `subscription.plan` admite un plan anual
-- [x] Precios en `config/plans` (se copian a la suscripción: cambiar el precio no toca las existentes)
-- [x] `config/plans`: Mensual $25.000, sin prueba gratis
+- [x] Sin prueba gratis; `subscription.plan` admite un plan anual (agregarlo en `PLANS` de payments/plans.ts)
+- [x] Precio en `PLAN_PRICE_ARS` (functions/src/payments/plans.ts, $25.000), servido por `GET /plan`; se copia a la suscripción, cambiarlo no toca las existentes. `config/plans` ya no se usa (se puede borrar de Firestore)
 - [x] Secretos `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` cargados y Functions desplegadas
 - [x] En Mercado Pago: webhook a `API_URL/mpWebhook` con los eventos de suscripciones (preapproval y authorized_payment)
 - [x] Mails a dueños con Resend (`deliverMail`, sin extensión): bienvenida, suscripción activa, cobro fallido, gracia por vencer, vencida, archivo

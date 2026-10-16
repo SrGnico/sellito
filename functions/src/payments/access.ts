@@ -1,5 +1,5 @@
 import type { Timestamp } from "firebase-admin/firestore";
-import type { Subscription } from "../types";
+import type { BusinessDoc, Subscription } from "../types";
 
 // Reglas de la suscripción (SELLITO_SPEC.md §7 y paso 8). Cambiar los días acá.
 export const GRACE_DAYS = 7; // días de gracia desde el primer cobro fallido
@@ -10,7 +10,7 @@ export const ARCHIVE_WARNING_DAYS = 7; // aviso por mail antes de archivar
 export const DAY_MS = 86400000;
 
 // Misma lógica que web/src/lib/subscription.ts y que canEdit() en firestore.rules.
-//   none     → nunca se suscribió: puede diseñar, pero el escáner no funciona
+//   none     → borrador (draft), nunca pagó: diseña y ve la vista previa; sin QR, Wallet, escáner ni clientes
 //   full     → al día (activa o en prueba)
 //   grace    → falló un cobro, sigue todo funcionando hasta graceUntil
 //   blocked  → vencida: escáner pausado, panel en modo lectura
@@ -22,6 +22,7 @@ const ms = (t: Timestamp | undefined) => t?.toMillis() ?? 0;
 export function accessLevel(sub: Subscription | undefined, now = Date.now()): AccessLevel {
   switch (sub?.status) {
     case undefined:
+    case "draft":
       return "none";
     case "active":
       return "full";
@@ -40,3 +41,5 @@ export function accessLevel(sub: Subscription | undefined, now = Date.now()): Ac
 export const canOperate = (level: AccessLevel) => level === "full" || level === "grace";
 // El dueño puede editar diseño, regla y PIN.
 export const canEdit = (level: AccessLevel) => level !== "blocked" && level !== "archived";
+// Borrador: todavía no pagó, así que no hay QR ni tarjetas emitidas. La tarjeta de ejemplo de la landing no cuenta.
+export const isDraft = (b: Pick<BusinessDoc, "subscription" | "demo">) => !b.demo && accessLevel(b.subscription) === "none";

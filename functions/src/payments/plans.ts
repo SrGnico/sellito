@@ -1,16 +1,10 @@
-import { getFirestore } from "firebase-admin/firestore";
 import { HttpsError, onRequest } from "firebase-functions/v2/https";
 
-// Planes y precios: documento `config/plans` en Firestore (se edita desde la consola).
-// El precio se copia a la suscripción al suscribirse, así que cambiarlo solo afecta a las nuevas.
-//
-// {
-//   trialDays: 0,                       // > 0 activa la prueba gratis para los negocios nuevos
-//   plans: {
-//     monthly: { name: "Mensual", amount: 15000, currency: "ARS", frequency: 1, frequencyType: "months", active: true },
-//     annual:  { ..., frequency: 12, active: false }   // más adelante
-//   }
-// }
+// Precio del plan: se cambia acá (y se despliega). Es la única fuente: el checkout de Mercado Pago lo usa
+// y la landing y el panel lo leen de GET API_URL/plan. El precio se copia a la suscripción al
+// suscribirse, así que cambiarlo solo afecta a las nuevas.
+export const PLAN_PRICE_ARS = 25000;
+
 export type Plan = {
   name: string;
   amount: number;
@@ -20,31 +14,28 @@ export type Plan = {
   active: boolean;
 };
 
-export type PlansConfig = { trialDays?: number; plans?: Record<string, Plan> };
-
 export const DEFAULT_PLAN = "monthly";
 
-export async function loadPlans(): Promise<PlansConfig> {
-  const snap = await getFirestore().doc("config/plans").get();
-  return (snap.data() as PlansConfig | undefined) ?? {};
-}
+// Para sumar un plan anual más adelante: agregarlo acá con frequency: 12.
+const PLANS: Record<string, Plan> = {
+  monthly: { name: "Mensual", amount: PLAN_PRICE_ARS, currency: "ARS", frequency: 1, frequencyType: "months", active: true },
+};
 
-export async function loadPlan(planId: string): Promise<Plan> {
-  const plan = (await loadPlans()).plans?.[planId];
+export function loadPlan(planId: string): Plan {
+  const plan = PLANS[planId];
   if (!plan || !plan.active || !(plan.amount > 0)) {
     throw new HttpsError("failed-precondition", "plan");
   }
   return plan;
 }
 
-// GET API_URL/plan: el plan mensual para la landing y el panel. Público y cacheado en el CDN
-// (más rápido que leer Firestore desde el navegador).
+// GET API_URL/plan: el plan mensual para la landing y el panel. Público y cacheado en el CDN.
 export const plan = onRequest({ cors: true }, async (req, res) => {
   if (req.method !== "GET") {
     res.status(405).end();
     return;
   }
-  const p = (await loadPlans()).plans?.[DEFAULT_PLAN];
+  const p = PLANS[DEFAULT_PLAN];
   res.set("Cache-Control", "public, max-age=300, s-maxage=600");
   if (!p?.active) {
     res.status(404).json({ error: "not-found" });

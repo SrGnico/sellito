@@ -128,3 +128,27 @@
 .choice-group label { display: flex; align-items: center; gap: 10px; min-height: 32px; cursor: pointer; }
 .choice-group input[type="radio"] { width: 20px; height: 20px; accent-color: var(--green); flex-shrink: 0; }
 .h-with-icon { display: flex; align-items: center; gap: 8px; }
+
+/* ---------- Vista previa antes de activar (pages/Preview.tsx) ---------- */
+.preview-page { display: flex; flex-direction: column; gap: 24px; }
+.preview-phones { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
+.preview-phone { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 280px; max-width: 100%; }
+.preview-phone figcaption { font-size: var(--text-sm); color: var(--text-soft); font-weight: 500; }
+.preview-device { width: 100%; padding: 10px; background: #101a16; box-shadow: 0 0 0 2px #2b3a33, var(--shadow-lg); }
+.preview-iphone { border-radius: 46px; }
+.preview-android { border-radius: 30px; }
+.preview-screen {
+  min-height: 500px; padding: 0 12px 24px; overflow: hidden;
+  background: linear-gradient(160deg, #2f5546 0%, #12372A 55%, #0b241b 100%);
+}
+.preview-iphone .preview-screen { border-radius: 37px; }
+.preview-android .preview-screen { border-radius: 22px; }
+.preview-status { display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 0; color: #fff; font-size: 12px; font-weight: 600; }
+.preview-camera { background: #000; }
+.preview-iphone .preview-camera { width: 80px; height: 22px; border-radius: 12px; }
+.preview-android .preview-camera { width: 12px; height: 12px; border-radius: 50%; }
+.preview-status-icons { letter-spacing: -2px; font-size: 9px; }
+.preview-card { margin-top: 20px; }
+.preview-card .wallet-card { width: 100%; max-width: none; transform: none; box-shadow: 0 10px 30px rgba(0, 0, 0, .35); border-width: 0; font-size: 13px; }
+.preview-activate { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.preview-activate .btn { max-width: 100%; white-space: normal; }

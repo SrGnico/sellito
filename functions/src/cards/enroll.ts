@@ -5,7 +5,7 @@ import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { enrollMissing, type BusinessDoc, type CardDoc, type Customer } from "../types";
 import { StampImages } from "../images/stamps";
 import { saveUrl, upsertLoyaltyClass, upsertLoyaltyObject, walletKey } from "../wallet/google";
-import { accessLevel } from "../payments/access";
+import { accessLevel, isDraft } from "../payments/access";
 import { cardCodeSuffix, reserveCardCode } from "./codes";
 import { identityKeys, searchTokens } from "./search";
 import { clientIp, DAY, HOUR, rateLimit } from "../security/rateLimit";
@@ -25,6 +25,7 @@ function randomCode(): string {
 }
 
 // Asigna el código de alta al negocio si todavía no tiene (lo pide el panel del dueño).
+// En borrador no hay QR: se genera al activar (payments/state.ts).
 export const ensureEnrollCode = onCall({ enforceAppCheck: true }, async (req) => {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Iniciá sesión.");
@@ -32,15 +33,20 @@ export const ensureEnrollCode = onCall({ enforceAppCheck: true }, async (req) =>
   if (typeof businessId !== "string" || !/^[A-Za-z0-9]{1,40}$/.test(businessId)) {
     throw new HttpsError("invalid-argument", "Negocio inválido.");
   }
-  const bizRef = db().doc(`businesses/${businessId}`);
+  const b = (await db().doc(`businesses/${businessId}`).get()).data() as BusinessDoc | undefined;
+  if (!b || b.ownerUid !== uid) throw new HttpsError("permission-denied", "Este negocio no es tuyo.");
+  if (isDraft(b)) throw new HttpsError("failed-precondition", "draft");
+  return { code: await assignEnrollCode(businessId) };
+});
 
+// Devuelve el código de alta del negocio, creándolo si no tiene. Idempotente.
+export async function assignEnrollCode(businessId: string): Promise<string> {
+  const bizRef = db().doc(`businesses/${businessId}`);
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = randomCode();
     const result = await db().runTransaction(async (tx) => {
       const biz = await tx.get(bizRef);
-      if (!biz.exists || (biz.data() as BusinessDoc).ownerUid !== uid) {
-        throw new HttpsError("permission-denied", "Este negocio no es tuyo.");
-      }
+      if (!biz.exists) throw new HttpsError("not-found", "No encontramos este negocio.");
       const existing = (biz.data() as BusinessDoc).enrollCode;
       if (existing) return existing;
       const codeRef = db().doc(`enrollCodes/${code}`);
@@ -49,10 +55,10 @@ export const ensureEnrollCode = onCall({ enforceAppCheck: true }, async (req) =>
       tx.update(bizRef, { enrollCode: code });
       return code;
     });
-    if (result) return { code: result };
+    if (result) return result;
   }
   throw new HttpsError("internal", "No pudimos generar el código. Intentá de nuevo.");
-});
+}
 
 async function loadByCode(code: unknown): Promise<{ businessId: string; b: BusinessDoc }> {
   if (typeof code !== "string" || !new RegExp(`^[${CODE_ALPHABET}]{${CODE_LENGTH}}$`).test(code)) {
@@ -68,6 +74,7 @@ async function loadByCode(code: unknown): Promise<{ businessId: string; b: Busin
 
 // Datos públicos para la página de alta (SITE_URL/c/{código}). El cliente final no lee Firestore directo.
 function enrollInfoOf(b: BusinessDoc) {
+  if (isDraft(b)) return { ready: false, name: b.name }; // todavía no activó la tarjeta
   if (isPaused(b)) return { ready: false, paused: true, name: b.name };
   if (enrollMissing(b).length > 0) return { ready: false, name: b.name };
   return {
@@ -147,6 +154,7 @@ function cleanCustomer(input: unknown, ask: NonNullable<BusinessDoc["askFields"]
 // Alta de cliente: crea la tarjeta y devuelve el link para guardarla en el Wallet.
 export const createCard = onCall({ enforceAppCheck: true, secrets: [walletKey], memory: "512MiB" }, async (req) => {
   const { businessId, b } = await loadByCode(req.data?.code);
+  if (isDraft(b)) throw new HttpsError("failed-precondition", "El negocio todavía no activó su tarjeta.");
   if (isPaused(b)) throw new HttpsError("failed-precondition", "paused");
   if (enrollMissing(b).length > 0) {
     throw new HttpsError("failed-precondition", "El negocio todavía no terminó su tarjeta.");

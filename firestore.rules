@@ -35,6 +35,22 @@ service cloud.firestore {
         && (!('birthday' in data) || validBirthday(data.birthday));
     }
 
+    // Origen de campaña (web/src/lib/attribution.ts): solo al crear el negocio; después no se edita
+    // (no está en ownerEditableFields).
+    function validAttribution(a) {
+      return a.keys().hasOnly(['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'fbclid', 'fbc', 'fbp', 'landing', 'ua', 'at'])
+        && a.at == request.time
+        && (!('utm_source' in a) || (a.utm_source is string && a.utm_source.size() <= 200))
+        && (!('utm_medium' in a) || (a.utm_medium is string && a.utm_medium.size() <= 200))
+        && (!('utm_campaign' in a) || (a.utm_campaign is string && a.utm_campaign.size() <= 200))
+        && (!('utm_content' in a) || (a.utm_content is string && a.utm_content.size() <= 200))
+        && (!('fbclid' in a) || (a.fbclid is string && a.fbclid.size() <= 500))
+        && (!('fbc' in a) || (a.fbc is string && a.fbc.size() <= 600))
+        && (!('fbp' in a) || (a.fbp is string && a.fbp.size() <= 200))
+        && (!('landing' in a) || (a.landing is string && a.landing.size() <= 200))
+        && (!('ua' in a) || (a.ua is string && a.ua.size() <= 300));
+    }
+
     // Regalo de cumpleaños (functions/src/types.ts, BirthdayConfig).
     function validBirthday(c) {
       return c.keys().hasOnly(['enabled', 'when', 'reward', 'rewardText', 'notify'])
@@ -44,11 +60,11 @@ service cloud.firestore {
     }
 
     // Modo lectura con la suscripción vencida (misma lógica que functions/src/payments/access.ts):
-    // sin suscripción, activa, en prueba vigente o en gracia se puede editar; si no, no.
+    // sin suscripción, en borrador, activa, en prueba vigente o en gracia se puede editar; si no, no.
     function canEdit(data) {
       let sub = data.get('subscription', {});
       let status = sub.get('status', 'none');
-      return status == 'none' || status == 'active'
+      return status == 'none' || status == 'draft' || status == 'active'
         || (status == 'trial' && sub.get('trialEndsAt', request.time) > request.time)
         || (status == 'past_due' && sub.get('graceUntil', request.time) > request.time);
     }
@@ -60,8 +76,9 @@ service cloud.firestore {
       // `subscription`, `scannerPinHash`, `googleClassId`, `appleTemplateRef`, `enrollCode` no se aceptan desde el cliente.
       allow create: if signedIn()
         && request.resource.data.ownerUid == request.auth.uid
-        && request.resource.data.keys().hasOnly(ownerEditableFields().concat(['ownerUid']))
-        && validBusinessData(request.resource.data);
+        && request.resource.data.keys().hasOnly(ownerEditableFields().concat(['ownerUid', 'attribution']))
+        && validBusinessData(request.resource.data)
+        && (!('attribution' in request.resource.data) || validAttribution(request.resource.data.attribution));
 
       allow update: if signedIn()
         && resource.data.ownerUid == request.auth.uid
@@ -110,12 +127,6 @@ service cloud.firestore {
     // PassKit web service: solo Functions.
     match /appleRegistrations/{doc=**} {
       allow read, write: if false;
-    }
-
-    // Planes y precios (los edita el admin desde la consola). Lectura pública: la landing muestra el precio.
-    match /config/plans {
-      allow read: if true;
-      allow write: if false;
     }
 
     // Analítica por día (functions/src/analytics): solo la lee el superadmin.

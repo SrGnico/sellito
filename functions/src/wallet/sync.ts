@@ -8,7 +8,7 @@ import { upsertLoyaltyClass, walletKey } from "./google";
 
 // Cuando el dueño edita el diseño o la regla, se actualiza todo lo emitido en Google Wallet:
 // la clase (nombre, logo, color) y cada tarjeta (imagen de sellos, contador y premio).
-// Con la suscripción vencida no se toca el Wallet; al reactivar se sincroniza todo una vez.
+// En borrador o con la suscripción vencida no se toca el Wallet; al activar se sincroniza todo una vez.
 export const syncGoogleClass = onDocumentUpdated(
   { document: "businesses/{businessId}", secrets: [walletKey, ...appleSecrets], memory: "512MiB", timeoutSeconds: 300 },
   async (event) => {
@@ -17,10 +17,8 @@ export const syncGoogleClass = onDocumentUpdated(
     const after = event.data?.after.data() as BusinessDoc | undefined;
     if (!before || !after || enrollMissing(after).length > 0) return;
 
-    const operable = (b: BusinessDoc) => {
-      const level = accessLevel(b.subscription);
-      return level === "none" || canOperate(level);
-    };
+    // En borrador no hay nada emitido; al activar se sincroniza (y la clase la crea payments/state.ts).
+    const operable = (b: BusinessDoc) => b.demo === true || canOperate(accessLevel(b.subscription));
     if (!operable(after)) return;
     if (!operable(before)) {
       if (after.googleClassId) {

@@ -91,7 +91,7 @@ export default function Scanner() {
           </EmptyState>
         ) : phase.reason === 'no-subscription' ? (
           <EmptyState illustration="expired" title="El escáner todavía no está activo">
-            El dueño tiene que activar la suscripción desde el panel. Después, el escáner funciona solo.
+            El dueño tiene que activar la tarjeta desde el panel, en Vista previa. Después, el escáner funciona solo.
           </EmptyState>
         ) : phase.reason === 'no-card' ? (
           <EmptyState illustration="search" title="La tarjeta todavía no está lista">
